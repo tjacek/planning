@@ -2,10 +2,13 @@ import numpy as np
 import search
 
 class GridSearch(search.FowardSearch):
-    def __init__(self,grid):
+    def __init__(self,grid,gen_pairs=None):
         self.grid=grid
         self.states={}
         self.goal=None
+        if(not gen_pairs):
+            gen_pairs=four_direction
+        self.gen_pairs=gen_pairs	
 
     def __call__(self,start,end):
         if(self.grid[end[0]][end[1]]==1):
@@ -19,13 +22,8 @@ class GridSearch(search.FowardSearch):
 
     def next_state(self,state_i):
         pair_i=cantor_invert(state_i.id)
-        delta=[-1,0,1]
-        neigh=[ (pair_i[0]+x,pair_i[1]+y)
-                for x in delta
-                    for y in delta
-                        if(x!=0 and y!=0)]
         neigh=[ self.get_state(neig_i)
-                for neig_i in neigh
+                for neig_i in self.gen_pairs(pair_i)#neigh
                     if(self.valid(neig_i))]
         return neigh
 
@@ -59,6 +57,20 @@ class GridSearch(search.FowardSearch):
         text[text=='1']='#'
         return text	
 
+class AllDirections(object):
+    def __init__(self):
+        self.delta=[-1,0,1]
+    
+    def __call__(self,pair_i): 	
+        return [(pair_i[0]+x,pair_i[1]+y)
+                for x in self.delta
+                    for y in self.delta
+                        if(x!=0 and y!=0)]
+
+def four_direction(pair_i):
+    x,y=pair_i
+    return [(x+1,y),(x,y+1),(x-1,y),(x,y-1)]	
+
 def cantor_paring(k):
     return (k[0]+k[1])*(k[0]+k[1]+1)/2 + k[1]
 
@@ -79,16 +91,19 @@ def read_grid(in_path):
         text=text.astype(int)
         return GridSearch(text)
 
-def save_plan(grid_search,out_path):
+def save_plan(grid_search,out_path=None):
     grid=grid_search.get_grid()
     plan=grid_search.get_plan()
     for pair_i in plan:
         grid[pair_i]='@'
     text='\n'.join([''.join(row) 
     	                for row in grid])
-    with open(out_path, "w") as text_file:
-        text_file.write(text)
+    if(out_path):
+        with open(out_path, "w") as text_file:
+            text_file.write(text)
+    else:
+        print(text)	
 
 gs=read_grid("sample.txt")
-print(gs((0,0),(5,3)))
-save_plan(gs,"plan.txt")
+print(gs((0,0),(0,20)))
+save_plan(gs)#,"plan.txt")
