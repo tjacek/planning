@@ -53,6 +53,12 @@ class GridSearch(search.FowardSearch):
         path.reverse()
         return path
 
+    def get_grid(self):
+        text=self.grid.astype(str)
+        text[text=='0']='.'
+        text[text=='1']='#'
+        return text	
+
 def cantor_paring(k):
     return (k[0]+k[1])*(k[0]+k[1]+1)/2 + k[1]
 
@@ -73,6 +79,16 @@ def read_grid(in_path):
         text=text.astype(int)
         return GridSearch(text)
 
+def save_plan(grid_search,out_path):
+    grid=grid_search.get_grid()
+    plan=grid_search.get_plan()
+    for pair_i in plan:
+        grid[pair_i]='@'
+    text='\n'.join([''.join(row) 
+    	                for row in grid])
+    with open(out_path, "w") as text_file:
+        text_file.write(text)
+
 gs=read_grid("sample.txt")
 print(gs((0,0),(5,3)))
-print( gs.get_plan())
+save_plan(gs,"plan.txt")
