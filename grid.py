@@ -22,7 +22,8 @@ class GridSearch(search.FowardSearch):
         delta=[-1,0,1]
         neigh=[ (pair_i[0]+x,pair_i[1]+y)
                 for x in delta
-                    for y in delta]
+                    for y in delta
+                        if(x!=0 and y!=0)]
         neigh=[ self.get_state(neig_i)
                 for neig_i in neigh
                     if(self.valid(neig_i))]
@@ -43,6 +44,14 @@ class GridSearch(search.FowardSearch):
         	return False
         return self.grid[pair[0],pair[1]]==0
 
+    def get_plan(self):
+        path=[]
+        current=self.goal
+        while(current):
+            path.append(cantor_invert(current.id))
+            current=current.parent
+        path.reverse()
+        return path
 
 def cantor_paring(k):
     return (k[0]+k[1])*(k[0]+k[1]+1)/2 + k[1]
@@ -66,5 +75,4 @@ def read_grid(in_path):
 
 gs=read_grid("sample.txt")
 print(gs((0,0),(5,3)))
-#print(gs.valid((0,0)))
-#print(cantor_invert(cantor_paring((3,2))))
+print( gs.get_plan())
