@@ -1,3 +1,5 @@
+import queue
+
 class State(object):
     def __init__(self,state_id):
         self.id=state_id
@@ -5,8 +7,12 @@ class State(object):
         self.parent=None
 
 class FowardSearch(object):
+    def __init__(self,priority_queue=list):
+        self.priority_queue=priority_queue
+
     def __call__(self,x0):
-        Q=[x0]
+        Q=self.priority_queue()
+        Q.append(x0)
         x0.visited=True
         while(Q):
             x_i=Q.pop()
@@ -24,3 +30,16 @@ class FowardSearch(object):
 
     def next_state(self,state_i):
         raise NotImplemented()
+
+class FIFO(object):
+    def __init__(self):
+        self.q=queue.Queue()
+
+    def pop(self):
+        return self.q.get()
+
+    def append(self,value):
+        return self.q.put(value)
+
+    def __bool__(self):
+        return (not self.q.empty())

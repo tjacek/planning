@@ -2,7 +2,8 @@ import numpy as np
 import search
 
 class GridSearch(search.FowardSearch):
-    def __init__(self,grid,gen_pairs=None):
+    def __init__(self,grid,gen_pairs=None,queue=list):
+        super().__init__(queue)
         self.grid=grid
         self.states={}
         self.goal=None
@@ -89,7 +90,7 @@ def read_grid(in_path):
         text[text=='#']='1'
         text[text!='1']='0'
         text=text.astype(int)
-        return GridSearch(text)
+        return GridSearch(text,queue=search.FIFO)
 
 def save_plan(grid_search,out_path=None):
     grid=grid_search.get_grid()
