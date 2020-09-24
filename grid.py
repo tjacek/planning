@@ -58,6 +58,17 @@ class GridSearch(search.FowardSearch):
         text[text=='1']='#'
         return text	
 
+class DistanceHeuristic(object):
+    def __init__(self):
+        self.goal=None
+
+    def __call__(self,state_i):
+        if(not self.goal):
+            self.goal=cantor_invert(state_i.id)
+            return 0
+        pair_i=cantor_invert(state_i.id)
+        return sum([(x-y)**2 for x,y in zip(pair_i,self.goal)])
+
 class AllDirections(object):
     def __init__(self):
         self.delta=[-1,0,1]
@@ -70,7 +81,7 @@ class AllDirections(object):
 
 def four_direction(pair_i):
     x,y=pair_i
-    return [(x+1,y),(x,y+1),(x-1,y),(x,y-1)]	
+    return [(x+1,y),(x,y+1),(x-1,y),(x,y-1)]
 
 def cantor_paring(k):
     return (k[0]+k[1])*(k[0]+k[1]+1)/2 + k[1]
