@@ -67,7 +67,7 @@ class DistanceHeuristic(object):
             self.goal=cantor_invert(state_i.id)
             return 0
         pair_i=cantor_invert(state_i.id)
-        return sum([(x-y)**2 for x,y in zip(pair_i,self.goal)])
+        return sum([np.abs(x-y) for x,y in zip(pair_i,self.goal)])
 
 class AllDirections(object):
     def __init__(self):
@@ -101,7 +101,8 @@ def read_grid(in_path):
         text[text=='#']='1'
         text[text!='1']='0'
         text=text.astype(int)
-        return GridSearch(text,queue=search.FIFO)
+        q=lambda :search.BestFirst(DistanceHeuristic())
+        return GridSearch(text,queue=q)
 
 def save_plan(grid_search,out_path=None):
     grid=grid_search.get_grid()

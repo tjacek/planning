@@ -1,3 +1,4 @@
+import numpy as np
 import queue
 
 class State(object):
@@ -5,6 +6,7 @@ class State(object):
         self.id=state_id
         self.visited=False
         self.parent=None
+        self.cost=np.inf
 
 class FowardSearch(object):
     def __init__(self,priority_queue=list):
@@ -43,3 +45,20 @@ class FIFO(object):
 
     def __bool__(self):
         return (not self.q.empty())
+
+class BestFirst(object):
+    def __init__(self,heuristic):
+        self.heuristic=heuristic
+        self.states=[]
+        self.comp=lambda x:x.cost
+    
+    def pop(self):
+        self.states.sort(key=self.comp,reverse=True)
+        return self.states.pop()
+
+    def append(self,state_i):
+        state_i.cost=self.heuristic(state_i)
+        self.states.append(state_i)
+
+    def __bool__(self):
+        return bool(self.states)
