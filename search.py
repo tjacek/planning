@@ -9,9 +9,10 @@ class State(object):
         self.cost=np.inf
 
 class FowardSearch(object):
-    def __init__(self,priority_queue=None):
+    def __init__(self,problem,priority_queue=None):
         if(priority_queue is None):
             priority_queue=[]
+        self.problem=problem
         self.priority_queue=priority_queue
 
     def __call__(self,x0):
@@ -20,20 +21,15 @@ class FowardSearch(object):
         x0.visited=True
         while(Q):
             x_i=Q.pop()
-            if(self.is_goal(x_i)):
+            if(self.problem.is_goal(x_i)):
                 return True
-            for x_j in self.next_state(x_i):
+            for x_j in self.problem.next_state(x_i):
                 if(not x_j.visited):
                     x_j.parent=x_i
                     x_j.visited=True
                     Q.append(x_j)
         return False
 
-    def is_goal(self,state_i):
-        raise NotImplemented()
-
-    def next_state(self,state_i):
-        raise NotImplemented()
 
 class FIFO(object):
     def __init__(self):

@@ -23,25 +23,15 @@ class Grid(object):
         text[text=='1']='#'
         return text		
 
-class GridSearch(search.FowardSearch):
+class GridStates(object):
     def __init__(self,grid,queue=None,gen_pairs=None,):
-        super().__init__(queue)
         self.grid=grid
         self.states={}
         self.goal=None
         if(not gen_pairs):
             gen_pairs=four_direction
-        self.gen_pairs=gen_pairs	
-
-    def __call__(self,start,end):
-        if(self.grid[end[0]][end[1]]==1):
-            return False	
-        self.goal=self.get_state(end)
-        start=self.get_state(start)
-        if(hasattr(self.priority_queue, 'set_goal')):
-            self.priority_queue.set_goal(self.goal)
-        return super().__call__(start)	
-
+        self.gen_pairs=gen_pairs    	
+    
     def is_goal(self,state_i):
         return self.goal.id==state_i.id
 
@@ -58,9 +48,22 @@ class GridSearch(search.FowardSearch):
             self.states[state_id]=search.State(state_id)
         return self.states[state_id]
     
+class GridSearch(search.FowardSearch):
+    def __init__(self,grid,queue=None,gen_pairs=None,):
+        super().__init__(GridStates(grid,gen_pairs),queue)
+
+    def __call__(self,start,end):
+        if(self.problem.grid[end]):
+            return False	
+        self.problem.goal=self.problem.get_state(end)
+        start=self.problem.get_state(start)
+        if(hasattr(self.priority_queue, 'set_goal')):
+            self.priority_queue.set_goal(self.problem.goal)
+        return super().__call__(start)	
+    
     def get_plan(self):
         path=[]
-        current=self.goal
+        current=self.problem.goal
         while(current):
             path.append(cantor_invert(current.id))
             current=current.parent
@@ -107,7 +110,7 @@ def read_grid(in_path):
         return Grid(text)#GridSearch(text,queue=q)
 
 def save_plan(grid_search,out_path=None):
-    grid=grid_search.grid.get_grid()
+    grid=grid_search.problem.grid.get_grid()
     plan=grid_search.get_plan()
     for pair_i in plan:
         grid[pair_i]='@'
@@ -124,4 +127,3 @@ q=search.BestFirst(distance_heuristic)
 gs=GridSearch(gs,q)
 print(gs((0,0),(0,20)))
 save_plan(gs)#,"plan.txt")
-print(len(gs.states))
