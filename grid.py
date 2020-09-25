@@ -1,6 +1,28 @@
 import numpy as np 
 import search
 
+class Grid(object):
+    def __init__(self, grid):
+        self.grid = grid
+
+    def __getitem__(self,key):
+        return self.grid[key]	
+
+    def valid(self,pair):
+        if(pair[0]<0 or pair[1]<0):
+            return False
+        bound=[ value>=bound  
+        	        for value,bound in zip(pair,self.grid.shape)]
+        if(any(bound)):
+        	return False
+        return self.grid[pair[0],pair[1]]==0
+	
+    def get_grid(self):
+        text=self.grid.astype(str)
+        text[text=='0']='.'
+        text[text=='1']='#'
+        return text		
+
 class GridSearch(search.FowardSearch):
     def __init__(self,grid,gen_pairs=None,queue=list):
         super().__init__(queue)
@@ -25,7 +47,7 @@ class GridSearch(search.FowardSearch):
         pair_i=cantor_invert(state_i.id)
         neigh=[ self.get_state(neig_i)
                 for neig_i in self.gen_pairs(pair_i)#neigh
-                    if(self.valid(neig_i))]
+                    if(self.grid.valid(neig_i))]
         return neigh
 
     def get_state(self, pair):
@@ -34,15 +56,6 @@ class GridSearch(search.FowardSearch):
             self.states[state_id]=search.State(state_id)
         return self.states[state_id]
     
-    def valid(self,pair):
-        if(pair[0]<0 or pair[1]<0):
-            return False
-        bound=[ value>=bound  
-        	        for value,bound in zip(pair,self.grid.shape)]
-        if(any(bound)):
-        	return False
-        return self.grid[pair[0],pair[1]]==0
-
     def get_plan(self):
         path=[]
         current=self.goal
@@ -51,12 +64,6 @@ class GridSearch(search.FowardSearch):
             current=current.parent
         path.reverse()
         return path
-
-    def get_grid(self):
-        text=self.grid.astype(str)
-        text[text=='0']='.'
-        text[text=='1']='#'
-        return text	
 
 class DistanceHeuristic(object):
     def __init__(self):
@@ -101,11 +108,10 @@ def read_grid(in_path):
         text[text=='#']='1'
         text[text!='1']='0'
         text=text.astype(int)
-        q=lambda :search.BestFirst(DistanceHeuristic())
-        return GridSearch(text,queue=q)
+        return Grid(text)#GridSearch(text,queue=q)
 
 def save_plan(grid_search,out_path=None):
-    grid=grid_search.get_grid()
+    grid=grid_search.grid.get_grid()
     plan=grid_search.get_plan()
     for pair_i in plan:
         grid[pair_i]='@'
@@ -118,5 +124,7 @@ def save_plan(grid_search,out_path=None):
         print(text)	
 
 gs=read_grid("sample.txt")
+q=lambda :search.BestFirst(DistanceHeuristic())
+gs=GridSearch(gs)
 print(gs((0,0),(0,20)))
 save_plan(gs)#,"plan.txt")
