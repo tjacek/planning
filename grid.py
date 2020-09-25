@@ -24,7 +24,7 @@ class Grid(object):
         return text		
 
 class GridSearch(search.FowardSearch):
-    def __init__(self,grid,gen_pairs=None,queue=list):
+    def __init__(self,grid,queue=None,gen_pairs=None,):
         super().__init__(queue)
         self.grid=grid
         self.states={}
@@ -38,6 +38,8 @@ class GridSearch(search.FowardSearch):
             return False	
         self.goal=self.get_state(end)
         start=self.get_state(start)
+        if(hasattr(self.priority_queue, 'set_goal')):
+            self.priority_queue.set_goal(self.goal)
         return super().__call__(start)	
 
     def is_goal(self,state_i):
@@ -65,16 +67,10 @@ class GridSearch(search.FowardSearch):
         path.reverse()
         return path
 
-class DistanceHeuristic(object):
-    def __init__(self):
-        self.goal=None
-
-    def __call__(self,state_i):
-        if(not self.goal):
-            self.goal=cantor_invert(state_i.id)
-            return 0
-        pair_i=cantor_invert(state_i.id)
-        return sum([np.abs(x-y) for x,y in zip(pair_i,self.goal)])
+def distance_heuristic(state_i,goal):
+    pair_i=cantor_invert(state_i.id)
+    goal=cantor_invert(state_i.id)   
+    return sum([np.abs(x-y) for x,y in zip(pair_i,goal)])
 
 class AllDirections(object):
     def __init__(self):
@@ -124,7 +120,8 @@ def save_plan(grid_search,out_path=None):
         print(text)	
 
 gs=read_grid("sample.txt")
-q=lambda :search.BestFirst(DistanceHeuristic())
-gs=GridSearch(gs)
+q=search.BestFirst(distance_heuristic)
+gs=GridSearch(gs,q)
 print(gs((0,0),(0,20)))
 save_plan(gs)#,"plan.txt")
+print(len(gs.states))

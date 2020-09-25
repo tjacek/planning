@@ -9,11 +9,13 @@ class State(object):
         self.cost=np.inf
 
 class FowardSearch(object):
-    def __init__(self,priority_queue=list):
+    def __init__(self,priority_queue=None):
+        if(priority_queue is None):
+            priority_queue=[]
         self.priority_queue=priority_queue
 
     def __call__(self,x0):
-        Q=self.priority_queue()
+        Q=self.priority_queue
         Q.append(x0)
         x0.visited=True
         while(Q):
@@ -50,14 +52,18 @@ class BestFirst(object):
     def __init__(self,heuristic):
         self.heuristic=heuristic
         self.states=[]
+        self.goal=None
         self.comp=lambda x:x.cost
     
+    def set_goal(self,goal):
+        self.goal=goal
+
     def pop(self):
-        self.states.sort(key=self.comp,reverse=True)
+        self.states.sort(key=self.comp,reverse=False)
         return self.states.pop()
 
     def append(self,state_i):
-        state_i.cost=self.heuristic(state_i)
+        state_i.cost=self.heuristic(state_i,self.goal)
         self.states.append(state_i)
 
     def __bool__(self):
