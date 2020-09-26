@@ -30,7 +30,6 @@ class FowardSearch(object):
                     Q.append(x_j)
         return False
 
-
 class FIFO(object):
     def __init__(self):
         self.q=queue.Queue()
@@ -64,3 +63,23 @@ class BestFirst(object):
 
     def __bool__(self):
         return bool(self.states)
+
+class Dijkstra(object):
+    def __init__(self):
+        self.states=[]
+        self.last=None
+        self.comp=lambda x:x.cost
+
+    def pop(self):
+        self.states.sort(key=self.comp,reverse=False)
+        self.last=self.states.pop()
+        return self.last
+
+    def append(self,state_i):
+        if(self.last):
+            cost_ij=self.last.cost+1
+            if(cost_ij<state_i.cost):
+                state_i.cost=cost_ij
+        else:
+            state_i.cost=0
+        self.states.append(state_i)
