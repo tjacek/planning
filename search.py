@@ -84,6 +84,9 @@ class Dijkstra(object):
             state_i.cost=0
         self.states.append(state_i)
 
+    def __bool__(self):
+        return bool(self.states)
+
 class AStar(Dijkstra):
     def __init__(self, heuristic):
         self.heuristic=heuristic
@@ -94,3 +97,23 @@ class AStar(Dijkstra):
             g_i=self.heuristic(state_i,goal)
             return state_i.cost+g_i
         self.comp=cost_fun
+
+class Iterative(object):
+    def __init__(self):
+        self.current=None#[]
+        self.next=[]
+
+    def pop(self):
+        if(not self.current):
+            self.current=self.next
+            self.next=[]
+        return self.current.pop()
+
+    def append(self,state_i):
+        if(self.current is None):
+            self.current=[state_i]
+        else:
+            self.next.append(state_i)
+
+    def __bool__(self):
+        return bool(self.current) or bool(self.next)
