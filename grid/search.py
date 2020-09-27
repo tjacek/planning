@@ -36,7 +36,12 @@ def save_plan(grid_search,out_path=None):
     else:
         print(text)
 
-def get_grid(in_path):
+def get_grid(in_path,grid_type=None):
     gs=grid.read_grid(in_path)
-    q=search.BestFirst(grid.states.distance_heuristic)
+    if(grid_type=="best"):
+        q=search.BestFirst(grid.states.distance_heuristic)
+    elif(grid_type=="a_star"):
+        q=search.AStar(grid.states.distance_heuristic) 
+    else:
+        q=search.Dijkstra()
     return GridSearch(gs,q)

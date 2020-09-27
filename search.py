@@ -54,7 +54,7 @@ class BestFirst(object):
         self.goal=goal
 
     def pop(self):
-        self.states.sort(key=self.comp,reverse=False)
+        self.states.sort(key=self.comp,reverse=True)
         return self.states.pop()
 
     def append(self,state_i):
@@ -71,7 +71,7 @@ class Dijkstra(object):
         self.comp=lambda x:x.cost
 
     def pop(self):
-        self.states.sort(key=self.comp,reverse=False)
+        self.states.sort(key=self.comp,reverse=True)
         self.last=self.states.pop()
         return self.last
 
@@ -83,3 +83,14 @@ class Dijkstra(object):
         else:
             state_i.cost=0
         self.states.append(state_i)
+
+class AStar(Dijkstra):
+    def __init__(self, heuristic):
+        self.heuristic=heuristic
+        super().__init__()
+
+    def set_goal(self,goal):
+        def cost_fun(state_i):
+            g_i=self.heuristic(state_i,self.goal)
+            return state_i.cost+g_i
+        self.goal=cost_fun
