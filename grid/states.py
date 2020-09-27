@@ -28,7 +28,7 @@ class GridStates(object):
 
 def distance_heuristic(state_i,goal):
     pair_i=cantor_invert(state_i.id)
-    goal=cantor_invert(state_i.id)   
+    goal=cantor_invert(goal.id)
     return sum([np.abs(x-y) for x,y in zip(pair_i,goal)])
 
 class AllDirections(object):

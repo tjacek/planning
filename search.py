@@ -91,6 +91,6 @@ class AStar(Dijkstra):
 
     def set_goal(self,goal):
         def cost_fun(state_i):
-            g_i=self.heuristic(state_i,self.goal)
+            g_i=self.heuristic(state_i,goal)
             return state_i.cost+g_i
-        self.goal=cost_fun
+        self.comp=cost_fun
