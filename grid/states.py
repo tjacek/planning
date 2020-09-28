@@ -1,5 +1,5 @@
 import numpy as np
-import search
+import foward
 
 class GridStates(object):
     def __init__(self,grid,queue=None,gen_pairs=None,):
@@ -23,7 +23,7 @@ class GridStates(object):
     def get_state(self, pair):
         state_id=cantor_paring(pair)
         if(not state_id in self.states):
-            self.states[state_id]=search.State(state_id)
+            self.states[state_id]=foward.State(state_id)
         return self.states[state_id]
 
 def distance_heuristic(state_i,goal):

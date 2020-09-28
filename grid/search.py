@@ -1,22 +1,26 @@
-import search,grid
+import foward,grid
 import grid.states as states
 
-class GridSearch(search.FowardSearch):
-    def __init__(self,grid,queue=None,gen_pairs=None,):
-        super().__init__(states.GridStates(grid,gen_pairs),queue)
+class GridSearch(object):
+    def __init__(self,grid,queue=None,gen_pairs=None,
+                search_type=None):
+        self.grid=states.GridStates(grid,gen_pairs)
+        if(search_type is None):
+            search_type=foward.FowardSearch
+        self.search=search_type(self.grid,queue)
 
     def __call__(self,start,end):
-        if(self.problem.grid[end]):
+        if(self.grid.grid[end]):
             return False	
-        self.problem.goal=self.problem.get_state(end)
-        start=self.problem.get_state(start)
-        if(hasattr(self.priority_queue, 'set_goal')):
-            self.priority_queue.set_goal(self.problem.goal)
-        return super().__call__(start)	
+        self.grid.goal=self.grid.get_state(end)
+        start=self.grid.get_state(start)
+        if(hasattr(self.search.priority_queue, 'set_goal')):
+            self.search.priority_queue.set_goal(self.grid.goal)
+        return self.search(start)	
     
     def get_plan(self):
         path=[]
-        current=self.problem.goal
+        current=self.grid.goal
         while(current):
             path.append(states.cantor_invert(current.id))
             current=current.parent
@@ -24,7 +28,7 @@ class GridSearch(search.FowardSearch):
         return path
 
 def save_plan(grid_search,out_path=None):
-    grid=grid_search.problem.grid.get_grid()
+    grid=grid_search.grid.grid.get_grid()
     plan=grid_search.get_plan()
     for pair_i in plan:
         grid[pair_i]='@'
@@ -41,13 +45,13 @@ def get_grid(in_path,grid_type=None):
     if(grid_type=="depth"):
         q=None	
     elif(grid_type=="breadth"):
-        q=search.FIFO()	
+        q=foward.FIFO()	
     elif(grid_type=="best"):
-        q=search.BestFirst(grid.states.distance_heuristic)
+        q=foward.BestFirst(grid.states.distance_heuristic)
     elif(grid_type=="a_star"):
-        q=search.AStar(grid.states.distance_heuristic) 
+        q=foward.AStar(grid.states.distance_heuristic) 
     elif(grid_type=="iter"):
-        q=search.Iterative()
+        q=foward.Iterative()
     else:
-        q=search.Dijkstra()
+        q=foward.Dijkstra()
     return GridSearch(gs,q)
