@@ -15,7 +15,11 @@ class Operator(object):
         literals=[ pred_i(instances)==cond_i 
                     for pred_i,cond_i self.precondition.items()]
         return all(literals)
-        
+
+    def apply(self,instances):
+        [ effect_i(instances) 
+    	    for effect_i in self.effects]
+
 class Predictate(object):
     def __init__(self,args,fun):
         self.args=args
