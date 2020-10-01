@@ -1,9 +1,10 @@
 class STRIPS(object):
-    def __init__(self,instances,init,
-    	         operators,goal):
+    def __init__(self,instances,predicates,operators,
+    	            init,goal):
         self.instances=instances
-        self.init=init
+        self.predicates=predicates
         self.operators=operators
+        self.init=init
         self.goal=goal
 
 class Operator(object):
@@ -21,11 +22,29 @@ class Operator(object):
     	    for effect_i in self.effects]
 
 class Predictate(object):
-    def __init__(self,args,fun):
-        self.args=args
-        self.fun=fun
+	def __init__(self,valid_args,fun,arity=2):
+		self.valid_args=valid_args
+		self.arity=arity
+		self.fun=fun
 
-    def __call__(self,instances):
-    	arg_values=[instances[arg_i]  
-    	                for arg_i in self.args]
-        return self.fun(*arg_values)	
+	def get_args(self,instances):
+		return self.valid_args(instances,self.arity)
+
+    def __call__(self,args,instances):
+		arg_values=[instances[arg_i]  
+					for arg_i in self.args]
+		return self.fun(*arg_values)
+
+class ValidArgs(object):
+	def __init__(self,types):
+		self.types=[set(type_i) for type_i in types]
+
+	def __call__(self,instances,arity):
+		pairs=[[name_j
+				for name_j,inst_j in instances.items()
+		           if( type(inst_j) in type_i)]
+					for i in range(arity)]
+
+def get_predictate(fun,arg_types):
+	arity=len(arg_types)
+	return Predictate(ValidArgs(arg_types),fun,arity)

@@ -17,8 +17,8 @@ def On(cap,flashlight):
     return flashlight.cap==cap
 
 def In(battery,flashlight):
-    return any([ battery==bat_i 
-              for bat_i in flashlight.batteries])
+	return any([ battery==bat_i 
+				for bat_i in flashlight.batteries])
 
 def place_cap(cap,flashlight):
 	cap.flashlight=flashlight
@@ -29,5 +29,11 @@ def remove_cap(cap,flashlight):
 	flashlight.cap=None
 
 def insert(battery,flashlight):
-    flashlight.batteries.append(flashlight)
-    battery.container=flashlight
+	flashlight.batteries.append(flashlight)
+	battery.container=flashlight
+
+def make_world():
+	instances={"Battery1":Battery(),"Battery2":Battery(),
+				"Cap":Cap(),"Flashlight":Flashlight()}
+    predicates={"ON":[On,[Cap,Flashlight]],
+                "IN":[In,[Battery,Flashlight]]}
