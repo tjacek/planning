@@ -2,7 +2,7 @@ import numpy as np
 import foward
 
 class GridStates(object):
-    def __init__(self,grid,queue=None,gen_pairs=None,):
+    def __init__(self,grid,gen_pairs=None,):
         self.grid=grid
         self.states={}
         self.goal=None
