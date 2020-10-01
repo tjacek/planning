@@ -1,50 +1,59 @@
-class STRIPS(object):
-    def __init__(self,instances,predicates,operators,
-    	            init,goal):
-        self.instances=instances
-        self.predicates=predicates
-        self.operators=operators
-        self.init=init
-        self.goal=goal
+import re
+
+class World(object):
+	def __init__(self,literals,S,G,operators):
+		self.literals=literals
+		self.init=S
+		self.goal=G
+		self.operators=operators
+
+	def get_state(self):
+		names=list(self.literals.keys())
+		names.sort()
+		values=[ self.literals[name_i].value  
+					for name_i in names]
+		values=[ str(int(value_i)) 
+				for value_i in values]
+		return "".join(values)    
+
+class Literal(object):
+	def __init__(self,name,value=False):
+		self.name=name
+		self.value=value
 
 class Operator(object):
-    def __init__(self,precondition,effects):
-        self.precondition=precondition
-        self.effects=effects
+	def __init__(self,precondition,effects):
+		self.precondition=precondition
+		self.effects=effects
+		
+def parse_word(S,G,raw_operators):
+	literals=[parse_literal(s_i) for s_i in S]
+	literals={ literal_i.name:literal_i 
+	                for literal_i in literals}
+	operators=[parse_operator(operator_i,literals) 
+				for operator_i in raw_operators]
+	return World(literals,S,G,operators)
 
-    def applicable(self,instances):
-        literals=[ pred_i(instances)==cond_i 
-                    for pred_i,cond_i self.precondition.items()]
-        return all(literals)
+def parse_operator(raw_operator,literals):
+	condition,effects=[],[]
+	operator_helper(raw_operator[0],condition,literals)
+	operator_helper(raw_operator[1],effects,literals)
+	return Operator(condition,effects)
 
-    def apply(self,instances):
-        [ effect_i(instances) 
-    	    for effect_i in self.effects]
+def operator_helper(in_i,out_i,literals):
+	for raw_j in in_i:
+		name_j,value_j=get_name(raw_j)
+		if(not name_j in literals):
+			literals[name_j]=Literal(name_j,False)
+		out_i.append((name_j,value_j))
 
-class Predictate(object):
-	def __init__(self,valid_args,fun,arity=2):
-		self.valid_args=valid_args
-		self.arity=arity
-		self.fun=fun
+def parse_literal(raw_i):
+	name_i,value_i=get_name(raw_i)
+	return Literal(name_i,value_i)
 
-	def get_args(self,instances):
-		return self.valid_args(instances,self.arity)
-
-    def __call__(self,args,instances):
-		arg_values=[instances[arg_i]  
-					for arg_i in self.args]
-		return self.fun(*arg_values)
-
-class ValidArgs(object):
-	def __init__(self,types):
-		self.types=[set(type_i) for type_i in types]
-
-	def __call__(self,instances,arity):
-		pairs=[[name_j
-				for name_j,inst_j in instances.items()
-		           if( type(inst_j) in type_i)]
-					for i in range(arity)]
-
-def get_predictate(fun,arg_types):
-	arity=len(arg_types)
-	return Predictate(ValidArgs(arg_types),fun,arity)
+def get_name(raw_i):
+	name_i=re.sub(r'\s+','',raw_i.strip())
+	if(re.search("~\S+",name_i)):
+		name_i=name_i.replace("~","")
+		return name_i,False
+	return name_i,True
