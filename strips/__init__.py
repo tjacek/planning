@@ -18,13 +18,20 @@ class World(object):
 				for value_i in values]
 		return "".join(values)
 
-	def is_goal(self,state_i):
+	def check_state(self,state_i,precondition):
 		values=[]
-		for name_i,cond_i in self.goal:
+		for name_i,cond_i in precondition:
 			k=self.ordering[name_i]
 			value_i=bool(int(state_i[k]))==cond_i
 			values.append(value_i)
 		return all(values)
+
+	def new_state(self,state_i,effects):
+		new_state=list(state_i)
+		for name_i,value_i in effects:
+			k=self.ordering[name_i]
+			new_state[k]=str(int(value_i))
+		return "".join(new_state)
 
 class Literal(object):
 	def __init__(self,name,value=False):
@@ -35,7 +42,7 @@ class Operator(object):
 	def __init__(self,precondition,effects):
 		self.precondition=precondition
 		self.effects=effects
-		
+
 def parse_word(S,G,raw_operators):
 	literals=[parse_literal(s_i) for s_i in S]
 	literals={ literal_i.name:literal_i 
