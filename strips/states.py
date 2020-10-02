@@ -37,3 +37,12 @@ class StripsSearch(object):
 
 	def __call__(self):
 		return self.search(self.world.get_first())
+
+	def get_plan(self):
+		state_i=self.search.goal_state
+		plan=[]
+		while(state_i.parent):
+			plan.append(state_i.id)
+			state_i=state_i.parent
+		plan.reverse()
+		return plan

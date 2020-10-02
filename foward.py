@@ -14,6 +14,7 @@ class FowardSearch(object):
             priority_queue=[]
         self.problem=problem
         self.priority_queue=priority_queue
+        self.goal_state=None
 
     def __call__(self,x0):
         Q=self.priority_queue
@@ -22,6 +23,7 @@ class FowardSearch(object):
         while(Q):
             x_i=Q.pop()
             if(self.problem.is_goal(x_i)):
+                self.goal_state=x_i
                 return True
             for x_j in self.problem.next_state(x_i):
                 if(not x_j.visited):
