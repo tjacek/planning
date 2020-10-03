@@ -41,7 +41,7 @@ class StripsSearch(object):
 	def get_plan(self):
 		state_i=self.search.goal_state
 		plan=[]
-		while(state_i.parent):
+		while(state_i):
 			plan.append(state_i.id)
 			state_i=state_i.parent
 		plan.reverse()
