@@ -12,6 +12,12 @@ class Polygon(object):
     def __len__(self):
         return self.vertices.shape[0]
 
+    def get_segments(self):
+        segments=[ [self.vertices[i],self.vertices[i+1]] 
+                    for i in range(len(self)-1)]
+        segments.append([self.vertices[-1],self.vertices[0]])
+        return segments
+
     def __call__(self,point):
         size=len(self)
         cord=[(i,i+1) for i in range(size-1)]
@@ -70,5 +76,28 @@ def read_polygons(in_path):
         polygons.append(Polygon(np.array(vertices)))
     return polygons
 
+def is_simple(polygon):
+    segments=polygon.get_segments()
+    for i,seg_i in enumerate(segments):
+        for seg_j in segments[i+1:]:
+            if(seq_intersection(seg_i,seg_j)):
+                return False
+    return True
+
+def seq_intersection(seg_i,seg_j):
+    A,B=seg_i 
+    C,D=seg_j
+    p,q,r=A-C,B-A,D-C
+    if(q[0]*r[1] - q[1]*r[0]):
+        t = (q[1]*p[0] - q[0]*p[1])/(q[0]*r[1] - q[1]*r[0]) 
+    else:
+        t=(q[1]*p[0] - q[0]*p[1])
+    if(q[0]!=0):
+        u = (p[0] + t*r[0])/q[0]
+    else:
+        u=(p[1] + t*r[1])/q[1]
+    return t>0 and t<=1 and u>=0 and u<=1
+
 polygons=read_polygons("polygons.txt")
-plot_polygon(polygons)
+plot_polygon(polygons[1:])
+print(is_simple(polygons[-1]))
