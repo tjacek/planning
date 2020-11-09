@@ -1,5 +1,8 @@
 import numpy as np 
 import matplotlib.pyplot as plt
+import matplotlib.patches
+from matplotlib.collections import PatchCollection
+import matplotlib.pyplot as plt
 
 class Polygon(object):
     def __init__(self,vertices):
@@ -42,24 +45,24 @@ class HalfPlane(object):
         f=np.sum(self.coff[:-1]*point)
         return (f+self.coff[-1])>0.0
 
-def plot_polygon(polygon,n=100,scale=100):
-    points=scale*np.random.random_sample((n,2))
-    points=[ point_i
-                for point_i in points
-                    if(polygon(point_i))]
-    print(len(points))
-    plt.figure()
-    ax = plt.subplot(111)
-    points=np.array(points)
-    plt.scatter(points[:,0],points[:,1])
+def plot_polygon(polygons):#,n=100,scale=100):
+    if(type(polygons)!=list):
+        polygons=[polygons]
+    patches=[matplotlib.patches.Polygon(polygon_i.vertices) 
+                for polygon_i in polygons]
+    p = PatchCollection(patches, cmap=matplotlib.cm.jet, alpha=0.4)
+    fig, ax = plt.subplots()
+    ax.set_xlim([0.0,5.0])
+    ax.set_ylim([0.0,5.0])
+    ax.add_collection(p)
     plt.show()
 
-#vertices=np.array([[-1,1],[0,0],[1,1],[1,-1],[-1,-1]])
-
 vertices=np.array([[-1,1],[1,1],[1,-1],[-1,-1]])
-polygon=Polygon(vertices)
-print(polygon(np.array([100.0,-0.5])))
+polygon1=Polygon(vertices)
+polygon2=Polygon( np.array([[2,2],[2,3],[3,3],[3,2]]))
+
+#print(polygon(np.array([100.0,-0.5])))
 #a=[ HalfPlane(1.0,1.0,1.0),HalfPlane(1.0,1.0,-1.0),
 #    HalfPlane(-1.0,1.0,1.0),HalfPlane(-1.0,1.0,-1.0)]
 #polygon=ConvexPolygon(a)
-#plot_polygon(polygon,n=1000)
+plot_polygon([polygon1,polygon2])
