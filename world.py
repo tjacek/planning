@@ -1,4 +1,5 @@
-import numpy as np 
+import numpy as np
+import re 
 import matplotlib.pyplot as plt
 import matplotlib.patches
 from matplotlib.collections import PatchCollection
@@ -22,7 +23,6 @@ class Polygon(object):
             b_i=self.vertices[cord_i[0]]
             e_i=self.vertices[cord_i[1]]
             cross_i=(b_i[0]<=x and e_i[0]>=x) or (e_i[0]<=x and b_i[0]>=x)
-#x < ((xj - xi) * (y - yi) / (yj - yi) + xi)
             left_i= x<((e_i[0]-b_i[0])*(y-b_i[1])/(e_i[1]-b_i[1]) +b_i[0])
             if(cord_i and left_i):
                 inside=not inside
@@ -57,12 +57,18 @@ def plot_polygon(polygons):#,n=100,scale=100):
     ax.add_collection(p)
     plt.show()
 
-vertices=np.array([[-1,1],[1,1],[1,-1],[-1,-1]])
-polygon1=Polygon(vertices)
-polygon2=Polygon( np.array([[2,2],[2,3],[3,3],[3,2]]))
+def read_polygons(in_path):
+    lines=open(in_path,'r').readlines()
+    bracket=re.compile("\\[(.*?)\\]")
+    polygons=[]
+    for line_i in lines:
+        line_i=line_i.strip()
+        line_i=re.findall(bracket,line_i)
+        vertices=[[float(cord_k) 
+                    for cord_k in tuple_j.split(",")]
+                        for tuple_j in line_i]
+        polygons.append(Polygon(np.array(vertices)))
+    return polygons
 
-#print(polygon(np.array([100.0,-0.5])))
-#a=[ HalfPlane(1.0,1.0,1.0),HalfPlane(1.0,1.0,-1.0),
-#    HalfPlane(-1.0,1.0,1.0),HalfPlane(-1.0,1.0,-1.0)]
-#polygon=ConvexPolygon(a)
-plot_polygon([polygon1,polygon2])
+polygons=read_polygons("polygons.txt")
+plot_polygon(polygons)
