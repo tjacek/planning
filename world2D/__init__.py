@@ -97,7 +97,3 @@ def seq_intersection(seg_i,seg_j):
     else:
         u=(p[1] + t*r[1])/q[1]
     return t>0 and t<=1 and u>=0 and u<=1
-
-polygons=read_polygons("polygons.txt")
-plot_polygon(polygons[1:])
-print(is_simple(polygons[-1]))
