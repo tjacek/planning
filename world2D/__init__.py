@@ -12,6 +12,9 @@ class Polygon(object):
     def __len__(self):
         return self.vertices.shape[0]
 
+    def __getitem__(self, key):
+        return self.vertices[key]
+
     def get_segments(self):
         segments=[ [self.vertices[i],self.vertices[i+1]] 
                     for i in range(len(self)-1)]
