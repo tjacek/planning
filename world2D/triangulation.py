@@ -5,15 +5,22 @@ EPSILON = math.sqrt(sys.float_info.epsilon)
 def triangulation(polygon):
 	ear_vertex=[]
 	triangles=[]
-
+	polygon_t=[list(vert_i) for vert_i in polygon.vertices]
 	point_count=len(polygon)
-	for i in range(point_count):
-		first=polygon[i-1]
-		secund=polygon[i]
-		last=polygon[(i+1)%point_count]
-		if(is_ear(first,secund,last,polygon)):
-			ear_vertex.append(secund)
-	print(len(ear_vertex))
+	while(len(polygon_t)>3):
+		for i in range(point_count):
+			tri=get_triangle(polygon_t,i)
+			if(is_ear(tri[0],tri[1],tri[2],polygon_t)):
+				triangles.append(tri)
+				del polygon_t[i]
+				print(len(polygon_t))
+				break
+	triangles.append(polygon_t)
+	return triangles
+
+def get_triangle(polygon,i):
+    return [polygon[i-1],polygon[i],
+                polygon[ (i+1) % len(polygon)]]
 
 def is_ear(x,y,z,polygon):
 	ear= is_angle_convex(x,y,z) \
@@ -22,9 +29,8 @@ def is_ear(x,y,z,polygon):
 	return ear
 
 def contains_no_points(p1, p2, p3, polygon):
-    for pn in polygon.vertices:
+    for pn in polygon:
         if (np.all(pn==p1) or np.all(pn==p2) or np.all(pn==p3)):
-            print("OK")
             continue
         elif is_point_inside(pn, p1, p2, p3):
             return False
