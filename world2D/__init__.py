@@ -1,9 +1,4 @@
 import numpy as np
-import re 
-import matplotlib.pyplot as plt
-import matplotlib.patches
-from matplotlib.collections import PatchCollection
-import matplotlib.pyplot as plt
 
 class Polygon(object):
     def __init__(self,vertices):
@@ -53,39 +48,6 @@ class HalfPlane(object):
     def __call__(self,point):
         f=np.sum(self.coff[:-1]*point)
         return (f+self.coff[-1])>0.0
-
-def plot_polygon(polygons):#,n=100,scale=100):
-    if(type(polygons)!=list):
-        polygons=[polygons]
-    patches=[matplotlib.patches.Polygon(polygon_i.vertices) 
-                for polygon_i in polygons]
-    p = PatchCollection(patches, cmap=matplotlib.cm.jet, alpha=0.4)
-    fig, ax = plt.subplots()
-    ax.set_xlim([0.0,5.0])
-    ax.set_ylim([0.0,5.0])
-    ax.add_collection(p)
-    plt.show()
-
-def read_polygons(in_path):
-    lines=open(in_path,'r').readlines()
-    bracket=re.compile("\\[(.*?)\\]")
-    polygons=[]
-    for line_i in lines:
-        line_i=line_i.strip()
-        line_i=re.findall(bracket,line_i)
-        vertices=[[float(cord_k) 
-                    for cord_k in tuple_j.split(",")]
-                        for tuple_j in line_i]
-        polygons.append(Polygon(np.array(vertices)))
-    return polygons
-
-def is_simple(polygon):
-    segments=polygon.get_segments()
-    for i,seg_i in enumerate(segments):
-        for seg_j in segments[i+1:]:
-            if(seq_intersection(seg_i,seg_j)):
-                return False
-    return True
 
 def seq_intersection(seg_i,seg_j):
     A,B=seg_i 
