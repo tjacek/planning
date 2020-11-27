@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches
 from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
-import world2D,world2D.triangulation
+import world2D,world2D.triangulation,world2D.convex
 
 def check_polygons(in_path):
     polygons=read_polygons(in_path)
@@ -49,3 +49,11 @@ def is_simple(polygon):
             if(world2D.seq_intersection(seg_i,seg_j)):
                 return False
     return True
+
+def move_trinagle():
+    v=np.array([[0.0,0.0],[0.0,2.0],[1.0,0.0]])
+    v=world2D.convex.ConvexPolygon(v)
+    plot_polygon(v)
+    motion=world2D.RigidMotion(2.0,3.0,3.0)
+    v2=v.move(motion)
+    plot_polygon(v2)
