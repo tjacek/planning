@@ -8,13 +8,14 @@ def triangulation(polygon):
 	polygon_t=[list(vert_i) for vert_i in polygon.vertices]
 	point_count=len(polygon)
 	while(len(polygon_t)>3):
+		print("iter")
 		for i in range(point_count):
 			tri=get_triangle(polygon_t,i)
 			if(is_ear(tri[0],tri[1],tri[2],polygon_t)):
 				triangles.append(tri)
 				del polygon_t[i]
-				print(len(polygon_t))
 				break
+		print(len(polygon_t))
 	triangles.append(polygon_t)
 	return triangles
 

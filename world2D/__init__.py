@@ -1,5 +1,10 @@
 import numpy as np
 
+class World2D(object):
+    def __init__(self, obstacles,robot):
+        self.obstacles=obstacles
+        self.robot = robot
+
 class Polygon(object):
     def __init__(self,vertices):
         self.vertices=vertices
@@ -32,22 +37,14 @@ class Polygon(object):
                 inside=not inside
         return inside
 
-class ConvexPolygon(object):
-    def __init__(self,half_planes):
-        self.half_planes=half_planes
+def RigidMotion(object):
+    def __init__(self,theta,x,y):
+        self.a=np.array([[np.cos(theta),-np.sin(theta)],
+                        [np.sin(theta),np.cos(theta)]])
+        self.b=np.array([x,y])
 
     def __call__(self,point):
-        bool_arr=[ half_plane_i(point)
-                    for half_plane_i in self.half_planes]	
-        return all(bool_arr)
-
-class HalfPlane(object):
-    def __init__(self,a,b,c):
-        self.coff=np.array([a,b,c])
-
-    def __call__(self,point):
-        f=np.sum(self.coff[:-1]*point)
-        return (f+self.coff[-1])>0.0
+        return self.a*point+self.b
 
 def seq_intersection(seg_i,seg_j):
     A,B=seg_i 
