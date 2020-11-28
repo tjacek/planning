@@ -19,8 +19,12 @@ class ConvexPolygon(object):
 
     def move(self,motion):
         new_points=[motion(vert_i) for vert_i in self.vertices]
-#        raise Exception(new_points[0].shape)
         return ConvexPolygon(np.array(new_points))
+
+    def get_box(self):
+        v_min=np.amin(self.vertices,axis=0)
+        v_max=np.amax(self.vertices,axis=0)
+        return v_min,v_max
 
 def is_left(a,b,c):
     return ((b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]))>0
