@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches
 from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
-import world2D,world2D.triangulation,world2D.convex
+import world2D,world2D.triangulation
+import world2D.convex,world2D.polygon
 
 def check_polygons(in_path):
     polygons=read_polygons(in_path)
@@ -14,7 +15,7 @@ def check_polygons(in_path):
     triangles=[]
     for polygon_i in polygons:
         triangles+=world2D.triangulation.triangulation(polygon_i)
-    polygons=[world2D.Polygon(tri) for tri in triangles]
+    polygons=[world2D.convex.ConvexPolygon(tri) for tri in triangles]
     plot_polygon(polygons)
 
 def plot_polygon(polygons):
@@ -39,20 +40,21 @@ def read_polygons(in_path):
         vertices=[[float(cord_k) 
                     for cord_k in tuple_j.split(",")]
                         for tuple_j in line_i]
-        polygons.append(world2D.Polygon(np.array(vertices)))
+        polygons.append(world2D.polygon.Polygon(np.array(vertices)))
     return polygons
 
 def is_simple(polygon):
     segments=polygon.get_segments()
     for i,seg_i in enumerate(segments):
         for seg_j in segments[i+1:]:
-            if(world2D.seq_intersection(seg_i,seg_j)):
+            if(world2D.polygon.seq_intersection(seg_i,seg_j)):
                 return False
     return True
 
 def move_trinagle():
     v=np.array([[0.0,0.0],[0.0,2.0],[1.0,0.0]])
     v=world2D.convex.ConvexPolygon(v)
+    raise Exception(v.get_box())
     plot_polygon(v)
     motion=world2D.RigidMotion(2.0,3.0,3.0)
     v2=v.move(motion)
