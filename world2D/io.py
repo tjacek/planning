@@ -25,8 +25,9 @@ def plot_polygon(polygons):
                 for polygon_i in polygons]
     p = PatchCollection(patches, cmap=matplotlib.cm.jet, alpha=0.4)
     fig, ax = plt.subplots()
-    ax.set_xlim([0.0,5.0])
-    ax.set_ylim([0.0,5.0])
+    g_min,g_max=world2D.get_global_box(polygons)
+    ax.set_xlim([g_min[0]-1,g_max[0]+1])
+    ax.set_ylim([g_min[1]-1,g_max[1]+1])
     ax.add_collection(p)
     plt.show()
 

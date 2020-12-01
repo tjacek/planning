@@ -2,6 +2,8 @@ import numpy as np
 
 class ConvexPolygon(object):
     def __init__(self,vertices):
+        if(type(vertices)==list):
+            vertices=np.array(vertices) 
         if(vertices.shape[1]!=2):
             raise Exception("Wrong number of dims %d" % vertices.shape[1])
         self.vertices=vertices
