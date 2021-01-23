@@ -3,6 +3,7 @@ from lark import Lark,Transformer
 class EvalAtomic(Transformer):
 	def atomic(self, items):
 		value=float(items[0])
+		print(value)
 		relation=items[1].data
 		if(relation=='higher'):
 			return value<0
@@ -23,22 +24,47 @@ class EvalAtomic(Transformer):
 		print(items)
 		return items
 
-grammar="""
-	atomic: SIGNED_NUMBER relation "0"
+	def polynomial(self,items):
+		if(type(items[0])==float):
+			return items[0]+float(items[1])
+		if( items[0].type=='SIGNED_NUMBER'):
+			return float(items[0])
+		raise Exception(items)
 
-	relation:   "<"   -> higer
-	           | "<=" -> higer_eq
+grammar="""
+	atomic: polynomial relation "0"
+
+	relation:   "<"   -> higher
+			   | "<=" -> higher_eq
 	           | ">"  -> lover
 	           | ">=" -> lower_eq
 	           | "="  -> eq
 	           | "!=" -> ineq
 	
-	%import common.ESCAPED_STRING
+	polynomial:  SIGNED_NUMBER
+			   | coff_product
+			   | polynomial coff_product
+
+	coff_product:  product
+				 | SIGNED_NUMBER product
+				 | "+" product
+				 | "-" product
+
+	product:  variable
+			| product "*" variable 
+			| variable "^" INT
+
+	variable: LETTER+
+
+    %import common.INT
+	%import common.LETTER
 	%import common.SIGNED_NUMBER
 	%import common.WS
 	%ignore WS
 """
+#%import common.NUMBER
 
-parser=Lark(grammar,start='atomic')
-tree=parser.parse("0=0")
-print(EvalAtomic().transform(tree))
+parser=Lark(grammar,start='polynomial')
+tree=parser.parse("-x^3*y+z^2")
+print(tree)
+#print(EvalAtomic().transform(tree))
