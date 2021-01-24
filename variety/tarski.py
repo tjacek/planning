@@ -1,4 +1,4 @@
-from lark import Lark,Transformer
+from lark import Lark,Transformer,Token
 
 class EvalAtomic(Transformer):
 	def atomic(self, items):
@@ -70,7 +70,20 @@ def get_variable(tree):
 			var_names.update(node_i.children[0])
 	return var_names
 
+def get_degree(tree):
+	degree=[]
+	result=tree.find_pred(lambda x: x.data=='product')
+	for node_i in result:
+		for child_i in node_i.children:
+			if(type(child_i)== Token):
+				if(child_i.isdigit()):
+					degree.append(int(child_i))
+	if(not degree):
+		return 0
+	return max(degree)
+
 parser=Lark(grammar,start='polynomial')
 tree=parser.parse("-x^3*y+z^2")
-print(get_variable(tree))
+#print(tree)
+print(get_degree(tree))
 #print(EvalAtomic().transform(tree))
