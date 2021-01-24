@@ -47,8 +47,11 @@ grammar="""
 
 	coff_product:  product
 				 | SIGNED_NUMBER product
-				 | "+" product
-				 | "-" product
+				 | sign product
+				 | sign product 
+
+	sign: "+" -> plus
+		| "-" -> minus
 
 	product:  variable
 			| product "*" variable 
@@ -62,6 +65,23 @@ grammar="""
 	%import common.WS
 	%ignore WS
 """
+
+def build_polynomial(tree):
+	variables=get_variable(tree)
+	degree=get_degree(tree)
+	result=tree.find_pred(lambda x: x.data=='coff_product')
+	for node_i in result:
+		print(node_i.children[1])
+
+def get_coff(node_i):
+	coff=node_i.children[0]
+	if(type(coff)==Token):
+		return float(coff.value)
+	if(coff.data=='minus'):
+		return -1.0
+	if(coff.data=='plus'):
+		return 1.0
+	return 0.0
 
 def get_variable(tree):
 	var_names=set()
@@ -83,7 +103,7 @@ def get_degree(tree):
 	return max(degree)
 
 parser=Lark(grammar,start='polynomial')
-tree=parser.parse("-x^3*y+z^2")
+tree=parser.parse("-2x^3*y-z^2")
+build_polynomial(tree)
 #print(tree)
-print(get_degree(tree))
-#print(EvalAtomic().transform(tree))
+#print(get_degree(tree))
