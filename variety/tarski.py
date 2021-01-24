@@ -62,9 +62,15 @@ grammar="""
 	%import common.WS
 	%ignore WS
 """
-#%import common.NUMBER
+
+def get_variable(tree):
+	var_names=set()
+	for node_i in tree.iter_subtrees():
+		if(node_i.data=='variable'):
+			var_names.update(node_i.children[0])
+	return var_names
 
 parser=Lark(grammar,start='polynomial')
 tree=parser.parse("-x^3*y+z^2")
-print(tree)
+print(get_variable(tree))
 #print(EvalAtomic().transform(tree))
