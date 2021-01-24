@@ -1,4 +1,10 @@
-from lark import Lark,Transformer,Token
+from lark import Lark,Transformer,Token,Tree
+
+class Polynomial(object):
+	def __init__(self,variables,values,degree):
+		self.variables=variables
+		self.values=values
+		self.degree=degree
 
 class EvalAtomic(Transformer):
 	def atomic(self, items):
@@ -68,10 +74,32 @@ grammar="""
 
 def build_polynomial(tree):
 	variables=get_variable(tree)
+	variables.sort()
+	var_dict={ var_i:i for i,var_i in enumerate(variables)}
 	degree=get_degree(tree)
 	result=tree.find_pred(lambda x: x.data=='coff_product')
+	values={}
 	for node_i in result:
-		print(node_i.children[1])
+		coff_i=get_coff(node_i)
+		key_i=[0 for i in range(degree)]
+		for var_j,degree_j in get_product(node_i):
+			key_i[var_dict[var_j]]=degree_j
+		print(key_i)
+		values[tuple(key_i)]=coff_i
+	return Polynomial(variables,values,degree)
+
+def get_product(node_i):
+	product=node_i.children[1]
+	result=[]
+	for child_i in product.children:
+		if(type(child_i)==Tree):
+			if( child_i.data=='variable' ):
+				result.append((str(child_i.children[0]),1))
+			if( child_i.data=='product'):
+				var_i=str(child_i.children[0].children[0])
+				degree_i=int(child_i.children[1])
+				result.append((var_i,degree_i))
+	return result
 
 def get_coff(node_i):
 	coff=node_i.children[0]
@@ -88,7 +116,7 @@ def get_variable(tree):
 	for node_i in tree.iter_subtrees():
 		if(node_i.data=='variable'):
 			var_names.update(node_i.children[0])
-	return var_names
+	return list(var_names)
 
 def get_degree(tree):
 	degree=[]
@@ -104,6 +132,4 @@ def get_degree(tree):
 
 parser=Lark(grammar,start='polynomial')
 tree=parser.parse("-2x^3*y-z^2")
-build_polynomial(tree)
-#print(tree)
-#print(get_degree(tree))
+print(build_polynomial(tree))
