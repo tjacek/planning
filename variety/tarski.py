@@ -130,6 +130,9 @@ def get_degree(tree):
 		return 0
 	return max(degree)
 
-parser=Lark(grammar,start='polynomial')
-tree=parser.parse("-2x^3*y-z^2")
-print(build_polynomial(tree))
+def parse_polynomial(text):
+	parser=Lark(grammar,start='polynomial')
+	tree=parser.parse(text)
+	return build_polynomial(tree)
+
+parse_polynomial("-2x^3*y-z^2")
