@@ -47,11 +47,11 @@ grammar="""
 	           | "="  -> eq
 	           | "!=" -> ineq
 	
-	polynomial:  SIGNED_NUMBER
-			   | coff_product
+	polynomial:  coff_product
 			   | polynomial coff_product
 
 	coff_product:  product
+				 | SIGNED_NUMBER
 				 | SIGNED_NUMBER product
 				 | sign product
 				 | sign product 
@@ -135,4 +135,4 @@ def parse_polynomial(text):
 	tree=parser.parse(text)
 	return build_polynomial(tree)
 
-parse_polynomial("-2x^3*y-z^2")
+#parse_polynomial("-2x^3*y-z^2")
