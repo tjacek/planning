@@ -48,13 +48,11 @@ grammar="""
 	           | "!=" -> ineq
 	
 	polynomial:  coff_product
-			   | polynomial coff_product
+			   | polynomial sign coff_product
 
 	coff_product:  product
-				 | SIGNED_NUMBER
-				 | SIGNED_NUMBER product
-				 | sign product
-				 | sign product 
+				 | NUMBER
+				 | NUMBER product
 
 	sign: "+" -> plus
 		| "-" -> minus
@@ -67,7 +65,7 @@ grammar="""
 
     %import common.INT
 	%import common.LETTER
-	%import common.SIGNED_NUMBER
+	%import common.NUMBER
 	%import common.WS
 	%ignore WS
 """
@@ -77,19 +75,42 @@ def build_polynomial(tree):
 	variables.sort()
 	var_dict={ var_i:i for i,var_i in enumerate(variables)}
 	degree=get_degree(tree)
-	result=tree.find_pred(lambda x: x.data=='coff_product')
 	values={}
-	for node_i in result:
-		coff_i=get_coff(node_i)
+	def helper(raw_result):
 		key_i=[0 for i in range(degree)]
-		for var_j,degree_j in get_product(node_i):
+		if(raw_result is None):
+			return key_i
+		for var_j,degree_j in raw_result:
 			key_i[var_dict[var_j]]=degree_j
-		print(key_i)
-		values[tuple(key_i)]=coff_i
+		return key_i
+	for pol_i in tree.find_pred(lambda x: x.data=='polynomial'):
+		if(len(pol_i.children)==3):
+			sign_i=get_sign(pol_i.children[1])
+			coff_i,result=get_product(pol_i.children[2])
+			key_i=helper(result)
+			coff_i*=sign_i
+			values[tuple(key_i)]=coff_i
+		if(len(pol_i.children)==1):
+			coff_i,result=get_product(pol_i.children[0])
+			key_i=helper(result)
+			values[tuple(key_i)]=coff_i
 	return Polynomial(variables,values,degree)
 
+def get_sign(sign_node):
+	if(sign_node.data=='minus'):
+		return -1.0
+	return 1.0
+
 def get_product(node_i):
-	product=node_i.children[1]
+	print("*****")
+	if(len(node_i.children)>1):
+		coff=float(node_i.children[0])
+		product=node_i.children[1]
+	else:
+		coff=1.0
+		product=node_i.children[0]
+	if( type(product)==Token):
+		return float(product),None
 	result=[]
 	for child_i in product.children:
 		if(type(child_i)==Tree):
@@ -99,17 +120,7 @@ def get_product(node_i):
 				var_i=str(child_i.children[0].children[0])
 				degree_i=int(child_i.children[1])
 				result.append((var_i,degree_i))
-	return result
-
-def get_coff(node_i):
-	coff=node_i.children[0]
-	if(type(coff)==Token):
-		return float(coff.value)
-	if(coff.data=='minus'):
-		return -1.0
-	if(coff.data=='plus'):
-		return 1.0
-	return 0.0
+	return coff,result
 
 def get_variable(tree):
 	var_names=set()
