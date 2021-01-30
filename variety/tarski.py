@@ -76,11 +76,11 @@ def build_polynomial(tree):
 	var_dict={ var_i:i for i,var_i in enumerate(variables)}
 	degree=get_degree(tree)
 	values={}
-	def helper(raw_result):
+	def helper(coff_i, prod_i):
 		key_i=[0 for i in range(degree)]
-		for var_j,degree_j in raw_result:
+		for var_j,degree_j in get_product(prod_i):
 			key_i[var_dict[var_j]]=degree_j
-		return tuple(key_i)
+		values[tuple(key_i)]=coff_i
 	for pol_i in tree.find_pred(lambda x: x.data=='polynomial'):
 		if(len(pol_i.children)==3):
 			sign_i=get_sign(pol_i.children[1])
@@ -89,19 +89,15 @@ def build_polynomial(tree):
 				key_i=tuple([0 for i in range(degree)])
 				values[key_i]=sign_i*float(product_i.children[0])
 			else:
-				if(len(product_i.children)==1):
-					coff_i=1.0
-					prod_i=product_i.children[0]
-				else:
-					coff_i=float(product_i.children[0])
-					prod_i=product_i.children[1]
-				raw_key=get_product(prod_i)
-				values[helper(raw_key)]= sign_i*coff_i
+				has_coff=len(product_i.children)>1
+				coff_i= float(product_i.children[0]) if(has_coff) else 1.0
+				prod_i= product_i.children[1] if(has_coff) else product_i.children[0]
+				helper(coff_i,prod_i)
 		if(len(pol_i.children)==1):
 			prod_i=pol_i.children[0]
 			coff_i=float(prod_i.children[0])
-			raw_key=get_product(prod_i.children[1])
-			values[helper(raw_key)]=coff_i
+			helper(coff_i,prod_i.children[1])
+	print(values)
 	return Polynomial(variables,values,degree)
 
 def get_product(product):
