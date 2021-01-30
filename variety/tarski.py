@@ -78,39 +78,33 @@ def build_polynomial(tree):
 	values={}
 	def helper(raw_result):
 		key_i=[0 for i in range(degree)]
-		if(raw_result is None):
-			return key_i
 		for var_j,degree_j in raw_result:
 			key_i[var_dict[var_j]]=degree_j
-		return key_i
+		return tuple(key_i)
 	for pol_i in tree.find_pred(lambda x: x.data=='polynomial'):
 		if(len(pol_i.children)==3):
 			sign_i=get_sign(pol_i.children[1])
-			coff_i,result=get_product(pol_i.children[2])
-			key_i=helper(result)
-			coff_i*=sign_i
-			values[tuple(key_i)]=coff_i
+			product_i=pol_i.children[2]
+			if(type(product_i.children[0])==Token):
+				key_i=tuple([0 for i in range(degree)])
+				values[key_i]=sign_i*float(product_i.children[0])
+			else:
+				if(len(product_i.children)==1):
+					coff_i=1.0
+					prod_i=product_i.children[0]
+				else:
+					coff_i=float(product_i.children[0])
+					prod_i=product_i.children[1]
+				raw_key=get_product(prod_i)
+				values[helper(raw_key)]= sign_i*coff_i
 		if(len(pol_i.children)==1):
-			coff_i,result=get_product(pol_i.children[0])
-			key_i=helper(result)
-			values[tuple(key_i)]=coff_i
+			prod_i=pol_i.children[0]
+			coff_i=float(prod_i.children[0])
+			raw_key=get_product(prod_i.children[1])
+			values[helper(raw_key)]=coff_i
 	return Polynomial(variables,values,degree)
 
-def get_sign(sign_node):
-	if(sign_node.data=='minus'):
-		return -1.0
-	return 1.0
-
-def get_product(node_i):
-	print("*****")
-	if(len(node_i.children)>1):
-		coff=float(node_i.children[0])
-		product=node_i.children[1]
-	else:
-		coff=1.0
-		product=node_i.children[0]
-	if( type(product)==Token):
-		return float(product),None
+def get_product(product):
 	result=[]
 	for child_i in product.children:
 		if(type(child_i)==Tree):
@@ -120,7 +114,12 @@ def get_product(node_i):
 				var_i=str(child_i.children[0].children[0])
 				degree_i=int(child_i.children[1])
 				result.append((var_i,degree_i))
-	return coff,result
+	return result
+
+def get_sign(sign_node):
+	if(sign_node.data=='minus'):
+		return -1.0
+	return 1.0
 
 def get_variable(tree):
 	var_names=set()
