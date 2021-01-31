@@ -5,10 +5,17 @@ def plot2D(pol_i):
 	if(pol_i.degree!=2):
 		raise Exception("Pol degree %d" % pol_i.degree)
 	symbols=[sympy.symbols(var_i) for var_i in pol_i.variables]
-	print(len(symbols))
+	products=[]
+	for key_i,coff_i in pol_i.items():
+		if(sum(key_i)!=0):
+			prod_i=sympy.poly(symbols[0]**key_i[0] * symbols[1]**key_i[1])
+			products.append(coff_i*prod_i)
+	eq=sum(products)+pol_i[(0,0)]
+	print(eq)
 #	x=sympy.symbols('x')
 #	y=sympy.symbols('y')
-#	pol=sympy.Eq(x**2+y**2-5,0)
+#	eq=sympy.poly(x**2+y**2-5)
+#	print(eq +7)
 #	sympy.plot_implicit(pol,show=True)
 
 def eclipse():
