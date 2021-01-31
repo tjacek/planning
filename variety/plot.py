@@ -16,10 +16,10 @@ def plot2D(pol_i):
 #	y=sympy.symbols('y')
 #	eq=sympy.poly(x**2+y**2-5)
 #	print(eq +7)
-#	sympy.plot_implicit(pol,show=True)
+	sympy.plot_implicit(eq.as_expr(),show=True)
 
 def eclipse():
-	pol=tarski.parse_polynomial("2x^2*y+y^2-5")
+	pol=tarski.parse_polynomial("8x^2+y^2-5")
 	plot2D(pol)
 
 eclipse()
