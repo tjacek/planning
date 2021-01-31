@@ -1,9 +1,9 @@
 from lark import Lark,Transformer,Token,Tree
 
-class Polynomial(object):
+class Polynomial(dict):
 	def __init__(self,variables,values,degree):
+		super(Polynomial, self).__init__(values)
 		self.variables=variables
-		self.values=values
 		self.degree=degree
 
 class EvalAtomic(Transformer):
@@ -102,14 +102,16 @@ def build_polynomial(tree):
 
 def get_product(product):
 	result=[]
-	for child_i in product.children:
-		if(type(child_i)==Tree):
-			if( child_i.data=='variable' ):
-				result.append((str(child_i.children[0]),1))
-			if( child_i.data=='product'):
-				var_i=str(child_i.children[0].children[0])
-				degree_i=int(child_i.children[1])
-				result.append((var_i,degree_i))
+	if(len(product.children)==1):
+		var_i=str(product.children[0].children[0])
+		return [(var_i,1)]
+	if(type(product.children[1])==Token):
+		var_i=str(product.children[0].children[0])
+		degree_i=int(product.children[1])
+		return [(var_i,degree_i)]
+	result=get_product(product.children[0])
+	var_i=product.children[1].children[0]
+	result.append((var_i,1))
 	return result
 
 def get_sign(sign_node):
