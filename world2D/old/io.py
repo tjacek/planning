@@ -1,9 +1,6 @@
 import numpy as np
 import re 
 import matplotlib.pyplot as plt
-import matplotlib.patches
-from matplotlib.collections import PatchCollection
-import matplotlib.pyplot as plt
 import world2D,world2D.triangulation
 import world2D.convex,world2D.polygon
 
@@ -17,19 +14,6 @@ def check_polygons(in_path):
         triangles+=world2D.triangulation.triangulation(polygon_i)
     polygons=[world2D.convex.ConvexPolygon(tri) for tri in triangles]
     plot_polygon(polygons)
-
-def plot_polygon(polygons):
-    if(type(polygons)!=list):
-        polygons=[polygons]
-    patches=[matplotlib.patches.Polygon(polygon_i.vertices) 
-                for polygon_i in polygons]
-    p = PatchCollection(patches, cmap=matplotlib.cm.jet, alpha=0.4)
-    fig, ax = plt.subplots()
-    g_min,g_max=world2D.get_global_box(polygons)
-    ax.set_xlim([g_min[0]-1,g_max[0]+1])
-    ax.set_ylim([g_min[1]-1,g_max[1]+1])
-    ax.add_collection(p)
-    plt.show()
 
 def read_polygons(in_path):
     lines=open(in_path,'r').readlines()
