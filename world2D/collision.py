@@ -18,6 +18,6 @@ def get_global_box(polygons):
 	all_boxes=[polygon_i.get_box() 
 			for polygon_i in polygons]
 	all_boxes=np.array(all_boxes)
-	g_min=np.amin(all_boxes[0],axis=0)
-	g_max=np.amax(all_boxes[1],axis=0)
+	g_min=np.amin(all_boxes[:,0],axis=0)
+	g_max=np.amax(all_boxes[:,1],axis=0)
 	return g_min,g_max
