@@ -26,7 +26,18 @@ class ConvexPolygon(object):
     def get_box(self):
         v_min=np.amin(self.vertices,axis=0)
         v_max=np.amax(self.vertices,axis=0)
-        return v_min,v_max
+        return Box(v_min,v_max)
+
+class Box(object):
+    def __init__(self,v_min,v_max):
+        self.v_min=v_min
+        self.v_max=v_max
+
+    def __add__(self,box_i):
+        min_i=np.amin([self.v_min,box_i.v_min],axis=0)
+        max_i=np.amax([self.v_max,box_i.v_max],axis=0)
+#        raise Exception(min_i.shape)
+        return Box(min_i,max_i)
 
 def is_left(a,b,c):
     return ((b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]))>0

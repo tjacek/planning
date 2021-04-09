@@ -1,4 +1,5 @@
 import numpy as np
+import convex
 
 class PolygonEnvir(object):
 	def __init__(self, obstacles):
@@ -9,10 +10,9 @@ class PolygonEnvir(object):
 		all_boxes=[polygon_i.get_box() 
 				for polygon_i in self.obstacles]
 		all_boxes=np.array(all_boxes)
-		g_min=np.amin(all_boxes[:,0],axis=0)
-		g_max=np.amax(all_boxes[:,1],axis=0)
-		return g_min,g_max
-
+		g_min=np.amin([box_i.v_min for box_i in all_boxes],axis=0)
+		g_max=np.amax([box_i.v_max for box_i in all_boxes],axis=0)
+		return convex.Box(g_min,g_max)
 
 def polygon_collision(pol1,pol2):
 	for ver_i in pol1.vertices:
