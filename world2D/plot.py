@@ -20,11 +20,14 @@ def plot_problem(problem):
     polygons=problem.collision.obstacles
     patches=[matplotlib.patches.Polygon(polygon_i.vertices) 
                 for polygon_i in polygons]
-    p = PatchCollection(patches, cmap=matplotlib.cm.jet, alpha=0.4)
-    start=[matplotlib.patches.Polygon(problem.start.vertices)] 
-    p_start=PatchCollection(start, cmap=matplotlib.cm.jet, alpha=0.4)
-    end=[matplotlib.patches.Polygon(problem.end.vertices)] 
-    p_end=PatchCollection(end, cmap=matplotlib.cm.jet, alpha=0.4)
+    p = PatchCollection(patches, alpha=0.4, match_original=True)
+#    cmap=matplotlib.cm.jet
+    start=[matplotlib.patches.Polygon(problem.start.vertices,
+                facecolor = (0,0,1))] 
+    p_start=PatchCollection(start, alpha=0.4,match_original=True)
+    end=[matplotlib.patches.Polygon(problem.end.vertices,
+                 facecolor = (1,0,0))] 
+    p_end=PatchCollection(end, alpha=0.4,match_original=True)
     
     fig, ax = plt.subplots()
     box=problem.get_box()
