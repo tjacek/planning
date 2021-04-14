@@ -10,7 +10,6 @@ class Problem(object):
 		box1=self.start.get_box()
 		box2=self.end.get_box()
 		box3=self.collision.get_box()
-#		raise Exception(type(box1))
 		return box1+box2+box3
 
 class RigidMotion(object):

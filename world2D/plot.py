@@ -28,8 +28,8 @@ def plot_problem(problem):
     
     fig, ax = plt.subplots()
     box=problem.get_box()
-    ax.set_xlim([box.v_min[0]-1,box.v_max[0]+1])
-    ax.set_ylim([box.v_min[1]-1,box.v_max[1]+1])
+    ax.set_xlim([box.min[0]-1,box.max[0]+1])
+    ax.set_ylim([box.min[1]-1,box.max[1]+1])
     ax.add_collection(p)
     ax.add_collection(p_start)
     ax.add_collection(p_end)

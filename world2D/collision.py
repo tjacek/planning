@@ -10,8 +10,8 @@ class PolygonEnvir(object):
 		all_boxes=[polygon_i.get_box() 
 				for polygon_i in self.obstacles]
 		all_boxes=np.array(all_boxes)
-		g_min=np.amin([box_i.v_min for box_i in all_boxes],axis=0)
-		g_max=np.amax([box_i.v_max for box_i in all_boxes],axis=0)
+		g_min=np.amin([box_i.min for box_i in all_boxes],axis=0)
+		g_max=np.amax([box_i.max for box_i in all_boxes],axis=0)
 		return convex.Box(g_min,g_max)
 
 def polygon_collision(pol1,pol2):

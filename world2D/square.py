@@ -6,10 +6,10 @@ import convex,collision,plot,world2D
 def make_problem(n_rect=5,width=2,height=5,gap=1):
 	obst=rect_world(n_rect)
 	box=obst.get_box()
-	x,y=box[0]-gap
+	x,y=box.min-gap
 	x,y=x-width,y-height
 	start=make_rect(x,y,width,height)
-	x,y=box[1]+gap
+	x,y=box.max+gap
 	x,y=x+width,y+height
 	end=make_rect(x,y,width,height)
 	return world2D.Problem(start,end,obst)
@@ -30,7 +30,7 @@ def make_rect(x,y,width,height):
 			  np.array([x,y+height])]
 	return convex.ConvexPolygon(vertices)
 
-make_problem(n_rect=5)
-
+problem=make_problem(n_rect=5)
+plot.plot_problem(problem)
 #world=rect_world(5)
 #plot.plot_polygon(world.obstacles)

@@ -29,13 +29,13 @@ class ConvexPolygon(object):
         return Box(v_min,v_max)
 
 class Box(object):
-    def __init__(self,v_min,v_max):
-        self.v_min=v_min
-        self.v_max=v_max
+    def __init__(self,box_min,box_max):
+        self.min=box_min
+        self.max=box_max
 
     def __add__(self,box_i):
-        min_i=np.amin([self.v_min,box_i.v_min],axis=0)
-        max_i=np.amax([self.v_max,box_i.v_max],axis=0)
+        min_i=np.amin([self.min,box_i.min],axis=0)
+        max_i=np.amax([self.max,box_i.max],axis=0)
 #        raise Exception(min_i.shape)
         return Box(min_i,max_i)
 
