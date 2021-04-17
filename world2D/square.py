@@ -3,7 +3,7 @@ sys.path.append("..")
 import numpy as np
 import convex,collision,plot,world2D
 
-def make_problem(n_rect=5,width=2,height=5,gap=1):
+def make_problem(n_rect=5,width=1,height=5,gap=1):
 	obst=rect_world(n_rect)
 	box=obst.get_box()
 	x,y=box.min-gap
@@ -31,6 +31,8 @@ def make_rect(x,y,width,height):
 	return convex.ConvexPolygon(vertices)
 
 problem=make_problem(n_rect=5)
-plot.plot_problem(problem)
+problem.positions(5)
+
+#plot.plot_problem(problem)
 #world=rect_world(5)
 #plot.plot_polygon(world.obstacles)

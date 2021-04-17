@@ -4,7 +4,7 @@ class ConvexPolygon(object):
     def __init__(self,vertices):
         if(type(vertices)==list):
             vertices=np.array(vertices) 
-        if(vertices.shape[1]!=2):
+        if(vertices.shape[1]!=2 or vertices.ndim!=2):
             raise Exception("Wrong number of dims %d" % vertices.shape[1])
         self.vertices=vertices
 
@@ -41,3 +41,10 @@ class Box(object):
 
 def is_left(a,b,c):
     return ((b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]))>0
+
+def get_box(polygons):
+    boxes=[pol_i.get_box() for pol_i in polygons]
+    box=boxes[0]
+    for box_i in boxes[1:]:
+        box+=box_i
+    return box
