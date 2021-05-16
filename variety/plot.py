@@ -1,25 +1,17 @@
+import sys
+sys.path.append("..")
 import sympy
-import tarski
+from sympy.plotting import plot_implicit
+import variety
 
-def plot2D(pol_i):
-	if(pol_i.degree!=2):
-		raise Exception("Pol degree %d" % pol_i.degree)
-	symbols=[sympy.symbols(var_i) for var_i in pol_i.variables]
-	products=[]
-	for key_i,coff_i in pol_i.items():
-		if(sum(key_i)!=0):
-			prod_i=sympy.poly(symbols[0]**key_i[0] * symbols[1]**key_i[1])
-			products.append(coff_i*prod_i)
-	eq=sum(products)+pol_i[(0,0)]
-	print(eq)
-#	x=sympy.symbols('x')
-#	y=sympy.symbols('y')
-#	eq=sympy.poly(x**2+y**2-5)
-#	print(eq +7)
-	sympy.plot_implicit(eq.as_expr(),show=True)
+def plot2D(variety_i):
+	if(variety_i.n_vars()>2):
+		raise Exception("Too many vars %d" % variety_i.n_vars())
+	plots=[plot_implicit(pol_i.as_expr(),show=False) 
+			for pol_i in variety_i.polynomials]
+	final_plot=plots[0]
+	for plot_i in plots[1:]:
+		final_plot.extend(plot_i)
+	final_plot.show()
 
-def eclipse():
-	pol=tarski.parse_polynomial("8x^2+y^2-5")
-	plot2D(pol)
-
-eclipse()
+plot2D(variety.make_pol())

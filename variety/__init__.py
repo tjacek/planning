@@ -1,11 +1,14 @@
 import sympy 
 from sympy.abc import x,y,z
 
-class TarskiSentence(object):
+class Variety(object):
 	def __init__(self,vars,polynomials,conds):
 		self.vars=vars
 		self.polynomials=polynomials
 		self.conds=conds
+
+	def n_vars(self):
+		return len(self.vars)
 
 	def __call__(self,point_i):
 		point_dir={ var_j:cord_j
@@ -19,9 +22,10 @@ def simple_cond(pol_value):
 		
 def make_pol():
 	p0=sympy.Poly(x**2+y**2-1,x,y)
-	p1=sympy.Poly(x**2,x,y)
+	p1=sympy.Poly(x**2-y,x,y)
 	conds=[simple_cond,simple_cond]
-	return TarskiSentence([x,y],[p0,p1],conds)
+	return Variety([x,y],[p0,p1],conds)
 
-tarski=make_pol()
-print(tarski([0.5,1]))
+if __name__ == "__main__":
+	variety=make_pol()
+	print(variety([0.5,1]))
