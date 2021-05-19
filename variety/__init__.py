@@ -26,6 +26,7 @@ def more(pol_value):
 def eq(pol_value):
 	return pol_value==0
 
+
 def make_pol(r1=5,r2=1,r3=1,
 			x2=2,y2=2.5,x3=-2,y3=2.5,
 			y4=-3,a=2.0,b=1 ):
@@ -36,6 +37,13 @@ def make_pol(r1=5,r2=1,r3=1,
 	f3=sympy.Poly((a*x)**2+(b*(y-y4))**2-1,x,y)
 	pols=[f0,f1,f2,f3]
 	conds=[less,less,less,less]
+	return Variety([x,y],pols,conds)
+
+def make_1D():
+	f0=sympy.Poly(x**2-2*x-y,x,y)
+	f1=sympy.Poly(x**2-4*x+3-y,x,y)
+	pols=[f0,f1]
+	conds=[less,less]
 	return Variety([x,y],pols,conds)
 
 if __name__ == "__main__":
