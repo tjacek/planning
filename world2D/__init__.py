@@ -22,6 +22,8 @@ class Problem(object):
 
 	def positions(self,n):
 		motions=self.sample(n)
+		if(n==1):
+			return self.start.move(motion_i)
 		return [ self.start.move(motion_i)for motion_i in motions]
 
 class RigidMotion(object):
