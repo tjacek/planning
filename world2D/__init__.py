@@ -18,13 +18,19 @@ class Problem(object):
 		x=np.random.uniform(bounds.min[0],bounds.max[0],size=n)
 		y=np.random.uniform(bounds.min[1],bounds.max[1],size=n)
 		theta=np.random.uniform(0,2*np.pi,size=n)
+		if(n==1):
+			return RigidMotion(theta[0],x[0],y[0])
 		return [ RigidMotion(theta[i],x[i],y[i]) for i in range(n)]
 
 	def positions(self,n):
-		motions=self.sample(n)
-		if(n==1):
-			return self.start.move(motion_i)
-		return [ self.start.move(motion_i)for motion_i in motions]
+		legal_pos=[]
+		while(n>0):
+			motion_i=self.sample(1)
+			sample_i=self.start.move(motion_i)
+			if(self.collision(sample_i)):
+				legal_pos.append(sample_i)
+				n-=1
+		return legal_pos
 
 class RigidMotion(object):
     def __init__(self,theta,x,y):

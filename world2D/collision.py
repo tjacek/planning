@@ -6,6 +6,9 @@ class PolygonEnvir(object):
 		self.obstacles=obstacles
 		self.boxes=[ pol_i.get_box() for pol_i in self.obstacles]
 
+	def __call__(self,pol_i):
+		return True
+
 	def get_box(self):
 		all_boxes=[polygon_i.get_box() 
 				for polygon_i in self.obstacles]
