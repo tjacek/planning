@@ -18,12 +18,11 @@ def plot_polygon(polygons):
     ax.add_collection(p)
     plt.show()
 
-def plot_problem(problem):
+def plot_problem(problem, positions=None):
     polygons=problem.collision.obstacles
     patches=[matplotlib.patches.Polygon(polygon_i.vertices) 
                 for polygon_i in polygons]
     p = PatchCollection(patches, alpha=0.4, match_original=True)
-#    cmap=matplotlib.cm.jet
     start=[matplotlib.patches.Polygon(problem.start.vertices,
                 facecolor = (0,0,1))] 
     p_start=PatchCollection(start, alpha=0.4,match_original=True)
@@ -38,4 +37,9 @@ def plot_problem(problem):
     ax.add_collection(p)
     ax.add_collection(p_start)
     ax.add_collection(p_end)
+    if(positions):
+        positions=[matplotlib.patches.Polygon(polygon_i.vertices) 
+                for polygon_i in positions]
+        positions=PatchCollection(positions, alpha=0.4,match_original=True)
+        ax.add_collection(positions)
     plt.show()

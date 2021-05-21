@@ -31,8 +31,9 @@ def make_rect(x,y,width,height):
 	return convex.ConvexPolygon(vertices)
 
 problem=make_problem(n_rect=5)
-problem.positions(5)
+pol=problem.positions(5)
+#plot.plot_polygon(pol)
 
-#plot.plot_problem(problem)
+plot.plot_problem(problem,pol)
 #world=rect_world(5)
 #plot.plot_polygon(world.obstacles)
