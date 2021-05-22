@@ -38,7 +38,8 @@ def plot_problem(problem, positions=None):
     ax.add_collection(p_start)
     ax.add_collection(p_end)
     if(positions):
-        positions=[matplotlib.patches.Polygon(polygon_i.vertices) 
+        positions=[matplotlib.patches.Polygon(polygon_i.vertices,
+                                    facecolor=(0.5,0.5,0)) 
                 for polygon_i in positions]
         positions=PatchCollection(positions, alpha=0.4,match_original=True)
         ax.add_collection(positions)
