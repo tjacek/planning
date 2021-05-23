@@ -19,6 +19,8 @@ def plot_polygon(polygons):
     plt.show()
 
 def plot_problem(problem, positions=None):
+    if(type(positions)==int):
+        positions=problem.positions(positions)
     polygons=problem.collision.obstacles
     patches=[matplotlib.patches.Polygon(polygon_i.vertices) 
                 for polygon_i in polygons]
