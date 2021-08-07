@@ -30,13 +30,22 @@ class ConvexPolygon(object):
 
 class Box(object):
     def __init__(self,box_min,box_max):
+        if(type(box_min)==list):
+            box_min=np.array(box_min)
+        if(type(box_max)==list):
+            box_max=np.array(box_max)
         self.min=box_min
         self.max=box_max
 
+    def __call__(self,box):
+        a= all(self.min<box.max)
+        b= all(box.min< self.max)
+        return a and b
+        
     def __add__(self,box_i):
         min_i=np.amin([self.min,box_i.min],axis=0)
         max_i=np.amax([self.max,box_i.max],axis=0)
-#        raise Exception(min_i.shape)
+
         return Box(min_i,max_i)
 
 def is_left(a,b,c):
@@ -48,3 +57,10 @@ def get_box(polygons):
     for box_i in boxes[1:]:
         box+=box_i
     return box
+
+if __name__ == "__main__":
+    a=Box([-2,-2],[3,3])
+    b=Box([0,0],[2,2])
+    c=Box([1,1],[3,3])
+    print(a(b) )
+    print(b(c))
