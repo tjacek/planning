@@ -40,6 +40,6 @@ def check_boxes(envir):
                 box_coll=(box_i,box_j,box_i(box_j),box_j(box_i))
                 print("%s;%s;%d,%d" % box_coll)
 
-check_boxes(rect_world(5))
-#problem=make_problem(n_rect=5)
-#plot.plot_problem(problem,5)
+#check_boxes(rect_world(5))
+problem=make_problem(n_rect=5)
+plot.plot_problem(problem,5)
