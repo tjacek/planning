@@ -30,7 +30,6 @@ def make_rect(x,y,width,height):
 			  np.array([x,y+height])]
 	return convex.ConvexPolygon(vertices)
 
-
 def check_boxes(envir):
     boxes=envir.boxes
     for box_i in boxes:
@@ -41,5 +40,8 @@ def check_boxes(envir):
                 print("%s;%s;%d,%d" % box_coll)
 
 #check_boxes(rect_world(5))
+#box=convex.Box([0.0,0.0],[3,7])
+#plot.plot_box([box])
 problem=make_problem(n_rect=5)
-plot.plot_problem(problem,5)
+plot.plot_problem(problem,5,False)
+plot.plot_problem(problem,5,True)

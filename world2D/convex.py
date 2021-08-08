@@ -49,10 +49,9 @@ class Box(object):
         return Box(min_i,max_i)
 
     def as_point(self):
-        point=self.min
-        width= self.max[0]-point[0]
-        height= self.max[1]-point[1]
-        return point,width,height
+        height= self.max[1]-self.min[1]
+        width= self.max[0]-self.min[0]
+        return self.min,width,height
 
     def __str__(self):
         bounds=(self.min[0],self.max[0],self.min[1],self.max[1])
