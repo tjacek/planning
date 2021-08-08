@@ -48,6 +48,10 @@ class Box(object):
 
         return Box(min_i,max_i)
 
+    def __str__(self):
+        bounds=(self.min[0],self.max[0],self.min[1],self.max[1])
+        return "[%.4f-%.4f,%.4f-%.4f]" % bounds
+
 def is_left(a,b,c):
     return ((b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]))>0
 
@@ -61,6 +65,4 @@ def get_box(polygons):
 if __name__ == "__main__":
     a=Box([-2,-2],[3,3])
     b=Box([0,0],[2,2])
-    c=Box([1,1],[3,3])
     print(a(b) )
-    print(b(c))

@@ -30,5 +30,6 @@ def make_rect(x,y,width,height):
 			  np.array([x,y+height])]
 	return convex.ConvexPolygon(vertices)
 
-problem=make_problem(n_rect=5)
-plot.plot_problem(problem,5)
+print( str(rect_world(5)))
+#problem=make_problem(n_rect=5)
+#plot.plot_problem(problem,5)
