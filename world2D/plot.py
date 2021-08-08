@@ -1,3 +1,4 @@
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches
 from matplotlib.collections import PatchCollection
@@ -45,4 +46,19 @@ def plot_problem(problem, positions=None):
                 for polygon_i in positions]
         positions=PatchCollection(positions, alpha=0.4,match_original=True)
         ax.add_collection(positions)
+    plt.show()
+
+def plot_box(boxes):
+    fig1 = plt.figure()
+    ax = fig1.add_subplot(111, aspect='equal')
+    min_dim=np.array([box_i.min for box_i in boxes])
+    min_dim=np.min(min_dim,axis=0)
+    max_dim=np.array([box_i.max for box_i in boxes])
+    max_dim=np.max(max_dim,axis=0)    
+    ax.set_xlim([min_dim[0]-1,max_dim[0]+1])
+    ax.set_ylim([min_dim[1]-1,max_dim[1]+1])
+    rects=[matplotlib.patches.Rectangle(*box_i.as_point()) 
+            for box_i in boxes]
+    p = PatchCollection(rects, cmap=matplotlib.cm.jet, alpha=0.4)
+    ax.add_collection(p)
     plt.show()
