@@ -39,9 +39,9 @@ def check_boxes(envir):
                 box_coll=(box_i,box_j,box_i(box_j),box_j(box_i))
                 print("%s;%s;%d,%d" % box_coll)
 
-#check_boxes(rect_world(5))
-#box=convex.Box([0.0,0.0],[3,7])
-#plot.plot_box([box])
-problem=make_problem(n_rect=5)
+
+#problem=make_problem(n_rect=5)
+#problem.save("square.json")
+problem=world2D.read_problem("square.json")
 plot.plot_problem(problem,5,False)
 plot.plot_problem(problem,5,True)

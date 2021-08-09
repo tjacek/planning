@@ -1,6 +1,5 @@
 import numpy as np
-import json
-import convex
+import convex,tools,collision
 
 class Problem(object):
     def __init__(self,start,end,collision):
@@ -43,12 +42,7 @@ class Problem(object):
                 "collision":self.collision.as_numpy()}
 
     def save(self,out_path):
-        def helper(obj):
-            if isinstance(obj, np.ndarray):
-                return obj.tolist()
-            return obj
-        with open(out_path, 'w') as f:
-            json.dump(self.as_dict(), f,default=helper)
+    	tools.save_json(self.as_dict(),out_path)
 
 class RigidMotion(object):
     def __init__(self,theta,x,y):
@@ -58,3 +52,12 @@ class RigidMotion(object):
 
     def __call__(self,point):
         return self.a.dot(point)+self.b
+
+def read_problem(in_path):
+    raw=tools.read_json(in_path)
+    start=convex.ConvexPolygon(raw["start"])
+    end=convex.ConvexPolygon(raw["end"])
+    obstacles=[convex.ConvexPolygon(ver_i) 
+            for ver_i in raw["collision"]]
+    pol_envir=collision.PolygonEnvir(obstacles)
+    return Problem(start,end,pol_envir)
