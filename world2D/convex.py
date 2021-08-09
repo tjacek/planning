@@ -28,6 +28,9 @@ class ConvexPolygon(object):
         v_max=np.amax(self.vertices,axis=0)
         return Box(v_min,v_max)
 
+    def __str__(self):
+        return str(self.vertices)
+
 class Box(object):
     def __init__(self,box_min,box_max):
         if(type(box_min)==list):
@@ -45,7 +48,6 @@ class Box(object):
     def __add__(self,box_i):
         min_i=np.amin([self.min,box_i.min],axis=0)
         max_i=np.amax([self.max,box_i.max],axis=0)
-
         return Box(min_i,max_i)
 
     def as_point(self):

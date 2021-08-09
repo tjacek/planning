@@ -7,7 +7,14 @@ class PolygonEnvir(object):
         self.boxes=[ pol_i.get_box() for pol_i in self.obstacles]
 
     def __call__(self,pol_i):
-        return True
+        box_i=pol_i.get_box()
+        for j,box_j in enumerate(self.boxes):
+            if(box_i(box_j)):
+                print(box_i)
+                pol_j=self.obstacles[j]
+                if(polygon_collision(pol_i,pol_j)):
+                    return True 
+        return False
 
     def get_box(self):
         all_boxes=[polygon_i.get_box() 
@@ -19,6 +26,9 @@ class PolygonEnvir(object):
 
     def __str__(self):
         return ";".join([str(box_i) for box_i in self.boxes])
+
+    def as_numpy(self):
+        return [pol_i.vertices for pol_i in self.obstacles]
 
 def polygon_collision(pol1,pol2):
     for ver_i in pol1.vertices:
