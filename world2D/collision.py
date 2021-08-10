@@ -8,12 +8,22 @@ class PolygonEnvir(object):
 
     def __call__(self,pol_i):
         box_i=pol_i.get_box()
+        n_col=0
         for j,box_j in enumerate(self.boxes):
             if(box_i(box_j)):
                 print(box_i)
+                n_col+=1
                 pol_j=self.obstacles[j]
                 if(polygon_collision(pol_i,pol_j)):
                     return True 
+        print("n_cols:%d" % n_col)
+        return False
+
+    def box_collision(self,pol_i):
+        box_i=pol_i.get_box()
+        for box_j in self.boxes:
+            if(box_i(box_j)):
+                return True
         return False
 
     def get_box(self):

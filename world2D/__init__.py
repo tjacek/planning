@@ -22,11 +22,14 @@ class Problem(object):
             return RigidMotion(theta[0],x[0],y[0])
         return [ RigidMotion(theta[i],x[i],y[i]) for i in range(n)]
 
+    def gen_position(self):
+        motion_i=self.sample(1)
+        return self.start.move(motion_i)
+
     def positions(self,n,iters=100):
         legal_pos=[]
         while(n>0):
-            motion_i=self.sample(1)
-            sample_i=self.start.move(motion_i)
+            sample_i=self.gen_position()
             if(not self.collision(sample_i)):
                 legal_pos.append(sample_i)
                 n-=1
@@ -35,6 +38,14 @@ class Problem(object):
                 raise Exception(n)
             print(n)
         return legal_pos
+
+    def illegal_positions(self,n=10):
+        illegal_pos=[]
+        for i in range(n):
+            sample_i=self.gen_position()
+            if(self.collision.box_collision(sample_i)):
+                illegal_pos.append(sample_i)
+        return illegal_pos	
 
     def as_dict(self):
         return {"start":self.start.vertices,
