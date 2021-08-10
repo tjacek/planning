@@ -12,10 +12,18 @@ class ConvexPolygon(object):
         return len(self.vertices)
 
     def __call__(self,point):
-        cord=[ (i,i+1) for i in range(len(self)-1)] 
-        cord.append((len(self)-1,-1))
-        for x,y in cord:
-            if(is_left(self.vertices[x],self.vertices[y],point)):
+        previous_side=None
+        n_vertices = len(self)
+        for n in range(n_vertices):
+            a,b=self.vertices[n],self.vertices[(n+1)%n_vertices]
+            affine_segment = v_sub(b,a)
+            affine_point = v_sub(point,a)
+            current_side = get_side(affine_segment, affine_point)
+            if current_side is None:
+                return False 
+            elif previous_side is None:
+                previous_side = current_side
+            elif previous_side != current_side:
                 return False
         return True
 
@@ -59,9 +67,6 @@ class Box(object):
         bounds=(self.min[0],self.max[0],self.min[1],self.max[1])
         return "[%.4f-%.4f,%.4f-%.4f]" % bounds
 
-def is_left(a,b,c):
-    return ((b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]))>0
-
 def get_box(polygons):
     boxes=[pol_i.get_box() for pol_i in polygons]
     box=boxes[0]
@@ -69,7 +74,22 @@ def get_box(polygons):
         box+=box_i
     return box
 
+def v_sub(a, b):
+    return (a[0]-b[0], a[1]-b[1])
+
+def get_side(a, b):
+    x = cosine_sign(a, b)
+    if x < 0:
+        return 0
+    elif x > 0: 
+        return 1
+    else:
+        return None
+
+def cosine_sign(a, b):
+    return a[0]*b[1]-a[1]*b[0]
+
 if __name__ == "__main__":
-    a=Box([-2,-2],[3,3])
-    b=Box([0,0],[2,2])
-    print(a(b) )
+    a=ConvexPolygon([[1,0],[0,1],[-1,0],[0,-1]])
+#    a=ConvexPolygon([[0,-1],[-1,0],[0,1],[1,0]])
+    print(a([0,0]) )
