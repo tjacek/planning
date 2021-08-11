@@ -42,7 +42,7 @@ def check_boxes(envir):
 #problem=make_problem(n_rect=5)
 #problem.save("square.json")
 problem=world2D.read_problem("square.json")
-positions=problem.positions(5)
-plot.plot_positions(positions)
-#plot.plot_problem(problem,positions,False)
+positions=problem.legal(20)[0]
+#plot.plot_positions(positions)
+plot.plot_problem(problem,positions,False)
 #plot.plot_problem(problem,positions,True)
