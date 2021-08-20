@@ -27,6 +27,11 @@ class ConvexPolygon(object):
                 return False
         return True
 
+    def as_edges(self):
+        n_vert = len(self)
+        return [ v_sub(self.vertices[i],self.vertices[(i+1)%n_vert])
+                    for i in range(n_vert)]
+
     def move(self,motion):
         new_points=[motion(vert_i) for vert_i in self.vertices]
         return ConvexPolygon(np.array(new_points))
@@ -90,6 +95,6 @@ def cosine_sign(a, b):
     return a[0]*b[1]-a[1]*b[0]
 
 if __name__ == "__main__":
-    a=ConvexPolygon([[1,0],[0,1],[-1,0],[0,-1]])
+    a=ConvexPolygon([[-2,-2],[2,-2],[2,2],[-2,2]])
 #    a=ConvexPolygon([[0,-1],[-1,0],[0,1],[1,0]])
-    print(a([0,0]) )
+    print(a.as_edges())
