@@ -11,12 +11,10 @@ class PolygonEnvir(object):
         n_col=0
         for j,box_j in enumerate(self.boxes):
             if(box_i(box_j)):
-                print(box_i)
                 n_col+=1
                 pol_j=self.obstacles[j]
                 if(polygon_collision(pol_i,pol_j)):
                     return True 
-        print("n_cols:%d" % n_col)
         return False
 
     def box_collision(self,pol_i):

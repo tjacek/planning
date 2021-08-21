@@ -6,29 +6,16 @@ class Problem(object):
         self.start=start
         self.end=end
         self.collision=collision
-        self.sample=sample_naive
+        self.legal_sample=grid_sample
 
     def get_box(self):
         box1=self.start.get_box()
         box2=self.end.get_box()
         box3=self.collision.get_box()
         return box1+box2+box3
-        
-    def legal(self,n,iters=100):
-        bounds=self.get_box()
-        positions,motions=[],[]
-        while(n>0):
-            motion_i=self.sample(bounds,1)
-            position_i=self.start.move(motion_i)
-            if(not self.collision(position_i)):
-                motions.append(motion_i)	
-                positions.append(position_i)
-                n-=1
-            iters-=1
-            if(iters<0):
-                raise Exception(n)
-            print(n)
-        return positions,motions
+
+    def legal(self,n):
+        return self.legal_sample(self,n)
 
     def as_dict(self):
         return {"start":self.start.vertices,
@@ -56,6 +43,37 @@ def read_problem(in_path):
             for ver_i in raw["collision"]]
     pol_envir=collision.PolygonEnvir(obstacles)
     return Problem(start,end,pol_envir)
+
+def grid_sample(problem,n):
+    min_point,width,height=problem.get_box().as_point()
+    step_x,step_y,step_theta=width/n,height/n,2*np.pi/n
+    positions,motions=[],[]
+    for i in range(n):
+        for j in range(n):
+            for k in range(n):
+                cord=(i*step_x,j*step_y,k*step_theta)
+                motion=RigidMotion(*cord)
+                position=problem.start.move(motion)
+                if(not problem.collision(position)):
+                    motions.append(motion)	
+                    positions.append(position)
+    print(len(positions))
+    return positions,motions
+
+def legal_sample(problem,n,iters=100):
+    bounds=problem.get_box()
+    positions,motions=[],[]
+    while(n>0):
+        motion_i=sample_naive(bounds,1)
+        position_i=problem.start.move(motion_i)
+        if(not problem.collision(position_i)):
+            motions.append(motion_i)	
+            positions.append(position_i)
+            n-=1
+        iters-=1
+        if(iters<0):
+            raise Exception(n)
+    return positions,motions
 
 def sample_naive(bounds,n):
     x=np.random.uniform(bounds.min[0],bounds.max[0],size=n)
