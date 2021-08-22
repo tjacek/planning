@@ -6,7 +6,6 @@ class Problem(object):
         self.start=start
         self.end=end
         self.collision=collision
-        self.legal_sample=grid_sample
 
     def get_box(self):
         box1=self.start.get_box()
@@ -14,9 +13,21 @@ class Problem(object):
         box3=self.collision.get_box()
         return box1+box2+box3
 
-    def legal(self,n):
-        return self.legal_sample(self,n)
+    def legal_position(self,raw_point):
+        motion_i=RigidMotion(*raw_point)
+        position_i=self.start.move(motion_i)
+        if(not self.collision(position_i)):
+            return position_i
+        return False
 
+    def legal(self,raw_points):
+        positions=[]
+        for point_i in raw_points:
+            position_i=self.legal_position(point_i)
+            if(position_i):
+                positions.append(position_i)	
+        return positions
+        
     def as_dict(self):
         return {"start":self.start.vertices,
                 "end":self.end.vertices,
@@ -46,39 +57,23 @@ def read_problem(in_path):
 
 def grid_sample(problem,n):
     min_point,width,height=problem.get_box().as_point()
-    step_x,step_y,step_theta=width/n,height/n,2*np.pi/n
-    positions,motions=[],[]
+    step_theta,step_x,step_y=2*np.pi/n,width/n,height/n,
+    positions,points=[],[]
     for i in range(n):
         for j in range(n):
             for k in range(n):
-                cord=(i*step_x,j*step_y,k*step_theta)
-                motion=RigidMotion(*cord)
-                position=problem.start.move(motion)
-                if(not problem.collision(position)):
-                    motions.append(motion)	
-                    positions.append(position)
+                point_ijk=(i*step_x,j*step_y,k*step_theta)
+                position_ijk=problem.legal_position(point_ijk)
+                if(position_ijk):
+                    positions.append(position_ijk)
+                    points.append(point_ijk)
     print(len(positions))
-    return positions,motions
+    return positions,points
 
-def legal_sample(problem,n,iters=100):
+def sample_naive(problem,n):
     bounds=problem.get_box()
-    positions,motions=[],[]
-    while(n>0):
-        motion_i=sample_naive(bounds,1)
-        position_i=problem.start.move(motion_i)
-        if(not problem.collision(position_i)):
-            motions.append(motion_i)	
-            positions.append(position_i)
-            n-=1
-        iters-=1
-        if(iters<0):
-            raise Exception(n)
-    return positions,motions
-
-def sample_naive(bounds,n):
     x=np.random.uniform(bounds.min[0],bounds.max[0],size=n)
     y=np.random.uniform(bounds.min[1],bounds.max[1],size=n)
     theta=np.random.uniform(0,2*np.pi,size=n)
-    if(n==1):
-        return RigidMotion(theta[0],x[0],y[0])
-    return [ RigidMotion(theta[i],x[i],y[i]) for i in range(n)]
+    points=np.array([theta,x,y]).T
+    return problem.legal(points)
