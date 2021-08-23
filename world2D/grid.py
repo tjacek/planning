@@ -46,9 +46,9 @@ def make_grid(problem,bounds):
     step_theta,step_x,step_y=2*np.pi/x,width/y,height/z
     grid=Grid()
     for i in range(x):
-        for j in range(y):
-            for k in range(z):
-                point_ijk=(i*step_x,j*step_y,k*step_theta)
+        for j in range(y+1):
+            for k in range(z+1):
+                point_ijk=(i*step_theta,j*step_x,k*step_y) #(i*step_x,j*step_y,k*step_theta)
                 position_ijk=problem.legal_position(point_ijk)
                 triple_i=(i,j,k)
                 if(position_ijk):
