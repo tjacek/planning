@@ -55,21 +55,6 @@ def read_problem(in_path):
     pol_envir=collision.PolygonEnvir(obstacles)
     return Problem(start,end,pol_envir)
 
-def grid_sample(problem,n):
-    min_point,width,height=problem.get_box().as_point()
-    step_theta,step_x,step_y=2*np.pi/n,width/n,height/n,
-    positions,points=[],[]
-    for i in range(n):
-        for j in range(n):
-            for k in range(n):
-                point_ijk=(i*step_x,j*step_y,k*step_theta)
-                position_ijk=problem.legal_position(point_ijk)
-                if(position_ijk):
-                    positions.append(position_ijk)
-                    points.append(point_ijk)
-    print(len(positions))
-    return positions,points
-
 def sample_naive(problem,n):
     bounds=problem.get_box()
     x=np.random.uniform(bounds.min[0],bounds.max[0],size=n)
