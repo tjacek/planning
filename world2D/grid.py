@@ -1,6 +1,7 @@
 import sys
 sys.path.append("..")
 import numpy as np
+import collision
 
 class Grid(object):
     def __init__(self):	
@@ -29,14 +30,58 @@ class Grid(object):
         return [vert_i.position 
                 for vert_i in self.vertices.values()] 	
 
+    def non_isolated(self):
+        self.vertices={ id_i:vertex_i
+                        for id_i,vertex_i in self.vertices.items()
+                            if( len(vertex_i.edges) >0)} 	
+
+    def find_close(self,position):
+        states=list(self.vertices.values())
+        distance=[collision.polygon_metric(state_i.position,position)
+                    for state_i in states]
+        return states[np.argmax(distance)]
+
+    def dijkstra(self,start,end):
+        states=list(self.vertices.values())
+        for state_i in states:
+        	state_i.reset()
+        start.cost=0
+        while(states):
+            states.sort(key=lambda x:x.cost,reverse=True)
+            state_i=states.pop()
+            for near_j in state_i.edges:
+            	if(near_j.cost>(state_i.cost+1)):
+                    near_j.cost=state_i.cost+1
+                    near_j.parent=state_i	
+        positions=[]
+        state_i=end
+        while(state_i):
+            positions.append(state_i.position)
+            state_i=state_i.parent
+        return positions
+
 class Vertex(object):
     def __init__(self,position):
         self.position=position
         self.edges=[]
+        self.visited=False
+        self.parent=None
+        self.cost=np.inf
 
     def add_edge(self,vertex):
         self.edges.append(vertex)
 
+    def reset(self):
+        self.visited=False
+        self.parent=None
+        self.cost=np.inf	
+
+def grid_search(problem,bounds):
+    grid=make_grid(problem,bounds)
+    start=grid.find_close(problem.start)
+    end=grid.find_close(problem.end)
+    return grid.dijkstra(start,end)
+    
 def make_grid(problem,bounds):
     if(type(bounds)==int):
         x,y,z=bounds,bounds,bounds
@@ -55,6 +100,7 @@ def make_grid(problem,bounds):
                     grid.add_state(triple_i,position_ijk)
                 else:
                     grid.add_illegal(triple_i)
+    grid.non_isolated()
     return grid
 
 def get_id(triple):
@@ -79,5 +125,6 @@ def cantor_invert(z):
 
 import world2D,plot
 problem=world2D.read_problem("square.json")
-grid=make_grid(problem,(5,5,5))
-plot.plot_problem(problem,grid.get_positions(),False)
+#position=make_grid(problem,(5,5,5)).get_positions()
+position=grid_search(problem,(5,5,5))
+plot.plot_problem(problem,position,False)

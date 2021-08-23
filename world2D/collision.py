@@ -38,6 +38,11 @@ class PolygonEnvir(object):
     def as_numpy(self):
         return [pol_i.vertices for pol_i in self.obstacles]
 
+def polygon_metric(pol1,pol2):
+    x=np.sum(pol1.vertices,axis=0)
+    y=np.sum(pol2.vertices,axis=0)
+    return np.linalg.norm(x-y)
+
 def polygon_collision(pol1,pol2):
     edges =  pol1.as_edges() + pol2.as_edges()
     axes = [get_normal(edge) for edge in edges]
