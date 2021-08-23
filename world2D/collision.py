@@ -43,7 +43,7 @@ def polygon_collision(pol1,pol2):
     axes = [get_normal(edge) for edge in edges]
     for axis_i in axes:
         proj1=project(pol1, axis_i)
-        proj2=project(pol1, axis_i)
+        proj2=project(pol2, axis_i)
         overlapping = overlap(proj1, proj2)
         if not overlapping:
             return False
@@ -59,11 +59,15 @@ def project(polygon, axis_i):
     return [np.min(dots), np.max(dots)]
 
 def overlap(proj1, proj2):
-    return min(proj1) <= max(proj2) and min(proj2) <= max(proj1)
+    return (min(proj1) <= max(proj2)) and (min(proj2) <= max(proj1))
 
 if __name__ == "__main__":
     a=convex.ConvexPolygon([[-2,-1],[2,-1],[2,1],[-2,1]])
     b=convex.ConvexPolygon([[-1,-2],[-1,2],[1,2],[1,-2]])
     print(polygon_collision(a,b))
-#    import plot
-#    plot.plot_polygon([a,b])
+    import plot
+    plot.plot_polygon([a,b])
+    a=convex.ConvexPolygon([[2,0],[4,0],[4,-2],[2,-2]])
+    b=convex.ConvexPolygon([[-1,-2],[-1,2],[1,2],[1,-2]])
+    print(polygon_collision(a,b))
+    plot.plot_polygon([a,b]) 
