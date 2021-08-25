@@ -6,6 +6,9 @@ class Problem(object):
         self.start=start
         self.end=end
         self.collision=collision
+    
+    def get_bounds(self):
+        return self.get_box().as_point()
 
     def get_box(self):
         box1=self.start.get_box()
