@@ -11,14 +11,14 @@ class Problem(object):
         return self.get_box().as_point()
 
     def get_box(self):
-        box1=self.start.get_box()
-        box2=self.end.get_box()
+        box1=self.start.polygon.get_box()
+        box2=self.end.polygon.get_box()
         box3=self.collision.get_box()
         return box1+box2+box3
 
     def legal_position(self,raw_point):
         motion_i=RigidMotion(*raw_point)
-        position_i=self.start.move(motion_i)
+        position_i=self.start.polygon.move(motion_i)
         if(not self.collision(position_i)):
             return position_i
         return False

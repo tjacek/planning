@@ -7,10 +7,11 @@ import collision,convex
 def plot_problem(problem, positions=None,boxes=False):
     if(type(positions)==int):
         positions=problem.positions(positions)
-    polygons=problem.collision.obstacles
+    obstacles=problem.collision.obstacles
+    states=[state_i.polygon for state_i in positions]
     fig, ax = plt.subplots()
-    pol_dict=[(polygons,(0,1,0)),(problem.start,(0,0,1)),
-              (problem.end,(1,0,0)), (positions,(0.5,0.5,0))]
+    pol_dict=[(obstacles,(0,1,0)),( [problem.start.polygon],(0,0,1)),
+              ([problem.end.polygon],(1,0,0)), (states,(0.5,0.5,0))]
     fun=to_rectangle if(boxes) else to_patches
     for pol_i,color_i in pol_dict:
         if(pol_i):

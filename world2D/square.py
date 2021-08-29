@@ -1,7 +1,7 @@
 import sys
 sys.path.append("..")
 import numpy as np
-import convex,collision,plot,world2D
+import convex,collision,plot,world2D,states
 
 def make_problem(n_rect=5,width=1,height=5,gap=1):
 	obst=rect_world(n_rect)
@@ -9,9 +9,11 @@ def make_problem(n_rect=5,width=1,height=5,gap=1):
 	x,y=box.min-gap
 	x,y=x-width,y-height
 	start=make_rect(x,y,width,height)
-	x,y=box.max+gap
-	x,y=x+width,y+height
-	end=make_rect(x,y,width,height)
+	start=states.State([0,0,0],start)
+	x_e,y_e=box.max+gap
+#	x_e,y_e=x+width,y+height
+	end=make_rect(x_e,y_e,width,height)
+	end=states.State([0,x_e-x,y_e-y] ,end)
 	return world2D.Problem(start,end,obst)
 
 def rect_world(n_rect,min_size=1,max_size=3,world_x=10,world_y=10):
@@ -39,10 +41,11 @@ def check_boxes(envir):
                 box_coll=(box_i,box_j,box_i(box_j),box_j(box_i))
                 print("%s;%s;%d,%d" % box_coll)
 
-#problem=make_problem(n_rect=5)
+problem=make_problem(n_rect=5)
 #problem.save("square.json")
-problem=world2D.read_problem("square.json")
-positions=world2D.grid_sample(problem,5)[0]  #problem.legal(5)[0]
+#problem=world2D.read_problem("square.json")
+import grid
+positions=grid.grid_search(problem,(10,10,10))  #problem.legal(5)[0]
 #plot.plot_positions(positions)
 plot.plot_problem(problem,positions,False)
 #plot.plot_problem(problem,positions,True)
