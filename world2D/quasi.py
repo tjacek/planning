@@ -17,20 +17,24 @@ def corput(n,base):
     return q
 
 def sample_quasi(problem,n):
-    min_point,width,height=problem.get_bounds()
-    scale=[2*np.pi,width,height]
-    quasi_seq=Halton((2,3,5))
     alpha=[]
-    for i in range(n):
-        raw_i=np.array(quasi_seq(i+1))
-        point_i= scale*raw_i
-        point_i[1]+=min_point[0]
-        point_i[2]+=min_point[1]
+    for point_i in quasi_gen(problem,n):
         polygon_i=problem.legal_position(point_i)
         if(polygon_i):
             state_i=states.State(point_i,polygon_i)
             alpha.append(state_i)	
     return alpha
+
+def quasi_gen(problem,n):
+    min_point,width,height=problem.get_bounds()
+    scale=[2*np.pi,width,height]
+    quasi_seq=Halton((2,3,5))
+    for i in range(n):
+        raw_i=np.array(quasi_seq(i+1))
+        point_i= scale*raw_i
+        point_i[1]+=min_point[0]
+        point_i[2]+=min_point[1]
+        yield point_i
 
 if __name__ == "__main__":
     import sys

@@ -56,10 +56,18 @@ def rdt_search(problem,k):
     return [vertex_i.state for vertex_i in path]
 
 def make_rapid(problem,k):
-    alpha=quasi.sample_quasi(problem,k)
+    alpha=quasi.quasi_gen(problem,k)
     rd_tree=RDTree(problem.start)
     for alpha_i in alpha:
-        rd_tree.add_node(alpha_i)
+        state_i,legal_i=problem.get_state(alpha_i)
+        if(not legal_i):
+            q_n=rd_tree.near(state_i).state
+            q_s=problem.stopping_conf(q_n,state_i)
+            if(q_n!=q_s):
+                print(q_s)
+                rd_tree.add_node(q_s)
+        else:
+            rd_tree.add_node(state_i)		
     return rd_tree
 
 def show_tree(problem,rd_tree):
@@ -72,6 +80,7 @@ def show_tree(problem,rd_tree):
 
 import square
 problem=square.make_problem()
-path=rdt_search(problem,1000)
+path=make_rapid(problem,100)
+#path=rdt_search(problem,100)
 #show_tree(problem,path)
-plot.plot_problem(problem,path,False)
+plot.plot_problem(problem,path.get_states(),False)
