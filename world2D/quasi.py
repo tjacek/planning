@@ -1,4 +1,5 @@
 import numpy as np
+import states
 
 class Halton(object):
     def __init__(self,p=(2,3,5)):
@@ -19,7 +20,7 @@ def sample_quasi(problem,n):
     min_point,width,height=problem.get_bounds()
     scale=[2*np.pi,width,height]
     quasi_seq=Halton((2,3,5))
-    polygons=[]
+    alpha=[]
     for i in range(n):
         raw_i=np.array(quasi_seq(i+1))
         point_i= scale*raw_i
@@ -27,12 +28,14 @@ def sample_quasi(problem,n):
         point_i[2]+=min_point[1]
         polygon_i=problem.legal_position(point_i)
         if(polygon_i):
-            polygons.append(polygon_i)	
-    return polygons
+            state_i=states.State(point_i,polygon_i)
+            alpha.append(state_i)	
+    return alpha
 
-import sys
-sys.path.append("..")
-import world2D,plot
-problem=world2D.read_problem("square.json")
-polygons=sample_quasi(problem,100)
-plot.plot_problem(problem,polygons,False)
+if __name__ == "__main__":
+    import sys
+    sys.path.append("..")
+    import world2D,plot
+    problem=world2D.read_problem("square.json")
+    polygons=sample_quasi(problem,100)
+    plot.plot_problem(problem,polygons,False)
