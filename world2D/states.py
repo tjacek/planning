@@ -2,7 +2,7 @@ import numpy as np
 
 class State(object):
     def __init__(self,point,polygon):
-        self.point=point
+        self.point=np.array(point)
         self.polygon=polygon
 
 class Path(object):
@@ -25,6 +25,7 @@ def get_vert(state_i):
 
 def SO2_metric(state1,state2):
     point1,point2=state1.point,state2.point
+#    raise Exception(point1)
     diff=point1[:2]-point2[:2]
     value=np.sqrt(np.sum(diff**2))
     theta_diff=np.abs(point1[2]-point2[2])

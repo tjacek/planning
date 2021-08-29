@@ -74,10 +74,9 @@ class Box(object):
 
 def get_box(polygons):
     boxes=[pol_i.get_box() for pol_i in polygons]
-    box=boxes[0]
-    for box_i in boxes[1:]:
-        box+=box_i
-    return box
+    min_all=np.amin([ box_i.min for box_i in boxes],axis=0)
+    max_all=np.amax([ box_i.max for box_i in boxes],axis=0)
+    return Box(min_all,max_all)
 
 def v_sub(a, b):
     return (a[0]-b[0], a[1]-b[1])

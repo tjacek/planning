@@ -42,11 +42,6 @@ def centroid_metric(pol1,pol2):
     x=np.sum(pol1.vertices,axis=0)
     y=np.sum(pol2.vertices,axis=0)
     return np.linalg.norm(x-y)
-
-def polygon_metric(pol1,pol2):
-    dist=[ np.linalg.norm(x_i-y_i)
-            for x_i,y_i in zip(pol1.vertices,pol2.vertices)]
-    return np.mean(dist)
     
 def polygon_collision(pol1,pol2):
     edges =  pol1.as_edges() + pol2.as_edges()

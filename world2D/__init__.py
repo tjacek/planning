@@ -11,10 +11,12 @@ class Problem(object):
         return self.get_box().as_point()
 
     def get_box(self):
-        box1=self.start.polygon.get_box()
-        box2=self.end.polygon.get_box()
-        box3=self.collision.get_box()
-        return box1+box2+box3
+        return convex.get_box(self.all_polygons())
+
+    def all_polygons(self):
+        polygons=[self.start.polygon,self.end.polygon]
+        polygons+=self.collision.obstacles
+        return polygons
 
     def legal_position(self,raw_point):
         motion_i=RigidMotion(*raw_point)
@@ -35,7 +37,7 @@ class Problem(object):
         return {"start":self.start.vertices,
                 "end":self.end.vertices,
                 "collision":self.collision.as_numpy()}
-
+    
     def save(self,out_path):
     	tools.save_json(self.as_dict(),out_path)
 
