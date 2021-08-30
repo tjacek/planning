@@ -9,7 +9,7 @@ class Halton(object):
         return [corput(n,p_j) for p_j in self.p]
 
 def corput(n,base):
-    q,bk=0,1/base
+    q,bk=0,1/float(base)
     while(n>0):
         q+=(n %base)*bk
         n/=base
@@ -36,10 +36,17 @@ def quasi_gen(problem,n):
         point_i[2]+=min_point[1]
         yield point_i
 
+def plot_seq(problem,n=100):
+    import matplotlib.pyplot as plt
+    points= [point_i[1:] 
+                for point_i in quasi_gen(problem,n)]
+    points=np.array(points).T
+    plt.scatter(points[0], points[1],alpha=0.5)
+    plt.show()
+
 if __name__ == "__main__":
     import sys
     sys.path.append("..")
-    import world2D,plot
-    problem=world2D.read_problem("square.json")
-    polygons=sample_quasi(problem,100)
-    plot.plot_problem(problem,polygons,False)
+    import square,plot
+    problem= square.make_problem() #world2D.read_problem("square.json")
+    plot_seq(problem,n=100)

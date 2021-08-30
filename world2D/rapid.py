@@ -16,9 +16,13 @@ class RDTree(object):
         return node_i
 
     def near(self,state_i):
-        distance=[ states.polygon_metric(node_i.state,state_i)
-                        for node_i in self.nodes]  
-        return self.nodes[np.argmin(distance)]
+        distance=[ states.polygon_metric(node_j.state,state_i)
+                        for node_j in self.nodes]  
+        node_min=self.nodes[np.argmin(distance)]
+        if(node_min.edges):
+           costs=[edge_i.cost for edge_i in node_min.edges]
+           return node_min.edges[np.argmin(costs)]
+        return node_min
 
     def get_states(self):
         return [node_i.state for node_i in self.nodes]
@@ -35,11 +39,14 @@ class Node(object):
         self.height=0
         self.state=state
         self.parent=None
+        self.cost=0
         self.edges=[]
 
     def add_edges(self,node_i):
         node_i.parent=self	
         node_i.height=self.height+1
+        prev=node_i.parent
+        self.cost=prev.cost=states.polygon_metric(node_i.state,prev.state)
         self.edges.append(node_i)
 
     def get_path(self):
@@ -80,7 +87,7 @@ def show_tree(problem,rd_tree):
 
 import square
 problem=square.make_problem()
-path=make_rapid(problem,100)
-#path=rdt_search(problem,100)
+#path=make_rapid(problem,200).get_states()
+path=rdt_search(problem,100)
 #show_tree(problem,path)
-plot.plot_problem(problem,path.get_states(),False)
+plot.plot_problem(problem,path,False)
