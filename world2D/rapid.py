@@ -85,9 +85,13 @@ def show_tree(problem,rd_tree):
         k+=1
         level_k=rd_tree.get_level(k)
 
+def rapid_exp(problem=None,n=100):
+    if(problem is None):
+        problem=square.make_problem()
+    path=rdt_search(problem,n)
+    plot.plot_problem(problem,path,False)
+
 import square
-problem=square.make_problem()
 #path=make_rapid(problem,200).get_states()
-path=rdt_search(problem,100)
 #show_tree(problem,path)
-plot.plot_problem(problem,path,False)
+rapid_exp(problem=None,n=100)
