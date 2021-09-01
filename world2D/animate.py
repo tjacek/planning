@@ -26,7 +26,7 @@ def add_objects(ax,plot_objects):
         p_i=plot.to_patches(pol_i,facecolor=color_i)
         ax.add_collection(p_i)
 
-import rapid,square
+import rapid,square,rrt
 problem=square.make_problem()
-path=rapid.rdt_search(problem,100)
+path=rrt.rdt_search(problem,100)
 plot_problem(problem,path)
