@@ -60,7 +60,7 @@ def rdt_search(problem,k):
     rd_tree=make_rapid(problem,k)
     end=rd_tree.add_node(problem.end)
     path=end.get_path()
-    return [vertex_i.state for vertex_i in path]
+    return states.Path([vertex_i.state for vertex_i in path])
 
 def make_rapid(problem,k):
     alpha=quasi.quasi_gen(problem,k)
@@ -85,13 +85,15 @@ def show_tree(problem,rd_tree):
         k+=1
         level_k=rd_tree.get_level(k)
 
-def rapid_exp(problem=None,n=100):
+def rapid_exp(problem=None,n=100,scale=1.0):
     if(problem is None):
         problem=square.make_problem()
     path=rdt_search(problem,n)
-    plot.plot_problem(problem,path,False)
+    points=path.as_points(scale)
+    states=[ problem.get_state(point_i)[0] for point_i in points]
+    plot.plot_problem(problem,states,False)
 
 import square
 #path=make_rapid(problem,200).get_states()
 #show_tree(problem,path)
-rapid_exp(problem=None,n=100)
+rapid_exp(problem=None,n=100,scale=3.0)
