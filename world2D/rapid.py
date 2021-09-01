@@ -93,7 +93,8 @@ def rapid_exp(problem=None,n=100,scale=1.0):
     states=[ problem.get_state(point_i)[0] for point_i in points]
     plot.plot_problem(problem,states,False)
 
-import square
-#path=make_rapid(problem,200).get_states()
-#show_tree(problem,path)
-rapid_exp(problem=None,n=100,scale=3.0)
+if __name__ == "__main__":
+    import square
+    #path=make_rapid(problem,200).get_states()
+    #show_tree(problem,path)
+    rapid_exp(problem=None,n=100,scale=3.0)
