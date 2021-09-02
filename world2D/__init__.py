@@ -26,17 +26,6 @@ class Problem(object):
     def get_conf(self,raw_point):
         motion_i=RigidMotion(*raw_point)
         return self.start.polygon.move(motion_i)
-
-#    def stopping_conf(self,legal_state,illegal_stat,n_iters=10):
-#        legal_point,illegal_point=legal_state.point,illegal_stat.point
-#        point_k=(legal_point+illegal_point)/2.0
-#        for k in range(n_iters):
-#            conf_k=self.get_conf(point_k)
-#            if(not self.collision(conf_k)):
-#                state_k=states.State(point_k,conf_k)
-#                return state_k
-#            point_k=(legal_point+illegal_point)/2
-#        return legal_state
         
     def as_dict(self):
         return {"start":self.start.vertices,
