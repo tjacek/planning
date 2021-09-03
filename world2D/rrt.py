@@ -2,14 +2,23 @@ import numpy as np
 import states,quasi
 
 class RRTree(object):
-    def __init__(self,state_i):
+    def __init__(self,state_i,metric=states.polygon_metric):
         self.nodes=[Node(state_i)]
+        self.metric=metric
 
-    def near(self,state_i):
-        distance=[ states.polygon_metric(node_j.state,state_i)
-                        for node_j in self.nodes]  
+    def near(self,state_i,nodes=None):
+        if(nodes is None):
+            nodes=self.nodes
+        distance=[ self.metric(node_j.state,state_i)
+                        for node_j in nodes]  
         return self.nodes[np.argmin(distance)]
     
+    def in_radius(self,state_i,r=0):
+        return [ node_j
+                for node_j in self.nodes
+                    if(self.metric(state)<r)]
+
+
     def add_node(self,state_i,parent):
         new_node=Node(state_i)
         new_node.parent=parent
@@ -20,6 +29,7 @@ class RRTree(object):
 class Node(object):
     def __init__(self,state):
         self.state=state
+        self.cost=0.0
         self.parent=None
         self.edges=[]
 
