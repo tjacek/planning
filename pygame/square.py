@@ -5,6 +5,12 @@ class Envir(object):
     def __init__(self,obstacles):
         self.obstacles=obstacles
 
+    def __call__(self,point):
+        for rect_i in self.obstacles: 
+            if(rect_i.collidepoint(point)):
+                return True
+        return False
+
     def show(self,window,color=(255,255,255)):
         for rect_i in envir.obstacles:
             pygame.draw.rect(window, color, rect_i)
@@ -21,7 +27,6 @@ def rect_world(n_rect,bounds=(5,10),world=(130,150)):
         rects.append(pygame.Rect(x,y,width,height))
     return Envir(rects)
 
-
 envir=rect_world(5)
 
 run = True
@@ -30,9 +35,11 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
-#    color=(255,255,255)
+    point = pygame.mouse.get_pos()
+    collide=envir(point)
+    color = (255, 0, 0) if collide else (255, 255, 255)
     window.fill(0)
-    envir.show(window)
+    envir.show(window,color)
     pygame.display.flip()
 
 pygame.quit()
