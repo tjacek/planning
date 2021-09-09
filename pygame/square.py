@@ -16,9 +16,9 @@ class Envir(object):
             pygame.draw.rect(window, color, rect_i)
 
 pygame.init()
-window = pygame.display.set_mode((250, 250))
+window = pygame.display.set_mode((1000, 1000))
 
-def rect_world(n_rect,bounds=(5,10),world=(130,150)):
+def rect_world(n_rect,bounds=(25,75),world=(900,900)):
     rects=[]
     for i in range(n_rect):
         width,height=np.random.uniform(bounds[0],bounds[1],2)
@@ -27,20 +27,23 @@ def rect_world(n_rect,bounds=(5,10),world=(130,150)):
         rects.append(pygame.Rect(x,y,width,height))
     return Envir(rects)
 
-envir=rect_world(5)
+envir=rect_world(10)
 
 run = True
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-
+    
     point = pygame.mouse.get_pos()
-    collide=envir(point)
-    color = (255, 0, 0) if collide else (255, 255, 255)
     window.fill(0)
-    envir.show(window,color)
-    pygame.display.flip()
+    envir.show(window)#,color)
+    pygame.draw.circle(window, (0,255,0),point, 5)
+
+    ev = pygame.event.get()
+    for event in ev:
+        if event.type == pygame.MOUSEBUTTONUP:
+            pygame.display.flip()
 
 pygame.quit()
 exit()
