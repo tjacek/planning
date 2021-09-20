@@ -8,11 +8,24 @@ class Grid(object):
         self.step=step
         self.cells=empty_cells(x,y,step)
 
+    def get_bounds(self):
+        max_x=self.x*self.step+self.x 
+        max_y=self.y*self.step+self.y 
+        return max_x,max_y
+
+    def get_cord(self,point):
+        i= int(point[0]/self.step)
+        j= int(point[1]/self.step)
+        return i,j 
+
+    def colide(self,point):
+        bounds=self.get_bounds() 
+        return point[0]<bounds[0] and point[1]<bounds[1]
+
     def show(self,window,color=(255,0,255)):
         for cell_i in self.cells:
             for cell_j in cell_i:
                 cell_j.show(window)
-#                pg.draw.rect(window, color, rect_j)
 
 class Cell(object):
     def __init__(self,rect,active=False):
@@ -45,6 +58,12 @@ while run:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             run = False
+        if event.type == pg.MOUSEBUTTONUP:
+            point = pg.mouse.get_pos()
+            if( grid.colide(point)):
+            	i,j=grid.get_cord(point)
+            	grid.cells[j][i].active=True
+            	print((i,j))
     grid.show(window)
     pg.display.flip()
     clock.tick(3)
