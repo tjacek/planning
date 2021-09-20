@@ -13,7 +13,22 @@ class Grid(object):
         max_x=self.x*self.step+self.x 
         max_y=self.y*self.step+self.y 
         return max_x,max_y
+    
+    def near(self,i,j):
+        candidates=[(i-1,j-1),(i-1,j),(i-1,j+1),(i,j+1),
+                    (i,j-1),(i+1,j-1),(i+1,j),(i+1,j+1)]
+        return [cand for cand in candidates
+                  if(self.valid(*cand))]
 
+    def valid(self,i,j):
+        if(i<0 or j<0):
+            return False
+        if( i>=self.x or j>=self.y):
+            return False
+        if(self.cells[i][j].active):
+            return False
+        return True
+    
     def get_cord(self,point):
         i= int(point[0]/self.step)
         j= int(point[1]/self.step)
@@ -23,7 +38,7 @@ class Grid(object):
         bounds=self.get_bounds() 
         return point[0]<bounds[0] and point[1]<bounds[1]
 
-    def show(self,window,color=(255,0,255)):
+    def show(self,window):
         for cell_i in self.cells:
             for cell_j in cell_i:
                 cell_j.show(window)
@@ -33,6 +48,9 @@ class Grid(object):
         out_file = open(out_path,"w")
         out_file.write(txt)
         out_file.close()
+
+    def set_color(self,cord,color):
+        self.cells[cord[0]][cord[1]].active=color
 
     def __str__(self):
         s=[ "".join([str(cell_j) for cell_j in cell_i])
@@ -45,10 +63,15 @@ class Cell(object):
         self.active=active
 
     def get_color(self):
+        if(type(self.active)==tuple):
+            return self.active
         return (255,0,0) if(self.active) else (0,255,0)
 
     def flip(self):
-        self.active=not self.active
+        if(type(self.active)==tuple):
+            self.active=False
+        else:
+            self.active=not self.active
 
     def show(self,window):
         color=self.get_color()	
@@ -56,6 +79,16 @@ class Cell(object):
 
     def __str__(self):
         return str(int(self.active))
+
+class SimpleContoler(object):
+    def __init__(self,grid):
+        self.grid=grid
+
+    def on_click(self,point):
+        if(self.grid.colide(point)):
+            i,j=self.grid.get_cord(point)
+            self.grid.cells[j][i].flip()
+            print((i,j))
 
 def empty_grid(x=16,y=16,step=40):
     cells=[[ make_cell(i,j,step)
@@ -77,7 +110,7 @@ def read_grid(in_path,step=40):
         for j,cell_j in enumerate( cell_i):
             active= bool(int(cell_j))
             cells[-1].append(make_cell(i,j,step,active))
-    cells=[list(i) for i in zip(*cells)]
+#    cells=[list(i) for i in zip(*cells)]
     x,y=len(cells),len(cells[0])
     return Grid(cells,x,y,step)
 
@@ -86,12 +119,12 @@ def grid_exp(out_path):
         grid=read_grid(out_path)
     else:
         grid=empty_grid()
-    grid_loop(grid)
+    grid_loop(SimpleContoler(grid))
     grid.save(out_path)
     pg.quit()
     exit()
 
-def grid_loop(grid):
+def grid_loop(controler):
     pg.init()
     window = pg.display.set_mode((1000, 1000))
     clock = pg.time.Clock()
@@ -102,12 +135,10 @@ def grid_loop(grid):
                 run = False
             if event.type == pg.MOUSEBUTTONUP:
                 point = pg.mouse.get_pos()
-                if( grid.colide(point)):
-            	    i,j=grid.get_cord(point)
-            	    grid.cells[j][i].flip()
-            	    print((i,j))
-        grid.show(window)
+                controler.on_click(point)
+        controler.grid.show(window)
         pg.display.flip()
         clock.tick(3)
 
-grid_exp("test.txt")
+if __name__ == "__main__":
+    grid_exp("test.txt")
