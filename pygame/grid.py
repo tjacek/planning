@@ -6,18 +6,34 @@ class Grid(object):
         self.x=x
         self.y=y
         self.step=step
-        self.cells=self.make_cells()
-
-    def make_cells(self):
-        return [[ pg.Rect((i*self.step)+i,(j*self.step)+j,
-                        self.step,self.step)
-                    for i in range(self.x)]
-                        for j in range(self.y)]
+        self.cells=empty_cells(x,y,step)
 
     def show(self,window,color=(255,0,255)):
-        for rect_i in self.cells:
-            for rect_j in rect_i:	
-                pg.draw.rect(window, color, rect_j)
+        for cell_i in self.cells:
+            for cell_j in cell_i:
+                cell_j.show(window)
+#                pg.draw.rect(window, color, rect_j)
+
+class Cell(object):
+    def __init__(self,rect,active=False):
+        self.rect=rect
+        self.active=active
+
+    def get_color(self):
+        return (255,0,0) if(self.active) else (0,255,0)
+
+    def show(self,window):
+        color=self.get_color()	
+        pg.draw.rect(window, color, self.rect)
+
+def empty_cells(x,y,step):
+    return [[ make_cell((i*step)+i,(j*step)+j,step)
+                for i in range(x)]
+                    for j in range(y)]
+
+def make_cell(x,y,step,active=False):
+    rect=pg.Rect(x,y,step,step)
+    return Cell(rect,active=active)
 
 pg.init()
 window = pg.display.set_mode((1000, 1000))
