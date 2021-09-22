@@ -1,3 +1,4 @@
+import pygame as pg
 import numpy as np
 import grid
 
@@ -49,6 +50,47 @@ class Vertex(object):
         self.parent=None
         self.cost=np.inf	
 
+class SearchContoler(object):
+    def __init__(self,grid,graph_grid,goal):
+        self.grid=grid
+        self.graph_grid=graph_grid
+        self.goal=goal
+        self.path=None
+        self.mode=True
+
+    def on_click(self,point):
+        if(self.grid.colide(point)):
+            if(self.mode):
+                self.set_start(point)
+            else:
+                self.set_goal(point)
+
+    def on_key(self,key):
+        self.mode=not self.mode
+        print(self.mode)
+
+    def set_start(self,point):
+        self.reset_path()
+        start=self.grid.get_cord(point)
+        path=self.graph_grid(start,self.goal)
+        for state_i in path:
+            color_i=grid.CellColors.path
+            self.grid.set_color(state_i.cord,color_i)
+        self.path=path        
+    
+    def set_goal(self,point):
+        self.reset_path()
+        self.grid.set_color(self.goal,grid.CellColors.empty)
+        self.goal=self.grid.get_cord(point)
+        color_i=grid.CellColors.path
+        self.grid.set_color(self.goal,color_i)
+
+    def reset_path(self):
+        if(self.path):
+            for state_i in self.path:
+                color_i=grid.CellColors.empty
+                self.grid.set_color(state_i.cord,color_i)	
+
 def get_grid_graph(raw_grid):
     vertices={}
     for i in range(raw_grid.x):
@@ -59,10 +101,13 @@ def get_grid_graph(raw_grid):
             vertices[key_ij]=vertex_ij
     return GridGraph(vertices)	
 
-def search(in_path,step=40):
+def search(in_path,goal=(9,7),step=40):
     raw_grid=grid.read_grid(in_path,step)	
     graph_grid=get_grid_graph(raw_grid)
-    graph_grid((2,2),(9,7))
+#    graph_grid((2,2),(9,7))
+    raw_grid.set_color(goal,grid.CellColors.goal)
+    controler=SearchContoler(raw_grid,graph_grid,goal)
+    grid.grid_loop(controler)
 
 def cantor_paring(k):
     return (k[0]+k[1])*(k[0]+k[1]+1)/2 + k[1]

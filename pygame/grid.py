@@ -1,5 +1,6 @@
 import numpy as np
 import pygame as pg
+from enum import Enum
 import os.path
 
 class Grid(object):
@@ -25,7 +26,7 @@ class Grid(object):
             return False
         if( i>=self.x or j>=self.y):
             return False
-        if(self.cells[i][j].active):
+        if(self.cells[i][j].active()):
             return False
         return True
     
@@ -50,31 +51,36 @@ class Grid(object):
         out_file.close()
 
     def set_color(self,cord,color):
-        self.cells[cord[0]][cord[1]].active=color
+#        color=color.value
+        self.cells[cord[0]][cord[1]].color=color
 
     def __str__(self):
         s=[ "".join([str(cell_j) for cell_j in cell_i])
                 for cell_i in self.cells]
         return "\n".join(s)
 
-class Cell(object):
-    def __init__(self,rect,active=False):
-        self.rect=rect
-        self.active=active
+class CellColors(Enum):
+    empty=(0,255,0)
+    obst=(255,0,0)
+    path=(0,0,255)
+    goal=(0,0,128)
 
-    def get_color(self):
-        if(type(self.active)==tuple):
-            return self.active
-        return (255,0,0) if(self.active) else (0,255,0)
+class Cell(object):
+    def __init__(self,rect,color=CellColors.empty):
+        self.rect=rect
+        self.color=color
+
+    def active(self):
+        return self.color==CellColors.obst
 
     def flip(self):
-        if(type(self.active)==tuple):
-            self.active=False
+        if(self.color==CellColors.empty):
+            self.color=CellColors.obst
         else:
-            self.active=not self.active
+            self.color=CellColors.empty
 
     def show(self,window):
-        color=self.get_color()	
+        color=self.color.value
         pg.draw.rect(window, color, self.rect)
 
     def __str__(self):
@@ -90,16 +96,23 @@ class SimpleContoler(object):
             self.grid.cells[j][i].flip()
             print((i,j))
 
+    def on_key(self,key):
+        print(key)
+
 def empty_grid(x=16,y=16,step=40):
     cells=[[ make_cell(i,j,step)
                 for i in range(x)]
                     for j in range(y)]
     return Grid(cells,x,y,step)
 
-def make_cell(i,j,step,active=False):
+def make_cell(i,j,step,color=False):
+    if(color):
+        color=CellColors.obst
+    else:
+        color=CellColors.empty
     x,y=i*step+i,j*step+j
     rect=pg.Rect(x,y,step,step)
-    return Cell(rect,active=active)
+    return Cell(rect,color)
 
 def read_grid(in_path,step=40):
     in_file = open(in_path, "r")
@@ -110,7 +123,6 @@ def read_grid(in_path,step=40):
         for j,cell_j in enumerate( cell_i):
             active= bool(int(cell_j))
             cells[-1].append(make_cell(i,j,step,active))
-#    cells=[list(i) for i in zip(*cells)]
     x,y=len(cells),len(cells[0])
     return Grid(cells,x,y,step)
 
@@ -136,6 +148,8 @@ def grid_loop(controler):
             if event.type == pg.MOUSEBUTTONUP:
                 point = pg.mouse.get_pos()
                 controler.on_click(point)
+            if event.type == pg.KEYDOWN:
+                controler.on_key(event.key)
         controler.grid.show(window)
         pg.display.flip()
         clock.tick(3)
