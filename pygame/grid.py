@@ -84,7 +84,7 @@ class Cell(object):
         pg.draw.rect(window, color, self.rect)
 
     def __str__(self):
-        return str(int(self.active))
+        return str(int(self.active()))
 
 class SimpleContoler(object):
     def __init__(self,grid):

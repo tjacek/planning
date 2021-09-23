@@ -5,20 +5,27 @@ import grid
 class GridGraph(object):
     def __init__(self,vertices):
         self.vertices=vertices
+        self.goal=None
 
-    def __call__(self,start_cord,goal_cord):
-        start,goal=self[start_cord],self[goal_cord]
-        self.dijkstra(goal)
+    def __getitem__(self,cord):
+        return self.vertices[cantor_paring(cord)]
+
+    def find_path(self,start):
+        if(type(start)==tuple):
+            start=self[start]
         path=[]
         vertex_i=start
         while(vertex_i):
             path.append(vertex_i)
             vertex_i=vertex_i.parent
         print(len(path))
-        return path
+        return path	
 
-    def __getitem__(self,cord):
-        return self.vertices[cantor_paring(cord)]	
+    def set_goal(self,goal):
+        if(type(goal)==tuple):
+            goal=self[goal]
+        self.goal=goal
+        self.dijkstra(self.goal)
 
     def dijkstra(self,end):
         self.reset()
@@ -51,7 +58,7 @@ class Vertex(object):
         self.cost=np.inf	
 
 class SearchContoler(object):
-    def __init__(self,grid,graph_grid,goal):
+    def __init__(self,grid,graph_grid,goal=(0,0)):
         self.grid=grid
         self.graph_grid=graph_grid
         self.goal=goal
@@ -72,7 +79,7 @@ class SearchContoler(object):
     def set_start(self,point):
         self.reset_path()
         start=self.grid.get_cord(point)
-        path=self.graph_grid(start,self.goal)
+        path=self.graph_grid.find_path(start)
         for state_i in path:
             color_i=grid.CellColors.path
             self.grid.set_color(state_i.cord,color_i)
@@ -80,9 +87,11 @@ class SearchContoler(object):
     
     def set_goal(self,point):
         self.reset_path()
-        self.grid.set_color(self.goal,grid.CellColors.empty)
+        if(self.goal):
+            self.grid.set_color(self.goal,grid.CellColors.empty)
         self.goal=self.grid.get_cord(point)
-        color_i=grid.CellColors.path
+        self.graph_grid.set_goal(self.goal)
+        color_i=grid.CellColors.goal
         self.grid.set_color(self.goal,color_i)
 
     def reset_path(self):
@@ -101,12 +110,11 @@ def get_grid_graph(raw_grid):
             vertices[key_ij]=vertex_ij
     return GridGraph(vertices)	
 
-def search(in_path,goal=(9,7),step=40):
+def search(in_path,step=40):
     raw_grid=grid.read_grid(in_path,step)	
     graph_grid=get_grid_graph(raw_grid)
-#    graph_grid((2,2),(9,7))
-    raw_grid.set_color(goal,grid.CellColors.goal)
-    controler=SearchContoler(raw_grid,graph_grid,goal)
+    controler=SearchContoler(raw_grid,graph_grid)
+    controler.set_goal((3,3))
     grid.grid_loop(controler)
 
 def cantor_paring(k):
