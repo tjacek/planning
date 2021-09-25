@@ -1,5 +1,5 @@
 import pygame as pg
-import grid,graph
+import grid,graph,foward
 
 class SearchContoler(object):
     def __init__(self,grid,graph_grid,goal=(0,0)):
@@ -50,7 +50,7 @@ def search(in_path,step=40):
     raw_grid=grid.read_grid(in_path,step)	
     vertices=graph.get_grid_graph(raw_grid)
 #    graph_grid=graph.DijkstraSearch(vertices)
-    graph_grid=graph.FowardSearch(vertices,graph.FIFO)
+    graph_grid=foward.FowardSearch(vertices,foward.BestFirst)
     controler=SearchContoler(raw_grid,graph_grid)
     controler.set_goal((3,3))
     grid.grid_loop(controler)

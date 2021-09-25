@@ -54,59 +54,6 @@ class DijkstraSearch(GridGraph):
                     near_j.cost=state_i.cost+1
                     near_j.parent=state_i
 
-
-class FowardSearch(GridGraph):
-    def __init__(self,vertices,queue_type=None):
-        super().__init__(vertices)
-        if(queue_type is None):
-            queue_type=LIFO
-        self.queue_type=queue_type
-
-    def find_path(self,start):
-        if(type(start)==tuple):
-            start=self[start]
-        self.reset()
-        Q=self.queue_type()
-        start.visited=True
-        Q.insert(start)
-        while(Q):
-            x=Q.get_first()
-            if(x.cord==self.goal.cord):
-                return get_path(self.goal)
-            for edge_i in x.edges:
-                x_i=self[edge_i]
-                if(not x_i.visited):
-                    x_i.parent=x
-                    x_i.visited=True
-                    Q.insert(x_i)
-        return False
-
-class LIFO(object):
-    def __init__(self):
-        self.q=[]
-
-    def __bool__(self):
-        return len(self.q)!=0
-
-    def insert(self,x):
-        return self.q.append(x)
-
-    def get_first(self):
-        return self.q.pop()
-
-class FIFO(object):
-    def __init__(self):
-        self.q=queue.Queue()
-
-    def get_first(self):
-        return self.q.get()
-
-    def insert(self,value):
-        return self.q.put(value)
-
-    def __bool__(self):
-        return (not self.q.empty())
-
 def cantor_paring(k):
     return (k[0]+k[1])*(k[0]+k[1]+1)/2 + k[1]
 

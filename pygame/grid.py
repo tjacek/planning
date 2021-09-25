@@ -10,6 +10,9 @@ class Grid(object):
         self.step=step
         self.cells=cells
 
+    def __getitem__(self,cord):
+        return self.cells[cord[0]][cord[1]]
+
     def get_bounds(self):
         max_x=self.x*self.step+self.x 
         max_y=self.y*self.step+self.y 
@@ -51,8 +54,7 @@ class Grid(object):
         out_file.close()
 
     def set_color(self,cord,color):
-#        color=color.value
-        self.cells[cord[0]][cord[1]].color=color
+        self[cord].color=color
 
     def __str__(self):
         s=[ "".join([str(cell_j) for cell_j in cell_i])
