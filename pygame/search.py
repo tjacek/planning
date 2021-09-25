@@ -24,6 +24,8 @@ class SearchContoler(object):
         self.reset_path()
         start=self.grid.get_cord(point)
         path=self.graph_grid.find_path(start)
+        if(not path):
+            return
         for state_i in path:
             color_i=grid.CellColors.path
             self.grid.set_color(state_i.cord,color_i)
@@ -47,7 +49,8 @@ class SearchContoler(object):
 def search(in_path,step=40):
     raw_grid=grid.read_grid(in_path,step)	
     vertices=graph.get_grid_graph(raw_grid)
-    graph_grid=graph.DijkstraSearch(vertices)
+#    graph_grid=graph.DijkstraSearch(vertices)
+    graph_grid=graph.FowardSearch(vertices,graph.FIFO)
     controler=SearchContoler(raw_grid,graph_grid)
     controler.set_goal((3,3))
     grid.grid_loop(controler)
