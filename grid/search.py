@@ -1,57 +1,58 @@
-import foward,grid
-import grid.states as states
+import pygame as pg
+import grid,graph,foward
 
-class GridSearch(object):
-    def __init__(self,grid,queue=None,gen_pairs=None,
-                search_type=None):
-        self.grid=states.GridStates(grid,gen_pairs)
-        if(search_type is None):
-            search_type=foward.FowardSearch
-        self.search=search_type(self.grid,queue)
+class SearchContoler(object):
+    def __init__(self,grid,graph_grid,goal=(0,0)):
+        self.grid=grid
+        self.graph_grid=graph_grid
+        self.goal=goal
+        self.path=None
+        self.mode=True
 
-    def __call__(self,start,end):
-        if(self.grid.grid[end]):
-            return False	
-        self.grid.goal=self.grid.get_state(end)
-        start=self.grid.get_state(start)
-        if(hasattr(self.search.priority_queue, 'set_goal')):
-            self.search.priority_queue.set_goal(self.grid.goal)
-        return self.search(start)	
+    def on_click(self,point):
+        if(self.grid.colide(point)):
+            if(self.mode):
+                self.set_start(point)
+            else:
+                self.set_goal(point)
+
+    def on_key(self,key):
+        self.mode=not self.mode
+        print(self.mode)
+
+    def set_start(self,point):
+        self.reset_path()
+        start=self.grid.get_cord(point)
+        path=self.graph_grid.find_path(start)
+        if(not path):
+            return
+        for state_i in path:
+            color_i=grid.CellColors.path
+            self.grid.set_color(state_i.cord,color_i)
+        self.path=path        
     
-    def get_plan(self):
-        path=[]
-        current=self.grid.goal
-        while(current):
-            path.append(states.cantor_invert(current.id))
-            current=current.parent
-        path.reverse()
-        return path
+    def set_goal(self,point):
+        self.reset_path()
+        if(self.goal):
+            self.grid.set_color(self.goal,grid.CellColors.empty)
+        self.goal=self.grid.get_cord(point)
+        self.graph_grid.set_goal(self.goal)
+        color_i=grid.CellColors.goal
+        self.grid.set_color(self.goal,color_i)
 
-def save_plan(grid_search,out_path=None):
-    grid=grid_search.grid.grid.get_grid()
-    plan=grid_search.get_plan()
-    for pair_i in plan:
-        grid[pair_i]='@'
-    text='\n'.join([''.join(row) 
-    	                for row in grid])
-    if(out_path):
-        with open(out_path, "w") as text_file:
-            text_file.write(text)
-    else:
-        print(text)
+    def reset_path(self):
+        if(self.path):
+            for state_i in self.path:
+                color_i=grid.CellColors.empty
+                self.grid.set_color(state_i.cord,color_i)
 
-def get_grid(in_path,grid_type=None):
-    gs=grid.read_grid(in_path)
-    if(grid_type=="depth"):
-        q=None	
-    elif(grid_type=="breadth"):
-        q=foward.FIFO()	
-    elif(grid_type=="best"):
-        q=foward.BestFirst(grid.states.distance_heuristic)
-    elif(grid_type=="a_star"):
-        q=foward.AStar(grid.states.distance_heuristic) 
-    elif(grid_type=="iter"):
-        q=foward.Iterative()
-    else:
-        q=foward.Dijkstra()
-    return GridSearch(gs,q)
+def search(in_path,step=40):
+    raw_grid=grid.read_grid(in_path,step)	
+    vertices=graph.get_grid_graph(raw_grid)
+#    graph_grid=graph.DijkstraSearch(vertices)
+    graph_grid=foward.FowardSearch(vertices,foward.BestFirst)
+    controler=SearchContoler(raw_grid,graph_grid)
+    controler.set_goal((3,3))
+    grid.grid_loop(controler)
+
+search("test.txt")
