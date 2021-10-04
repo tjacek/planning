@@ -16,11 +16,6 @@ class Polygon(object):
     def show(self,window):
     	pg.draw.polygon(window,(0,128,0),self.vertices)
 
-def make_world():
-    pol1=Polygon([[100,100],[200,100],[200,200],[100,200]])
-    pol2=Polygon([[300,300],[400,300],[400,400],[300,400]])
-    return World([pol1,pol2])
-
 def polygon_loop(world):
     pg.init()
     window = pg.display.set_mode((1000, 1000))
@@ -35,6 +30,8 @@ def polygon_loop(world):
         clock.tick(3)
     pg.quit()
     exit()
-    
-world=make_world()
-polygon_loop(world)
+
+if __name__ == "__main__":
+    import gen
+    world=gen.gen_world(15)
+    polygon_loop(world)
