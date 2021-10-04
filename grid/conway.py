@@ -19,9 +19,9 @@ class ConwayControler(object):
         next_state=np.array(next_state)
         for cord, alive in np.ndenumerate(next_state):
             if(alive):
-                self.grid.set_color(cord,grid.CellColors.obst)
+                self.grid.set_color(cord,"obst")
             else: 
-                self.grid.set_color(cord,grid.CellColors.empty)
+                self.grid.set_color(cord,"empty")
 
     def is_alive(self,i,j):
         n_alive=8-len(self.grid.near(i,j))

@@ -27,30 +27,27 @@ class SearchContoler(object):
         if(not path):
             return
         for state_i in path:
-            color_i=grid.CellColors.path
-            self.grid.set_color(state_i.cord,color_i)
+            self.grid.set_color(state_i.cord,"path")
         self.path=path        
     
     def set_goal(self,point):
         self.reset_path()
         if(self.goal):
-            self.grid.set_color(self.goal,grid.CellColors.empty)
+            self.grid.set_color(self.goal,"empty")
         self.goal=self.grid.get_cord(point)
         self.graph_grid.set_goal(self.goal)
-        color_i=grid.CellColors.goal
-        self.grid.set_color(self.goal,color_i)
+        self.grid.set_color(self.goal,"goal")
 
     def reset_path(self):
         if(self.path):
             for state_i in self.path:
-                color_i=grid.CellColors.empty
-                self.grid.set_color(state_i.cord,color_i)
+                self.grid.set_color(state_i.cord,"empty")
 
 def search(in_path,step=40):
     raw_grid=grid.read_grid(in_path,step)	
     vertices=graph.get_grid_graph(raw_grid)
-#    graph_grid=graph.DijkstraSearch(vertices)
-    graph_grid=foward.FowardSearch(vertices,foward.BestFirst)
+    graph_grid=graph.DijkstraSearch(vertices)
+#    graph_grid=foward.FowardSearch(vertices,foward.BestFirst)
     controler=SearchContoler(raw_grid,graph_grid)
     controler.set_goal((3,3))
     grid.grid_loop(controler)

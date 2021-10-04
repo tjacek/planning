@@ -4,11 +4,14 @@ from enum import Enum
 import os.path
 
 class Grid(object):
-    def __init__(self,cells,x=16,y=16,step=40):
+    def __init__(self,cells,x=16,y=16,step=40,color_map=None):
+        if(color_map is None):
+            color_map=default_color_map
         self.x=x
         self.y=y
         self.step=step
         self.cells=cells
+        self.color_map=color_map
 
     def __getitem__(self,cord):
         return self.cells[cord[0]][cord[1]]
@@ -53,8 +56,10 @@ class Grid(object):
         out_file.write(txt)
         out_file.close()
 
-    def set_color(self,cord,color):
-        self[cord].color=color
+    def set_color(self,cord,color_id):
+        cell=self[cord]
+        color=self.color_map(cell,color_id)
+        cell.color=color
 
     def __str__(self):
         s=[ "".join([str(cell_j) for cell_j in cell_i])
@@ -75,12 +80,6 @@ class Cell(object):
     def active(self):
         return self.color==CellColors.obst
 
-    def flip(self):
-        if(self.color==CellColors.empty):
-            self.color=CellColors.obst
-        else:
-            self.color=CellColors.empty
-
     def show(self,window):
         color=self.color.value
         pg.draw.rect(window, color, self.rect)
@@ -94,12 +93,21 @@ class SimpleContoler(object):
 
     def on_click(self,point):
         if(self.grid.colide(point)):
-            i,j=self.grid.get_cord(point)
-            self.grid.cells[j][i].flip()
-            print((i,j))
+            cord=self.grid.get_cord(point)
+            self.grid.set_color(cord,None)        
+            print(cord)
 
     def on_key(self,key):
         print(key)
+
+def default_color_map(cell,color_id):
+    if(type(color_id)==str):
+        return CellColors[color_id]
+    print(color_id)
+    if(cell.color==CellColors.empty):
+        return CellColors.obst
+    else:
+        return CellColors.empty
 
 def empty_grid(x=16,y=16,step=40):
     cells=[[ make_cell(i,j,step)
