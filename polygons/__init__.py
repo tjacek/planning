@@ -5,16 +5,39 @@ class World(object):
     def __init__(self,polygons):
         self.polygons=polygons
 
+    def move(self,motion):
+        for pol_i in self.polygons:
+            pol_i.move(motion)
+
     def show(self,window):
         for pol_i in self.polygons:
             pol_i.show(window)	
 
 class Polygon(object):
     def __init__(self,vertices):
+        if(type(vertices)==list):
+            vertices=np.array(vertices)
         self.vertices=vertices
+    
+    def move(self,motion):
+        self.vertices=np.array([motion(vert_i)
+             for vert_i in self.vertices])
+#        print(self.vertices.shape)
 
     def show(self,window):
-    	pg.draw.polygon(window,(0,128,0),self.vertices)
+        point=[vert_i for vert_i in self.vertices]
+#        raise Exception(point[0].shape)
+        pg.draw.polygon(window,(0,128,0),point)
+
+class RigidMotion(object):
+    def __init__(self,theta,x,y):
+        self.theta=theta    
+        self.a=np.array([[np.cos(theta),-np.sin(theta)],
+                        [np.sin(theta),np.cos(theta)]])
+        self.b=np.array([x,y])
+
+    def __call__(self,point):
+        return self.a.dot(point)+self.b
 
 def polygon_loop(world):
     pg.init()
@@ -33,5 +56,5 @@ def polygon_loop(world):
 
 if __name__ == "__main__":
     import gen
-    world=gen.gen_world(15)
+    world=gen.cell_world(15)
     polygon_loop(world)

@@ -3,6 +3,11 @@ sys.path.append("..")
 import numpy as np
 import polygons 
 
+def cell_world(n_rect):
+    world=gen_world(n_rect)
+    world.move(random_rotation())
+    return world
+
 def gen_world(n_rect,bound_world=(800,800),
         bound_width=(5,50),bound_height=(5,20)):
     rects=[]
@@ -18,3 +23,7 @@ def make_rect(x,y,width,height):
 	vertices=[[x,y],[x+width,y],[x+width,y+height],
 	        [x,y+height]]
 	return polygons.Polygon(vertices)
+
+def random_rotation():
+    theta=np.random.uniform(0,2*np.pi,size=None)
+    return polygons.RigidMotion(theta,0.0,0.0)
