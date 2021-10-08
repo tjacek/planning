@@ -6,8 +6,12 @@ class World(object):
         self.polygons=polygons
 
     def move(self,motion):
-        for pol_i in self.polygons:
-            pol_i.move(motion)
+        if(type(motion)==list):
+            for motion_i,pol_i in zip(motion,self.polygons):
+                pol_i.move(motion_i)
+        else:
+            for pol_i in self.polygons:
+                pol_i.move(motion)
 
     def show(self,window):
         for pol_i in self.polygons:
@@ -22,11 +26,9 @@ class Polygon(object):
     def move(self,motion):
         self.vertices=np.array([motion(vert_i)
              for vert_i in self.vertices])
-#        print(self.vertices.shape)
 
     def show(self,window):
         point=[vert_i for vert_i in self.vertices]
-#        raise Exception(point[0].shape)
         pg.draw.polygon(window,(0,128,0),point)
 
 class RigidMotion(object):
@@ -37,7 +39,7 @@ class RigidMotion(object):
         self.b=np.array([x,y])
 
     def __call__(self,point):
-        return self.a.dot(point)+self.b
+        return self.a.dot(point)#+self.b
 
 def polygon_loop(world):
     pg.init()
@@ -56,5 +58,5 @@ def polygon_loop(world):
 
 if __name__ == "__main__":
     import gen
-    world=gen.cell_world(15)
+    world=gen.cell_world(30)
     polygon_loop(world)

@@ -5,7 +5,7 @@ import polygons
 
 def cell_world(n_rect):
     world=gen_world(n_rect)
-    world.move(random_rotation())
+    world.move(random_rotation(n_rect))
     return world
 
 def gen_world(n_rect,bound_world=(800,800),
@@ -24,6 +24,10 @@ def make_rect(x,y,width,height):
 	        [x,y+height]]
 	return polygons.Polygon(vertices)
 
-def random_rotation():
-    theta=np.random.uniform(0,2*np.pi,size=None)
-    return polygons.RigidMotion(theta,0.0,0.0)
+def random_rotation(n=None):
+    theta=np.random.uniform(0,2*np.pi,size=n)
+    if(n is None):
+        return polygons.RigidMotion(theta,0.0,0.0)
+    else:
+        return [polygons.RigidMotion(theta_i,0.0,0.0)
+                    for theta_i in theta]
