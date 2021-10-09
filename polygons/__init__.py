@@ -17,6 +17,13 @@ class World(object):
         for pol_i in self.polygons:
             pol_i.show(window)	
 
+    def get_box(self):
+        raw=np.array([pol_i.get_box() 
+                for pol_i in self.polygons])
+        p_max=np.amax(raw[:,0],axis=0)
+        p_min=np.amin(raw[:,1],axis=0)
+        return (p_min,p_max)
+
 class Polygon(object):
     def __init__(self,vertices):
         if(type(vertices)==list):
@@ -31,6 +38,11 @@ class Polygon(object):
         point=[vert_i for vert_i in self.vertices]
         pg.draw.polygon(window,(0,128,0),point)
 
+    def get_box(self):
+        v_min=np.amin(self.vertices,axis=0)
+        v_max=np.amax(self.vertices,axis=0)
+        return (v_min,v_max)
+
 class RigidMotion(object):
     def __init__(self,theta,x,y):
         self.theta=theta    
@@ -39,11 +51,13 @@ class RigidMotion(object):
         self.b=np.array([x,y])
 
     def __call__(self,point):
-        return self.a.dot(point)#+self.b
+        return self.a.dot(point)+self.b
 
 def polygon_loop(world):
     pg.init()
-    window = pg.display.set_mode((1000, 1000))
+    a_max=world.get_box()[1]
+    bounds=(int(a_max[0]), int(a_max[1]))
+    window = pg.display.set_mode(bounds)
     clock = pg.time.Clock()
     run = True
     while run:

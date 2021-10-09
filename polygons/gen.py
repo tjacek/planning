@@ -6,9 +6,11 @@ import polygons
 def cell_world(n_rect):
     world=gen_world(n_rect)
     world.move(random_rotation(n_rect))
+    a_min=world.get_box()[0]
+    world.move(polygons.RigidMotion(0,-a_min[0],-a_min[1]))
     return world
 
-def gen_world(n_rect,bound_world=(800,800),
+def gen_world(n_rect,bound_world=(400,400),
         bound_width=(5,50),bound_height=(5,20)):
     rects=[]
     for i in range(n_rect):
