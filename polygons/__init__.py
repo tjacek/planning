@@ -54,6 +54,16 @@ class RigidMotion(object):
     def __call__(self,point):
         return self.a.dot(point)+self.b
 
+class SimpleControler(object):
+    def __init__(self,world):
+        self.world=world
+
+    def on_click(self,point):
+        print(point)
+
+    def on_key(self,key):
+        print(key)
+
 def polygon_loop(world):
     pg.init()
     a_max=world.get_box()[1]
@@ -62,11 +72,17 @@ def polygon_loop(world):
     window = pg.display.set_mode(bounds)
     clock = pg.time.Clock()
     run = True
+    controler=SimpleControler(world)
     while run:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 run = False
-        world.show(window)
+            if event.type == pg.MOUSEBUTTONUP:
+                point = pg.mouse.get_pos()
+                controler.on_click(point)
+            if event.type == pg.KEYDOWN:
+                controler.on_key(event.key)
+        controler.world.show(window)
         pg.display.flip()
         clock.tick(3)
     pg.quit()
