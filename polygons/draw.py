@@ -48,8 +48,9 @@ def polygon_loop(world):
         pg.display.flip()
         clock.tick(3)
     pg.quit()
-    exit()
+#    exit()
 
 if __name__ == "__main__":
-    world=gen.cell_world(5)
+    world=polygons.read_world("test.txt")#gen.cell_world(5)
     polygon_loop(world)
+    world.save("test.txt")
