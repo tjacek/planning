@@ -35,15 +35,16 @@ class SimpleControler(object):
     def show(self,window):
         self.world.show(window)
 
-def polygon_loop(world):
+def polygon_loop(controler):
+    if(type(controler)==polygons.World):
+        controler=DrawControler(controler)
     pg.init()
-    a_max=world.get_box()[1]
+    a_max=controler.world.get_box()[1]
     bounds=(int(a_max[0]), int(a_max[1]))
     print(bounds)
     window = pg.display.set_mode(bounds)
     clock = pg.time.Clock()
     run = True
-    controler=DrawControler(world)
     while run:
         for event in pg.event.get():
             if event.type == pg.QUIT:

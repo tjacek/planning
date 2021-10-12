@@ -6,6 +6,10 @@ class World(object):
     def __init__(self,polygons):
         self.polygons=polygons
 
+    def vertices(self):
+        vert=[pol_i.vertices for pol_i in self.polygons]
+        return np.concatenate(vert,axis=0).T
+
     def move(self,motion):
         if(type(motion)==list):
             for motion_i,pol_i in zip(motion,self.polygons):
@@ -37,6 +41,17 @@ class Polygon(object):
             vertices=np.array(vertices)
         self.vertices=vertices
     
+    def __len__(self):
+        return len(self.vertices)
+
+    def get_edges(self):
+        edges=[]
+        size=len(self)
+        for i in range(1,size):
+            edges.append((self.vertices[i-1],self.vertices[i]))
+        edges.append((self.vertices[-1],self.vertices[0]))
+        return edges
+
     def move(self,motion):
         self.vertices=np.array([motion(vert_i)
              for vert_i in self.vertices])
