@@ -1,5 +1,20 @@
 import numpy as np
+import pygame as pg
 import polygons,draw
+
+class CellControler(draw.DrawControler):
+    def __init__(self,world,event,cells):
+        super().__init__(world)
+        self.event=event
+        self.cells=cells
+
+    def show(self,window):
+        window.fill((0,0,0))
+        for x_i in self.event:
+            pg.draw.line(window,(0,0,128),(x_i,0),(x_i,800))
+        for point_i in self.cells:
+            pg.draw.circle(window,(128,0,0), point_i, 5)
+        self.world.show(window)
 
 class Edge(object):
     def __init__(self,start,end):
@@ -27,7 +42,7 @@ def vertex_decomp(world):
             if(point_ij):
                 all_cells.append(point_ij)
 #        all_cells.append(cell_i)
-    return all_cells
+    return all_cells,event
 
 def get_edges(world):
     edges=[]
@@ -37,7 +52,7 @@ def get_edges(world):
     return edges
 
 world=polygons.read_world("test.txt")
-cells=vertex_decomp(world)
-control=draw.DrawControler(world)
-control.points=cells
+cells,event=vertex_decomp(world)
+control=CellControler(world,event,cells)
+#control.points=cells
 draw.polygon_loop(control)
