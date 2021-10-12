@@ -16,6 +16,12 @@ class DrawControler(object):
             self.world.polygons.append(pol)
             self.points.clear()
 
+    def show(self,window):
+        window.fill((0,0,0))
+        for point_i in self.points:
+            pg.draw.circle(window,(0,0,128), point_i, 5)
+        self.world.show(window)
+
 class SimpleControler(object):
     def __init__(self,world):
         self.world=world
@@ -25,6 +31,9 @@ class SimpleControler(object):
 
     def on_key(self,key):
         print(key)
+
+    def show(self,window):
+        self.world.show(window)
 
 def polygon_loop(world):
     pg.init()
@@ -44,7 +53,7 @@ def polygon_loop(world):
                 controler.on_click(point)
             if event.type == pg.KEYDOWN:
                 controler.on_key(event.key)
-        controler.world.show(window)
+        controler.show(window)
         pg.display.flip()
         clock.tick(3)
     pg.quit()
