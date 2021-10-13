@@ -31,18 +31,38 @@ class Edge(object):
         return None
 
 def vertex_decomp(world):
+    w_max=world.get_box()[1]
+    bounds=(0,w_max[1])
     event=world.vertices()[0]
     event.sort()
     edges=get_edges(world)
     all_cells=[]
     for event_i in event:
-#        cell_i=[]
-        for edge_j in edges:
-            point_ij=edge_j(event_i)
-            if(point_ij):
-                all_cells.append(point_ij)
-#        all_cells.append(cell_i)
+        all_cells+=find_cells(event_i,edges,bounds)
     return all_cells,event
+
+def find_cells(event_i,edges,bounds):
+    upper,lower=[],[]
+    for edge_j in edges:
+        point_ij=edge_j(event_i)
+        if(point_ij):
+            if(point_ij[0]<event_i):
+                lower.append(point_ij)
+            else:
+                upper.append(point_ij)
+    upper.sort(key=lambda x:x[1],reverse=True)
+    lower.sort(key=lambda x:x[1])#,reverse=True)
+    if(upper):
+        start=upper[0]
+    else:
+        start=(event_i,bounds[0])
+    if(lower):
+        end=lower[-1]
+    else:
+        end=(event_i,bounds[1])
+    print(start)
+    print(lower)
+    return [start,end]
 
 def get_edges(world):
     edges=[]
