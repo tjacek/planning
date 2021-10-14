@@ -11,13 +11,33 @@ class EventControler(draw.DrawControler):
         window.fill((0,0,0))
         self.world.show(window)
         for event_i in self.event:
-            pg.draw.circle(window,(128,0,0),event_i.vertex,5)        
+            color_i= event_i.get_type()
+            pg.draw.circle(window,color_i,event_i.vertex,5)        
 
 class Event(object):
     def __init__(self,vertex,in_edge,out_edge):
         self.vertex=vertex
         self.in_edge =in_edge
         self.out_edge=out_edge
+
+    def get_type(self):
+        all_on_right=(self.vertex[0]<self.out_edge[0]
+                and self.vertex[0]<self.in_edge[0])
+        all_on_left=(self.vertex[0]>self.out_edge[0]
+                and self.vertex[0]>self.in_edge[0])
+        orient_y=(self.out_edge[1]<self.in_edge[1] )
+        if( (orient_y and all_on_right) or
+              (not orient_y and all_on_left)):
+            return (128,0,0)
+        if( (not orient_y and all_on_right) or
+              (orient_y and all_on_left)):
+            return (0,0,128)
+        orient_x=(self.out_edge[0]<self.in_edge[0])
+        if(orient_x):
+            return (0,128,128)
+        else:
+            return (128,128,0)
+
 
 def get_events(world):
     events=[]
@@ -26,9 +46,9 @@ def get_events(world):
         size=len(edges_i)	
         for j in range(0,size):
             print(j)
-            in_edge=edges_i[j-1]
-            out_edge=edges_i[j]
-            vertex=in_edge[1]
+            in_edge=edges_i[j-1][0]
+            out_edge=edges_i[j][1]
+            vertex=edges_i[j-1][1]
             events.append(Event(vertex,in_edge,out_edge))
     return events
 
