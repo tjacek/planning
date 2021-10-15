@@ -45,40 +45,21 @@ class Event(object):
         else:
             return EventType.lower
 
-class Edge(object):
-    def __init__(self,start,end):
-        if(start[0]>end[0]):
-            start,end=end,start
-        self.start=start
-        self.end=end
-
-    def __call__(self,x):
-        if(self.start[0]<x and x<self.end[0]):
-            a=(self.start[1]-self.end[1])/(self.start[0]-self.end[0])
-            b=self.end[1]-a* self.end[0]
-            return [x,a*x+b]
-        return None
-
-def vertex_decomp(world):
-    w_max=world.get_box()[1]
-    bounds=(0,w_max[1])
-    events,edges=get_events(world)
-    events.sort(key=lambda x:x.vertex[0])
+def get_critical(events,extend):
     critical_points=[]
     for event_i in events:
         type_i=event_i.get_type()
         if(type_i==EventType.upper):
-            critical_points+=extend(event_i.vertex,edges)
+            critical_points+=extend(event_i.vertex,False)
         if(type_i==EventType.lower):
-            critical_points+=extend(event_i.vertex,edges,w_max[1],True)
+            critical_points+=extend(event_i.vertex,True)
         if(type_i==EventType.two_extend):
-            critical_points+=extend(event_i.vertex,edges)
-            critical_points+=extend(event_i.vertex,edges,w_max[1],True)
-    x=[event_i.vertex[0] for event_i in events]
-    return critical_points,x
+            critical_points+=extend(event_i.vertex,False)
+            critical_points+=extend(event_i.vertex,True)
+    return critical_points
 
 def get_events(world):
-    events,edges=[],[]
+    events=[]#,[]
     for pol_i in world.polygons:
         edges_i=pol_i.get_edges()
         size=len(edges_i)	
@@ -87,33 +68,10 @@ def get_events(world):
             out_edge=edges_i[j][1]
             vertex=edges_i[j-1][1]
             events.append(Event(vertex,in_edge,out_edge))
-            edges.append(Edge(in_edge,out_edge))
-    return events,edges
+    return events#,edges
 
-def extend(vertex,edges,bound=0,lower=False):
-    upper=[]
-    for edge_i in edges:
-        point_i=edge_i(vertex[0])
-        if(point_i):
-            cond= point_i[1]<vertex[1]
-            if(lower):
-                cond=not cond
-            if(cond):
-                upper.append(point_i)
-    if(not upper):
-        return [(vertex[0],bound)]
-    else:
-        upper.sort(key=lambda x:x[1],reverse=lower)
-#        if(lower):
-        return [upper[-1]]
-#        else:
-#            return [upper[-1]]
-
-world=polygons.read_world("test.txt")
-points,events=vertex_decomp(world)
-print(len(points))
-import cells
-control=cells.CellControler(world,events,points)
-#events,edges=get_events(world)
-#control=EventControler(world,events)
-draw.polygon_loop(control)
+if __name__ == "__main__":
+    world=polygons.read_world("test.txt")
+    events=get_events(world)
+    control=EventControler(world,events)
+    draw.polygon_loop(control)
