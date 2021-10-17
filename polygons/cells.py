@@ -30,24 +30,6 @@ class EdgeControler(object):
         for point_i in self.points:
             pg.draw.circle(window,(128,0,0), point_i, 5)
 
-class Edge(object):
-    def __init__(self,start,end):
-        if(start[0]>end[0]):
-            start,end=end,start
-        alpha,length=to_polar(start,end)
-        self.start=start
-        self.end=end
-        self.alpha=alpha
-        self.length=length
-
-    def __call__(self,event):        
-        if(self.start[0]<event[0] and event[0]<self.end[0]):
-            x=event[0]
-            k=(x-self.start[0])/(self.length*np.cos(self.alpha))
-            y=self.start[1] + k*self.length*np.sin(self.alpha)
-            return (x,y)
-        return None
-
 class Extend(object):
     def __init__(self,edges,bounds):
         self.edges=edges
@@ -77,30 +59,16 @@ class Extend(object):
             y=self.bounds[0]
         return [(x,y)]
 
-def to_polar(start,end):
-    diff=np.array(end)-np.array(start)
-    alpha=np.arctan(diff[1]/diff[0])
-    length=np.linalg.norm(diff)
-    return alpha,length
-
 def vertex_decomp(world):
-    edges,events= get_data(world)
+    events,edges= event.get_events(world)
     events.sort(key=lambda x:x.vertex[0])
     w_max=world.get_box()[1]
     bounds=(0,w_max[1]+30)
     extend=Extend(edges,bounds)
     critical=event.get_critical(events,extend)
-    print(len(edges))
-    print(len(critical))
     lines=[event_i.vertex[0] for event_i in events]
+    critical+=[event_i.vertex for event_i in events]
     return critical,lines
-
-def get_data(world):
-    edges=[]
-    for pol_i in world.polygons:
-        for edge_j in pol_i.get_edges():
-            edges.append(Edge(*edge_j))
-    return edges,event.get_events(world)
 
 if __name__ == "__main__":
     world=polygons.read_world("test.txt")
