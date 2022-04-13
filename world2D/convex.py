@@ -27,13 +27,17 @@ class ConvexPolygon(object):
                 return False
         return True
 
+    def get_centroid(self):
+        return np.mean(self.vertices,axis=0)
+
     def as_edges(self):
         n_vert = len(self)
         return [ v_sub(self.vertices[i],self.vertices[(i+1)%n_vert])
                     for i in range(n_vert)]
 
     def move(self,motion):
-        new_points=[motion(vert_i) for vert_i in self.vertices]
+        center=self.get_centroid()
+        new_points=[motion(vert_i-center)+center for vert_i in self.vertices]
         return ConvexPolygon(np.array(new_points))
 
     def get_box(self):

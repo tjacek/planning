@@ -16,20 +16,6 @@ class CellControler(draw.DrawControler):
         for point_i in self.cells:
             pg.draw.circle(window,(128,0,0), point_i, 5)
 
-class EdgeControler(object):
-    def __init__(self,world,edges,points):
-        self.world=world
-        self.edges=edges
-        self.points=points
-
-    def show(self,window):
-        window.fill((0,0,0))
-#        self.world.show(window)
-        for edge_i in self.edges:
-            pg.draw.line(window,(0,0,128),edge_i.start,edge_i.end)
-        for point_i in self.points:
-            pg.draw.circle(window,(128,0,0), point_i, 5)
-
 class Extend(object):
     def __init__(self,edges,bounds):
         self.edges=edges
