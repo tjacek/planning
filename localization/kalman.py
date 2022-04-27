@@ -6,6 +6,7 @@ class View(object):
         self.envir=envir
 
     def on_click(self,key):
+        print("click")
         self.envir.next_state()
 
     def show(self,window):
@@ -13,13 +14,14 @@ class View(object):
         pg.draw.circle(window,(0,0,128),self.envir.state, 5)
 
 class Envir(object):
-    def __init__(self,A,B,C,cov_v,cov_w):
+    def __init__(self,A,B,C,cov_v,cov_w,bounds):
         self.A=A 
         self.B=B 
         self.C=C
         self.cov_v=cov_v
         self.cov_w=cov_w 
         self.state=None
+        self.bounds=bounds
 
     def get_dim(self):
         return self.A.shape[0]
@@ -31,6 +33,9 @@ class Envir(object):
 
     def next_state(self):
         self.state=self.A.dot(self.state)
+        for i in range(self.get_dim()):
+            if(self.state[i]>self.bounds[i]):
+                self.state[i]=0
 
     def observe(self):
         return self.C.dot(self.state)
@@ -41,9 +46,10 @@ def random_envir(dim=2,scale=100):
     C=np.random.rand(dim,dim)
     cov_v=np.random.rand(dim,dim)
     cov_w=np.random.rand(dim,dim)
-    envir= Envir(A,B,C,cov_v,cov_w)
+    bounds=scale*np.ones((dim,))
+    envir= Envir(A,B,C,cov_v,cov_w,bounds)
     envir.set_state()
-    envir.state*=scale
+    envir.state*= scale/2.0
     return envir
 
 envir=random_envir()
