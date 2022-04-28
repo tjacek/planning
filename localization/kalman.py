@@ -17,14 +17,14 @@ class View(object):
         pg.draw.circle(window,(0,0,128),state,10)
 
 class Envir(object):
-    def __init__(self,A,B,C,cov_v,cov_w):
+    def __init__(self,A,B,C,H,cov_v,cov_w):
         self.A=A 
         self.B=B 
         self.C=C
+        self.H=H
         self.cov_v=cov_v
         self.cov_w=cov_w 
         self.state=None
-#        self.bounds=bounds
 
     def get_dim(self):
         return self.A.shape[0]
@@ -36,8 +36,7 @@ class Envir(object):
 
     def next_state(self,eps=0.001):
         self.state=self.A.dot(self.state)
-        mean=np.ones((self.get_dim(),))
-        self.state+=np.random.multivariate_normal(mean,self.cov_v)
+        self.state+=noise(self.cov_v)
         for i in range(self.get_dim()):
             if(self.state[i]>1):
                 self.state[i]-=2
@@ -45,15 +44,30 @@ class Envir(object):
                 self.state[i]+=2 #1+eps#
 
     def observe(self):
-        return self.C.dot(self.state)
+        y=self.C.dot(self.state)
+        return y + self.H.dot(noise(self.cov_w))
+             
+class Kalman(object):
+    def __init__(self,dim=2):
+        self.sigma=np.random.rand(dim,dim)
+        self.x_pred=np.random.rand(dim)
+
+    def __call__(self,envir):
+        y_k=envir.observe()
+#        L= envir.
+
+def noise(conv):
+    mean=np.ones((conv.shape[0],))
+    return np.random.multivariate_normal(mean,conv)
 
 def random_envir(dim=2):
-    A=special_ortho_group.rvs(dim)  #2*np.random.rand(dim,dim)
+    A=special_ortho_group.rvs(dim)
     B=np.random.rand(dim,dim)
     C=np.random.rand(dim,dim)
+    H=np.random.rand(dim,dim)
     cov_v=np.random.rand(dim,dim)
     cov_w=np.random.rand(dim,dim)
-    envir= Envir(A,B,C,cov_v,cov_w)
+    envir= Envir(A,B,C,H,cov_v,cov_w)
     envir.set_state()
     envir.state*= 0.5
     return envir
