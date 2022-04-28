@@ -5,16 +5,20 @@ from scipy.stats import special_ortho_group
 class View(object):
     def __init__(self,envir,scale=512):
         self.envir=envir
+        self.kalman=Kalman()
         self.scale=scale
 
     def on_click(self,key):
         self.envir.next_state()
+        self.kalman(self.envir)
         print(self.envir.state)
 
     def show(self,window):
         window.fill((0,0,0))
         state=0.5*self.scale*(self.envir.state+1)
         pg.draw.circle(window,(0,0,128),state,10)
+        state=0.5*self.scale*(self.kalman.x_pred+1)
+        pg.draw.circle(window,(0,128,0),state,10)
 
 class Envir(object):
     def __init__(self,A,B,C,H,cov_v,cov_w):
@@ -54,7 +58,14 @@ class Kalman(object):
 
     def __call__(self,envir):
         y_k=envir.observe()
-#        L= envir.
+        L=envir.C*self.sigma*envir.C.T
+        L+=envir.H*envir.cov_w*envir.H
+        L=np.linalg.inv(L)
+        L=self.sigma*envir.C.T*L
+        I=np.identity(envir.get_dim())
+        self.sigma=(I - L*envir.C)*self.sigma
+        self.x_pred+= L.dot(y_k)
+        return self.x_pred
 
 def noise(conv):
     mean=np.ones((conv.shape[0],))
