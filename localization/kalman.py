@@ -41,11 +41,7 @@ class Envir(object):
     def next_state(self,eps=0.001):
         self.state=self.A.dot(self.state)
         self.state+=noise(self.cov_v)
-        for i in range(self.get_dim()):
-            if(self.state[i]>1):
-                self.state[i]-=2
-            if(self.state[i]<-1):
-                self.state[i]+=2 #1+eps#
+        bounds(self.state) 
 
     def observe(self):
         y=self.C.dot(self.state)
@@ -58,14 +54,22 @@ class Kalman(object):
 
     def __call__(self,envir):
         y_k=envir.observe()
-        L=envir.C*self.sigma*envir.C.T
+        L=envir.C.dot(self.sigma).dot(envir.C.T)
         L+=envir.H*envir.cov_w*envir.H
         L=np.linalg.inv(L)
-        L=self.sigma*envir.C.T*L
+        L=self.sigma.dot(envir.C.T).dot(L)
         I=np.identity(envir.get_dim())
-        self.sigma=(I - L*envir.C)*self.sigma
+        self.sigma=(I - L.dot(envir.C)).dot(self.sigma)
         self.x_pred+= L.dot(y_k)
+        bounds(self.x_pred)
         return self.x_pred
+
+def bounds(state):
+    for i in range(state.shape[0]):
+        if(state[i]>1):
+            state[i]-=2
+        if(state[i]<-1):
+            state[i]+=2
 
 def noise(conv):
     mean=np.ones((conv.shape[0],))
@@ -76,8 +80,8 @@ def random_envir(dim=2):
     B=np.random.rand(dim,dim)
     C=np.random.rand(dim,dim)
     H=np.random.rand(dim,dim)
-    cov_v=np.random.rand(dim,dim)
-    cov_w=np.random.rand(dim,dim)
+    cov_v=0.1*np.random.rand(dim,dim)
+    cov_w=0.1*np.random.rand(dim,dim)
     envir= Envir(A,B,C,H,cov_v,cov_w)
     envir.set_state()
     envir.state*= 0.5
