@@ -87,7 +87,21 @@ def random_envir(dim=2):
     envir.state*= 0.5
     return envir
 
-envir=random_envir()
+def simple_envir(theta=0.4,dim=2):
+    A=np.array([[np.cos(theta),-np.sin(theta)],
+                [np.sin(theta),np.cos(theta)]]  )
+    B=np.identity(dim)
+    C=np.identity(dim)
+    H=np.identity(dim)
+    cov_v=0.1*np.identity(dim)
+    cov_w=0.1*np.identity(dim)
+    envir= Envir(A,B,C,H,cov_v,cov_w)
+    envir.set_state()
+    envir.set_state()
+    envir.state*= 0.5
+    return envir
+
+envir=simple_envir()
 envir.set_state()
 view=View(envir)
 
