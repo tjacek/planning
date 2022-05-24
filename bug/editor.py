@@ -6,9 +6,6 @@ class Polygon(object):
         self.vertices=vertices
 
     def show(self,window):
-        print(self.vertices)
-        x=30
-#        pg.draw.polygon(window, pg.Color('brown'), [(x, 80), (x + 10, 70), (x + 20, 80), (x + 20, 270), (x, 270)])
         pg.draw.polygon(window,(0,128,0),self.vertices)
 
 class Obstacles(object):
@@ -17,16 +14,18 @@ class Obstacles(object):
         self.points=[]
 
     def on_click(self,point):
-        print(point)
         self.points.append(point)
         print(len(self.points))	
 
     def on_key(self,key):
-        self.polygons.append(make_polygon(self.points))
-        self.points.clear()
+        if(len(self.points)>2):
+            polygon_i=make_polygon(self.points)
+            self.polygons.append(polygon_i)
+            self.points.clear()
         print(len(self.polygons))
 
     def show(self,window):
+        window.fill((0,0,0))
         for point_i in self.points:
             pg.draw.circle(window,(0,0,128), point_i, 5)
         for pol_i in self.polygons:
@@ -34,8 +33,8 @@ class Obstacles(object):
 
 def make_polygon(points):
     hull_i=ConvexHull(points)
-    print(dir(hull_i))
-    return Polygon(hull_i.points)
+    hull_points=hull_i.points[hull_i.vertices]
+    return Polygon(hull_points)
 
 def editor_loop(bounds=(512,512)):
     obs=Obstacles()
