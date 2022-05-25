@@ -1,5 +1,7 @@
 import pygame as pg
 from scipy.spatial import ConvexHull
+import numpy as np
+import json
 
 class Polygon(object):
     def __init__(self,vertices):
@@ -31,6 +33,19 @@ class Obstacles(object):
         for pol_i in self.polygons:
             pol_i.show(window)    
 
+    def save(self,out_path):
+        data=[pol_i.vertices for pol_i in self.polygons]
+        save_json(data,out_path)
+        print("save")
+
+def save_json(data,out_path):
+    def helper(obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return obj
+    with open(out_path, 'w') as f:
+        json.dump(data, f,default=helper)
+
 def make_polygon(points):
     hull_i=ConvexHull(points)
     hull_points=hull_i.points[hull_i.vertices]
@@ -55,6 +70,7 @@ def editor_loop(bounds=(512,512)):
         obs.show(window)
         pg.display.flip()
         clock.tick(3)
+    obs.save("test.json")
     pg.quit()
 
 editor_loop()
