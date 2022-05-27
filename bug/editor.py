@@ -3,6 +3,23 @@ from scipy.spatial import ConvexHull
 import numpy as np
 import json
 
+class World(object):
+    def __init__(self):
+        self.polygons=[]
+
+    def add_polygon(self,points:list):
+        polygon_i=make_polygon(points)
+        self.polygons.append(polygon_i)
+
+    def show(self,window):
+        for pol_i in self.polygons:
+            pol_i.show(window) 
+
+    def save(self,out_path):
+        data=[pol_i.vertices for pol_i in self.polygons]
+        save_json(data,out_path)
+        print("save")
+
 class Polygon(object):
     def __init__(self,vertices):
         self.vertices=vertices
@@ -10,9 +27,9 @@ class Polygon(object):
     def show(self,window):
         pg.draw.polygon(window,(0,128,0),self.vertices)
 
-class Obstacles(object):
+class Editor(object):
     def __init__(self):
-        self.polygons=[]
+        self.world=World()
         self.points=[]
 
     def on_click(self,point):
@@ -21,22 +38,14 @@ class Obstacles(object):
 
     def on_key(self,key):
         if(len(self.points)>2):
-            polygon_i=make_polygon(self.points)
-            self.polygons.append(polygon_i)
+            self.world.add_polygon(self.points)
             self.points.clear()
-        print(len(self.polygons))
 
     def show(self,window):
         window.fill((0,0,0))
         for point_i in self.points:
             pg.draw.circle(window,(0,0,128), point_i, 5)
-        for pol_i in self.polygons:
-            pol_i.show(window)    
-
-    def save(self,out_path):
-        data=[pol_i.vertices for pol_i in self.polygons]
-        save_json(data,out_path)
-        print("save")
+        self.world.show(window)
 
 def save_json(data,out_path):
     def helper(obj):
@@ -52,9 +61,8 @@ def make_polygon(points):
     return Polygon(hull_points)
 
 def editor_loop(bounds=(512,512)):
-    obs=Obstacles()
+    obs=Editor()
     pg.init()
-
     window = pg.display.set_mode(bounds)
     clock = pg.time.Clock()
     run = True
@@ -70,7 +78,7 @@ def editor_loop(bounds=(512,512)):
         obs.show(window)
         pg.display.flip()
         clock.tick(3)
-    obs.save("test.json")
+    obs.world.save("test.json")
     pg.quit()
 
 editor_loop()
