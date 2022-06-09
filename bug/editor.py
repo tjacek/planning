@@ -9,6 +9,7 @@ class World(object):
 
     def add_polygon(self,points:list):
         polygon_i=make_polygon(points)
+        polygon_i.rotate(1.0)
         self.polygons.append(polygon_i)
 
     def show(self,window):
@@ -23,6 +24,16 @@ class World(object):
 class Polygon(object):
     def __init__(self,vertices):
         self.vertices=vertices
+
+    def centroid(self):
+        return np.mean(self.vertices,axis=0)
+
+    def rotate(self,theta):
+        center=self.centroid()
+        R=np.array([[np.cos(theta),-np.sin(theta)],
+                    [np.sin(theta),np.cos(theta)]])
+        self.vertices=[R.dot(vert_i-center)+center
+                         for vert_i in self.vertices]
 
     def show(self,window):
         pg.draw.polygon(window,(0,128,0),self.vertices)
