@@ -4,6 +4,29 @@ from scipy.spatial import ConvexHull
 import numpy as np
 import json
 
+class Problem(object):
+    def __init__(self,world,start=None,end=None):
+        self.world=world
+        self.start=start
+        self.end=end
+
+    def posed(self):
+        return (self.start and self.end)
+
+    def show(self,window):
+        if(self.start):
+            pg.draw.circle(window,(0,64,64), self.start, 5)
+        if(self.end):
+            pg.draw.circle(window,(64,0,64), self.end, 5)   
+        if(self.posed()):
+            pg.draw.line(window,(255,255,0),self.start,self.end)
+            self.check()
+
+    def check(self):
+        if(len(self.world)>0):
+            line=Line(self.start,self.end)
+            self.world.polygons[0].check(line)
+
 class World(object):
     def __init__(self):
         self.polygons=[]
@@ -65,23 +88,18 @@ class EditorMode(Enum):
 
 class Editor(object):
     def __init__(self):
-        self.world=World()        
+        self.problem=Problem(World())
         self.points=[]
         self.mode=EditorMode.OBSTACLE
-        self.start=None
-        self.end=None
     
-    def posed(self):
-        return (self.start and self.end)
-
     def on_click(self,point):
         if(self.mode==EditorMode.OBSTACLE):
             self.points.append(point)
             print(len(self.points))	
         if(self.mode==EditorMode.START):
-            self.start=point
+            self.problem.start=point
         if(self.mode==EditorMode.END):
-            self.end=point
+            self.problem.end=point
 
     def on_key(self,key):
         print(key)
@@ -92,26 +110,15 @@ class Editor(object):
         else:
             self.mode=EditorMode.OBSTACLE
             if(len(self.points)>2):
-                self.world.add_polygon(self.points)
+                self.problem.world.add_polygon(self.points)
                 self.points.clear()
 
     def show(self,window):
         window.fill((0,0,0))
-        if(self.start):
-            pg.draw.circle(window,(0,64,64), self.start, 5)
-        if(self.end):
-            pg.draw.circle(window,(64,0,64), self.end, 5)        
+        self.problem.show(window)
         for point_i in self.points:
             pg.draw.circle(window,(0,0,128), point_i, 5)
-        self.solve(window)
-        self.world.show(window)
-
-    def solve(self,window):
-        if(self.posed()):
-            pg.draw.line(window,(255,255,0),self.start,self.end)
-            if(len(self.world)>0):
-                line=Line(self.start,self.end)
-                self.world.polygons[0].check(line)
+        self.problem.world.show(window)
 
 def save_json(data,out_path):
     def helper(obj):
@@ -144,7 +151,7 @@ def editor_loop(bounds=(512,512)):
         obs.show(window)
         pg.display.flip()
         clock.tick(3)
-    obs.world.save("test.json")
+    obs.problem.world.save("test.json")
     pg.quit()
 
 editor_loop()
