@@ -20,12 +20,16 @@ class Problem(object):
             pg.draw.circle(window,(64,0,64), self.end, 5)   
         if(self.posed()):
             pg.draw.line(window,(255,255,0),self.start,self.end)
-            self.check()
+            self.check(window)
 
-    def check(self):
+    def check(self,window):
         if(len(self.world)>0):
             line=Line(self.start,self.end)
-            self.world.polygons[0].check(line)
+            for polygon_i in self.world.polygons:
+                col_segms=polygon_i.colision(line)
+                for segm_j in col_segms:
+                    pg.draw.circle(window,(255,0,0),segm_j[0],5)
+                    pg.draw.circle(window,(255,0,0),segm_j[1],5)
 
 class World(object):
     def __init__(self):
@@ -61,6 +65,9 @@ class Polygon(object):
     def __init__(self,vertices):
         self.vertices=vertices
 
+    def __len__(self):
+        return len(self.vertices)
+
     def centroid(self):
         return np.mean(self.vertices,axis=0)
 
@@ -71,12 +78,18 @@ class Polygon(object):
         self.vertices=[R.dot(vert_i-center)+center
                          for vert_i in self.vertices]
 
-    def check(self,line):
-        count=0
-        for vert_i in self.vertices:
-            if(line.is_left(vert_i)):
-                count+=1
-        print(count)
+    def get_segments(self):
+        segments=[[self.vertices[i],self.vertices[i+1]] 
+                    for i in range(len(self)-1)]
+        segments.append([self.vertices[-1],self.vertices[0]])
+        return segments
+
+    def colision(self,line):
+        col_segments=[]
+        for segm_i in self.get_segments():
+            if(line.is_left(segm_i[0]) != line.is_left(segm_i[1])):
+                col_segments.append(segm_i)
+        return col_segments
     
     def show(self,window):
         pg.draw.polygon(window,(0,128,0),self.vertices)
