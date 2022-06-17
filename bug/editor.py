@@ -8,6 +8,9 @@ class World(object):
     def __init__(self):
         self.polygons=[]
 
+    def __len__(self):
+        return len(self.polygons)
+
     def add_polygon(self,points:list):
         polygon_i=make_polygon(points)
         self.polygons.append(polygon_i)
@@ -20,6 +23,16 @@ class World(object):
         data=[pol_i.vertices for pol_i in self.polygons]
         save_json(data,out_path)
         print("save")
+
+class Line(object):
+    def __init__(self,a,b):
+        self.a=a
+        self.b=b
+
+    def is_left(self,c):
+        cross=(self.b[0] - self.a[0])*(c[1] - self.a[1]) 
+        cross-=(self.b[1] - self.a[1])*(c[0] - self.a[0])
+        return cross>0
 
 class Polygon(object):
     def __init__(self,vertices):
@@ -35,6 +48,13 @@ class Polygon(object):
         self.vertices=[R.dot(vert_i-center)+center
                          for vert_i in self.vertices]
 
+    def check(self,line):
+        count=0
+        for vert_i in self.vertices:
+            if(line.is_left(vert_i)):
+                count+=1
+        print(count)
+    
     def show(self,window):
         pg.draw.polygon(window,(0,128,0),self.vertices)
 
@@ -50,6 +70,9 @@ class Editor(object):
         self.mode=EditorMode.OBSTACLE
         self.start=None
         self.end=None
+    
+    def posed(self):
+        return (self.start and self.end)
 
     def on_click(self,point):
         if(self.mode==EditorMode.OBSTACLE):
@@ -84,8 +107,11 @@ class Editor(object):
         self.world.show(window)
 
     def solve(self,window):
-        if(self.start and self.end):
+        if(self.posed()):
             pg.draw.line(window,(255,255,0),self.start,self.end)
+            if(len(self.world)>0):
+                line=Line(self.start,self.end)
+                self.world.polygons[0].check(line)
 
 def save_json(data,out_path):
     def helper(obj):
