@@ -24,7 +24,7 @@ class Problem(object):
 
     def check(self,window):
         if(len(self.world)>0):
-            line=Line(self.start,self.end)
+            line=(self.start,self.end)  #Line(self.start,self.end)
             for polygon_i in self.world.polygons:
                 col_segms=polygon_i.colision(line)
                 for segm_j in col_segms:
@@ -51,15 +51,15 @@ class World(object):
         save_json(data,out_path)
         print("save")
 
-class Line(object):
-    def __init__(self,a,b):
-        self.a=a
-        self.b=b
+#class Line(object):
+#    def __init__(self,a,b):
+#        self.a=a
+#        self.b=b
 
-    def is_left(self,c):
-        cross=(self.b[0] - self.a[0])*(c[1] - self.a[1]) 
-        cross-=(self.b[1] - self.a[1])*(c[0] - self.a[0])
-        return cross>0
+def is_left(a,b,c):
+    cross=(b[0] - a[0])*(c[1] - a[1]) 
+    cross-=(b[1] - a[1])*(c[0] - a[0])
+    return cross>0
 
 class Polygon(object):
     def __init__(self,vertices):
@@ -87,7 +87,7 @@ class Polygon(object):
     def colision(self,line):
         col_segments=[]
         for segm_i in self.get_segments():
-            if(line.is_left(segm_i[0]) != line.is_left(segm_i[1])):
+            if(is_left(line[0],line[1],segm_i[0]) !=  is_left(line[0],line[1],segm_i[1])):
                 col_segments.append(segm_i)
         return col_segments
     
