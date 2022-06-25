@@ -53,12 +53,20 @@ class Polygon(object):
         return segments
 
     def colision(self,line):
-        col_segments=[]
-        for segm_i in self.get_segments():
+        indexes,col_segments=[],[]
+        for i,segm_i in enumerate(self.get_segments()):
             if(is_left(line,segm_i[0]) !=  is_left(line,segm_i[1])):
                 col_segments.append(segm_i)
-        return col_segments
+                indexes.append(i)
+        return col_segments,indexes
     
+    def between(self,indexes):
+        start,end=np.amin(indexes),np.amax(indexes)
+        segments= self.get_segments()
+        print(list(range(start,end)))
+        return [segments[i] for i in range(start,end)]
+
+
     def show(self,window):
         pg.draw.polygon(window,(0,128,0),self.vertices)
 

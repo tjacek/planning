@@ -26,11 +26,16 @@ class Problem(object):
         if(len(self.world)>0):
             line=(self.start,self.end)
             for polygon_i in self.world.polygons:
-                col_segms=polygon_i.colision(line)
+                col_segms,indexes=polygon_i.colision(line)
+                show_segments(window,polygon_i.between(indexes))
                 for segm_j in col_segms:
                     pg.draw.circle(window,(255,0,0),segm_j[0],5)
                     pg.draw.circle(window,(255,0,0),segm_j[1],5)
 
+def show_segments(window,segments):
+    for segm_i in segments:
+        x,y=segm_i
+        pg.draw.line(window,(255,255,0),x,y,width=10)
 
 class EditorMode(Enum):
     OBSTACLE = 1
