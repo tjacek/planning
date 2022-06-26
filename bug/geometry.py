@@ -23,12 +23,6 @@ class World(object):
         save_json(data,out_path)
         print("save")
 
-def is_left(line,c):
-    a,b=line
-    cross=(b[0] - a[0])*(c[1] - a[1]) 
-    cross-=(b[1] - a[1])*(c[0] - a[0])
-    return cross>0
-
 class Polygon(object):
     def __init__(self,vertices):
         self.vertices=vertices
@@ -63,12 +57,34 @@ class Polygon(object):
     def between(self,indexes):
         start,end=np.amin(indexes),np.amax(indexes)
         segments= self.get_segments()
-        print(list(range(start,end)))
         return [segments[i] for i in range(start,end)]
-
 
     def show(self,window):
         pg.draw.polygon(window,(0,128,0),self.vertices)
+
+def is_left(line,c):
+    a,b=line
+    cross=(b[0] - a[0])*(c[1] - a[1]) 
+    cross-=(b[1] - a[1])*(c[0] - a[0])
+    return cross>0
+
+def all_intersections(line,segments):
+    return [intersection(line,segm_i)
+        for segm_i in segments]
+
+def intersection(A,B):
+    xdiff = (A[0][0] - A[1][0], B[0][0] - B[1][0])
+    ydiff = (A[0][1] - A[1][1], B[0][1] - B[1][1])
+    div = det(xdiff, ydiff)
+    if div == 0:
+       raise Exception('lines do not intersect')
+    d = (det(*A), det(*B))
+    x = det(d, xdiff) / div
+    y = det(d, ydiff) / div
+    return x, y
+
+def det(A, B):
+    return A[0] * B[1] - A[1] * B[0]
 
 def save_json(data,out_path):
     def helper(obj):
