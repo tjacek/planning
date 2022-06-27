@@ -14,6 +14,16 @@ class World(object):
         polygon_i=make_polygon(points)
         self.polygons.append(polygon_i)
 
+    def colision(self,line):
+        candid=[pol_i for pol_i in self.polygons
+            if(distance_to_line(line,pol_i.get_centroid())< pol_i.get_radius())]
+        coll_dict={}
+        for pol_i in candid:
+            coll_i=pol_i.colision(line)
+            if(coll_i[0]):
+                coll_dict[pol_i]=coll_i
+        return coll_dict
+
     def show(self,window):
         for pol_i in self.polygons:
             pol_i.show(window) 
@@ -26,19 +36,32 @@ class World(object):
 class Polygon(object):
     def __init__(self,vertices):
         self.vertices=vertices
+        self.centroid=None
+        self.radius=None
 
     def __len__(self):
         return len(self.vertices)
 
-    def centroid(self):
-        return np.mean(self.vertices,axis=0)
+    def get_centroid(self):
+        if(self.centroid is None):
+            self.centroid=np.mean(self.vertices,axis=0)
+        return self.centroid
+
+    def get_radius(self):
+        if(self.radius is None):
+            center=self.get_centroid()
+            self.radius=np.amax([np.linalg.norm(center-vert_i)
+                for vert_i in self.vertices])
+        return self.radius
 
     def rotate(self,theta):
-        center=self.centroid()
+        center=self.get_centroid()
         R=np.array([[np.cos(theta),-np.sin(theta)],
                     [np.sin(theta),np.cos(theta)]])
         self.vertices=[R.dot(vert_i-center)+center
                          for vert_i in self.vertices]
+        self.centroid=None
+        self.radious=None
 
     def get_segments(self):
         segments=[[self.vertices[i],self.vertices[i+1]] 
@@ -85,6 +108,14 @@ def intersection(A,B):
 
 def det(A, B):
     return A[0] * B[1] - A[1] * B[0]
+
+def distance_to_line(line,point):
+    x0,y0=point
+    x1,y1=line[0]
+    x2,y2=line[1]
+    dist= np.abs((x2-x1)*(y1-y0) -(x1-x0)*(y2-y1))
+    dist/=np.sqrt( (x2-x1)**2 + (y2-y1)**2)
+    return dist
 
 def save_json(data,out_path):
     def helper(obj):

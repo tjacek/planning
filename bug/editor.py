@@ -25,14 +25,11 @@ class Problem(object):
     def check(self,window):
         if(len(self.world)>0):
             line=(self.start,self.end)
+            self.world.colision(line)
             for polygon_i in self.world.polygons:
                 col_segms,indexes=polygon_i.colision(line)
                 points=geometry.all_intersections(line,col_segms)
                 show_points(window,points)
-#                show_segments(window,polygon_i.between(indexes))
-#                for segm_j in col_segms:
-#                    pg.draw.circle(window,(255,0,0),segm_j[0],5)
-#                    pg.draw.circle(window,(255,0,0),segm_j[1],5)
 
 def show_segments(window,segments):
     for segm_i in segments:
