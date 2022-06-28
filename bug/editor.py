@@ -1,35 +1,7 @@
 import pygame as pg
 from enum import Enum 
-import geometry
-
-class Problem(object):
-    def __init__(self,world=None,start=None,end=None):
-        if(world is None):
-            world=geometry.World()
-        self.world=world
-        self.start=start
-        self.end=end
-
-    def posed(self):
-        return (self.start and self.end)
-
-    def show(self,window):
-        if(self.start):
-            pg.draw.circle(window,(0,64,64), self.start, 5)
-        if(self.end):
-            pg.draw.circle(window,(64,0,64), self.end, 5)   
-        if(self.posed()):
-            pg.draw.line(window,(255,255,0),self.start,self.end)
-            self.check(window)
-
-    def check(self,window):
-        if(len(self.world)>0):
-            line=(self.start,self.end)
-            self.world.colision(line)
-            for polygon_i in self.world.polygons:
-                col_segms,indexes=polygon_i.colision(line)
-                points=geometry.all_intersections(line,col_segms)
-                show_points(window,points)
+import sys
+import world#,geometry
 
 def show_segments(window,segments):
     for segm_i in segments:
@@ -38,7 +10,6 @@ def show_segments(window,segments):
 
 def show_points(window,points):
     for point_i in points:
-#        x,y=point_i
         pg.draw.circle(window,(255,255,0),point_i,5)
 
 class EditorMode(Enum):
@@ -47,8 +18,8 @@ class EditorMode(Enum):
     END = 3
 
 class Editor(object):
-    def __init__(self):
-        self.problem=Problem()
+    def __init__(self,problem):
+        self.problem=problem#world.Problem()
         self.points=[]
         self.mode=EditorMode.OBSTACLE
     
@@ -80,8 +51,8 @@ class Editor(object):
             pg.draw.circle(window,(0,0,128), point_i, 5)
         self.problem.world.show(window)
 
-def editor_loop(bounds=(512,512)):
-    obs=Editor()
+def editor_loop(in_path,bounds=(512,512)):
+    obs=Editor(world.read_json(in_path))
     pg.init()
     window = pg.display.set_mode(bounds)
     clock = pg.time.Clock()
@@ -98,7 +69,11 @@ def editor_loop(bounds=(512,512)):
         obs.show(window)
         pg.display.flip()
         clock.tick(3)
-    obs.problem.world.save("test.json")
+    obs.problem.world.save(in_path)
     pg.quit()
 
-editor_loop()
+if __name__ == "__main__":
+    if(len(sys.argv)>1):
+        editor_loop(sys.argv[1])
+    else:
+        editor_loop("test.json")

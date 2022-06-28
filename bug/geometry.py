@@ -1,40 +1,11 @@
 import numpy as np
 import pygame as pg
 from scipy.spatial import ConvexHull
-import json
 
-class World(object):
-    def __init__(self):
-        self.polygons=[]
-
-    def __len__(self):
-        return len(self.polygons)
-
-    def add_polygon(self,points:list):
-        polygon_i=make_polygon(points)
-        self.polygons.append(polygon_i)
-
-    def colision(self,line):
-        candid=[pol_i for pol_i in self.polygons
-            if(distance_to_line(line,pol_i.get_centroid())< pol_i.get_radius())]
-        coll_dict={}
-        for pol_i in candid:
-            coll_i=pol_i.colision(line)
-            if(coll_i[0]):
-                coll_dict[pol_i]=coll_i
-        return coll_dict
-
-    def show(self,window):
-        for pol_i in self.polygons:
-            pol_i.show(window) 
-
-    def save(self,out_path):
-        data=[pol_i.vertices for pol_i in self.polygons]
-        save_json(data,out_path)
-        print("save")
-
-class Polygon(object):
+class ConvexPolygon(object):
     def __init__(self,vertices):
+        if(type(vertices)==list):
+            vertices=np.array(vertices)
         self.vertices=vertices
         self.centroid=None
         self.radius=None
@@ -69,18 +40,18 @@ class Polygon(object):
         segments.append([self.vertices[-1],self.vertices[0]])
         return segments
 
-    def colision(self,line):
-        indexes,col_segments=[],[]
-        for i,segm_i in enumerate(self.get_segments()):
-            if(is_left(line,segm_i[0]) !=  is_left(line,segm_i[1])):
-                col_segments.append(segm_i)
-                indexes.append(i)
-        return col_segments,indexes
+#    def colision(self,line):
+#        indexes,col_segments=[],[]
+#        for i,segm_i in enumerate(self.get_segments()):
+#            if(is_left(line,segm_i[0]) !=  is_left(line,segm_i[1])):
+#                col_segments.append(segm_i)
+#                indexes.append(i)
+#        return col_segments,indexes
     
-    def between(self,indexes):
-        start,end=np.amin(indexes),np.amax(indexes)
-        segments= self.get_segments()
-        return [segments[i] for i in range(start,end)]
+#    def between(self,indexes):
+#        start,end=np.amin(indexes),np.amax(indexes)
+#        segments= self.get_segments()
+#        return [segments[i] for i in range(start,end)]
 
     def show(self,window):
         pg.draw.polygon(window,(0,128,0),self.vertices)
@@ -109,7 +80,7 @@ def intersection(A,B):
 def det(A, B):
     return A[0] * B[1] - A[1] * B[0]
 
-def distance_to_line(line,point):
+def dist_to_line(line,point):
     x0,y0=point
     x1,y1=line[0]
     x2,y2=line[1]
@@ -117,15 +88,10 @@ def distance_to_line(line,point):
     dist/=np.sqrt( (x2-x1)**2 + (y2-y1)**2)
     return dist
 
-def save_json(data,out_path):
-    def helper(obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return obj
-    with open(out_path, 'w') as f:
-        json.dump(data, f,default=helper)
+def dist_to_pol(pol,line):
+    return dist_to_line(line,pol.get_centroid())
 
 def make_polygon(points):
     hull_i=ConvexHull(points)
     hull_points=hull_i.points[hull_i.vertices]
-    return Polygon(hull_points)
+    return ConvexPolygon(hull_points)
