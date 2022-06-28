@@ -25,6 +25,22 @@ class ConvexPolygon(object):
                 for vert_i in self.vertices])
         return self.radius
 
+    def get_segments(self):
+        segments=[[self.vertices[i],self.vertices[i+1]] 
+                    for i in range(len(self)-1)]
+        segments.append([self.vertices[-1],self.vertices[0]])
+        return segments
+
+    def inside(self,point):
+        segments=self.get_segments()
+        side=is_left(segments[0],point)
+        for segm_i in segments[1:]:
+            side_i=is_left(segm_i,point)
+            if(side_i!=side):
+                return False
+            side=side_i
+        return True
+
     def rotate(self,theta):
         center=self.get_centroid()
         R=np.array([[np.cos(theta),-np.sin(theta)],
@@ -33,12 +49,6 @@ class ConvexPolygon(object):
                          for vert_i in self.vertices]
         self.centroid=None
         self.radious=None
-
-    def get_segments(self):
-        segments=[[self.vertices[i],self.vertices[i+1]] 
-                    for i in range(len(self)-1)]
-        segments.append([self.vertices[-1],self.vertices[0]])
-        return segments
 
 #    def colision(self,line):
 #        indexes,col_segments=[],[]

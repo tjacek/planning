@@ -16,6 +16,7 @@ class EditorMode(Enum):
     OBSTACLE = 1
     START = 2
     END = 3
+    REMOVE = 4
 
 class Editor(object):
     def __init__(self,problem):
@@ -31,6 +32,12 @@ class Editor(object):
             self.problem.start=point
         if(self.mode==EditorMode.END):
             self.problem.end=point
+        if(self.mode==EditorMode.REMOVE):
+            if(len(self.points)>0):
+                pol_i=self.problem.world.inside(self.points[-1])
+                if(pol_i):
+                    pol_i.rotate(1.0)
+                self.points.clear()
 
     def on_key(self,key):
         print(key)
@@ -38,6 +45,8 @@ class Editor(object):
             self.mode=EditorMode.START
         elif(key==101):
             self.mode=EditorMode.END
+        elif(key==114):
+            self.mode=EditorMode.REMOVE
         else:
             self.mode=EditorMode.OBSTACLE
             if(len(self.points)>2):
@@ -47,9 +56,9 @@ class Editor(object):
     def show(self,window):
         window.fill((0,0,0))
         self.problem.show(window)
+        self.problem.world.show(window)
         for point_i in self.points:
             pg.draw.circle(window,(0,0,128), point_i, 5)
-        self.problem.world.show(window)
 
 def editor_loop(in_path,bounds=(512,512)):
     obs=Editor(world.read_json(in_path))

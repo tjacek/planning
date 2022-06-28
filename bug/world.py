@@ -45,6 +45,12 @@ class World(object):
     def add_polygon(self,points:list):
         polygon_i=geometry.make_polygon(points)
         self.polygons.append(polygon_i)
+    
+    def inside(self,point):
+        for pol_i in self.polygons:
+            if(pol_i.inside(point)):
+                print("$$$$")
+                return pol_i
 
     def colision(self,line):
         candid=[pol_i for pol_i in self.polygons
