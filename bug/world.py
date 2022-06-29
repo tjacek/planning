@@ -18,10 +18,10 @@ class Problem(object):
         if(self.start):
             pg.draw.circle(window,(0,64,64), self.start, 5)
         if(self.end):
-            pg.draw.circle(window,(64,0,64), self.end, 5)   
-        if(self.posed()):
-            pg.draw.line(window,(255,255,0),self.start,self.end)
-#            self.check(window)
+            pg.draw.circle(window,(64,0,64), self.end, 5)
+           
+#        if(self.posed()):
+#            pg.draw.line(window,(255,255,0),self.start,self.end)
 
 #    def check(self,window):
 #        if(len(self.world)>0):
@@ -46,14 +46,13 @@ class World(object):
         polygon_i=geometry.make_polygon(points)
         self.polygons.append(polygon_i)
     
-    def remove_polygons(self,pol_i):
+    def remove_polygon(self,pol_i):
         self.polygons=[pol_j for pol_j in self.polygons
                          if(pol_i!=pol_j)]
 
     def inside(self,point):
         for pol_i in self.polygons:
             if(pol_i.inside(point)):
-                print("$$$$")
                 return pol_i
 
     def colision(self,line):
