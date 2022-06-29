@@ -20,7 +20,7 @@ class EditorMode(Enum):
 
 class Editor(object):
     def __init__(self,problem):
-        self.problem=problem#world.Problem()
+        self.problem=problem
         self.points=[]
         self.mode=EditorMode.OBSTACLE
     
@@ -62,6 +62,11 @@ class Editor(object):
 
 def editor_loop(in_path,bounds=(512,512)):
     obs=Editor(world.read_json(in_path))
+    loop_template(obs,bounds)
+    obs.problem.world.save(in_path)
+    pg.quit()
+
+def loop_template(controler,bounds=(512,512),n_tick=3):
     pg.init()
     window = pg.display.set_mode(bounds)
     clock = pg.time.Clock()
@@ -72,14 +77,12 @@ def editor_loop(in_path,bounds=(512,512)):
                 run=False
             if event.type == pg.MOUSEBUTTONUP:
                 point = pg.mouse.get_pos()
-                obs.on_click(point)
+                controler.on_click(point)
             if event.type == pg.KEYDOWN:
-                obs.on_key(event.key)
-        obs.show(window)
+                controler.on_key(event.key)
+        controler.show(window)
         pg.display.flip()
-        clock.tick(3)
-    obs.problem.world.save(in_path)
-    pg.quit()
+        clock.tick(n_tick)
 
 if __name__ == "__main__":
     if(len(sys.argv)>1):

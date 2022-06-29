@@ -46,6 +46,10 @@ class World(object):
         polygon_i=geometry.make_polygon(points)
         self.polygons.append(polygon_i)
     
+    def remove_polygons(self,pol_i):
+        self.polygons=[pol_j for pol_j in self.polygons
+                         if(pol_i!=pol_j)]
+
     def inside(self,point):
         for pol_i in self.polygons:
             if(pol_i.inside(point)):
@@ -69,7 +73,7 @@ class World(object):
     def save(self,out_path):
         data=[pol_i.vertices for pol_i in self.polygons]
         save_json(data,out_path)
-        print(f"save at{out_path}")
+        print(f"save at {out_path}")
 
 def save_json(data,out_path):
     def helper(obj):
