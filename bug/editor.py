@@ -35,8 +35,8 @@ class Editor(object):
         if(self.mode==EditorMode.REMOVE):
             if(len(self.points)>0):
                 pol_i=self.problem.world.inside(self.points[-1])
-                if(pol_i):
-                    pol_i.rotate(1.0)
+                print(type(pol_i))
+                self.problem.world.remove_polygon(pol_i)
                 self.points.clear()
 
     def on_key(self,key):
@@ -47,6 +47,7 @@ class Editor(object):
             self.mode=EditorMode.END
         elif(key==114):
             self.mode=EditorMode.REMOVE
+            print(self.mode)
         else:
             self.mode=EditorMode.OBSTACLE
             if(len(self.points)>2):

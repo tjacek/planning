@@ -61,7 +61,7 @@ class World(object):
         coll_dict={}
         for pol_i in candid:
             coll_i=pol_i.colision(line)
-            if(coll_i[0]):
+            if(coll_i):
                 coll_dict[pol_i]=coll_i
         return coll_dict
 

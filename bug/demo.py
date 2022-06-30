@@ -1,6 +1,7 @@
 import sys
 import pygame as pg
 import world,editor
+import geometry
 
 class AlgControler(object):
     def __init__(self,problem,alg=None):
@@ -35,10 +36,20 @@ class AlgControler(object):
 def simple_alg(problem):
     return [(problem.start,problem.end)]	
 
-def demo_loop(in_path,bounds=(512,512)):
-    controler=AlgControler(world.read_json(in_path))
+def bug1(problem):
+    line=(problem.start,problem.end)
+    pol_coli=problem.world.colision(line)
+    polygons=geometry.order_polygons(list(pol_coli.keys()),line[0])
+    segm_i=pol_coli[ polygons[0]][0]
+    point_i=geometry.intersection(line,segm_i)
+    return [(problem.start,point_i)]
+#    pol_coli[pol_i]=
+#    raise Exception(segm_i)
+
+def demo_loop(in_path,alg,bounds=(512,512)):
+    controler=AlgControler(world.read_json(in_path),alg)
     editor.loop_template(controler)
     pg.quit()
 
 if __name__ == "__main__":
-    demo_loop(sys.argv[1])
+    demo_loop(sys.argv[1],bug1)
