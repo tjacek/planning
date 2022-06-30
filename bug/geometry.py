@@ -50,18 +50,18 @@ class ConvexPolygon(object):
         self.centroid=None
         self.radious=None
 
-    def colision(self,line):
-        col_segments=[]#,[]
+    def detect_collision(self,line):
+        for i,segm_i in enumerate(self.get_segments()):
+            if(is_left(line,segm_i[0]) !=  is_left(line,segm_i[1])):
+               return True
+        return False
+
+    def colision_segm(self,line):
+        col_segments=[]
         for i,segm_i in enumerate(self.get_segments()):
             if(is_left(line,segm_i[0]) !=  is_left(line,segm_i[1])):
                 col_segments.append(segm_i)
-#                indexes.append(i)
         return col_segments#,indexes
-    
-#    def between(self,indexes):
-#        start,end=np.amin(indexes),np.amax(indexes)
-#        segments= self.get_segments()
-#        return [segments[i] for i in range(start,end)]
 
     def show(self,window):
         pg.draw.polygon(window,(0,128,0),self.vertices)

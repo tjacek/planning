@@ -38,13 +38,11 @@ def simple_alg(problem):
 
 def bug1(problem):
     line=(problem.start,problem.end)
-    pol_coli=problem.world.colision(line)
-    polygons=geometry.order_polygons(list(pol_coli.keys()),line[0])
-    segm_i=pol_coli[ polygons[0]][0]
-    point_i=geometry.intersection(line,segm_i)
-    return [(problem.start,point_i)]
-#    pol_coli[pol_i]=
-#    raise Exception(segm_i)
+    pol_i=problem.world.nearest_polygon(line)
+    segm_i=pol_i.colision_segm(line)
+    inter=geometry.intersection(segm_i[0],line)
+    result=[(line[0],inter),(inter,segm_i[0][0])]
+    return result
 
 def demo_loop(in_path,alg,bounds=(512,512)):
     controler=AlgControler(world.read_json(in_path),alg)

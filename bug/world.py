@@ -20,18 +20,6 @@ class Problem(object):
         if(self.end):
             pg.draw.circle(window,(64,0,64), self.end, 5)
            
-#        if(self.posed()):
-#            pg.draw.line(window,(255,255,0),self.start,self.end)
-
-#    def check(self,window):
-#        if(len(self.world)>0):
-#            line=(self.start,self.end)
-#            self.world.colision(line)
-#            for polygon_i in self.world.polygons:
-#                col_segms,indexes=polygon_i.colision(line)
-#                points=geometry.all_intersections(line,col_segms)
-#                import editor
-#                editor.show_points(window,points)
 
 class World(object):
     def __init__(self,polygons=None):
@@ -55,15 +43,22 @@ class World(object):
             if(pol_i.inside(point)):
                 return pol_i
 
-    def colision(self,line):
+    def nearest_polygon(self,line):
+        polygons=self.collision(line)
+        polygons=geometry.order_polygons(polygons,line[0])        
+        return polygons[0]
+
+    def collision(self,line):
         candid=[pol_i for pol_i in self.polygons
             if(geometry.dist_to_pol(pol_i,line)<pol_i.get_radius())]
-        coll_dict={}
-        for pol_i in candid:
-            coll_i=pol_i.colision(line)
-            if(coll_i):
-                coll_dict[pol_i]=coll_i
-        return coll_dict
+        return [pol_i for pol_i in candid
+                    if(pol_i.detect_collision(line))]
+#        coll_dict={}
+#        for pol_i in candid:
+#            coll_i=pol_i.colision(line)
+#            if(coll_i):
+#                coll_dict[pol_i]=coll_i
+#        return coll_dict
 
     def show(self,window):
         for pol_i in self.polygons:
