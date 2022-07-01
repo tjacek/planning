@@ -33,6 +33,34 @@ class AlgControler(object):
             for (x,y) in self.alg(self.problem):
                 pg.draw.line(window,(255,255,0),x,y)
 
+class VertexControler(object):
+    def __init__(self,problem):
+        self.world=problem.world
+        self.n_polygon=0
+        self.n_vertex=0
+
+    def on_click(self,point):
+        pass
+
+    def on_key(self,key):
+        print((self.n_polygon,self.n_vertex))
+        pol_i=self.world.polygons[self.n_polygon]
+        self.n_vertex= (self.n_vertex+1) % len(pol_i)
+        if(self.n_vertex==0):
+            self.n_polygon= (self.n_polygon+1) % len(self.world)
+
+    def show(self,window):
+        window.fill((0,0,0))
+        self.world.show(window)
+        pol_i=self.world.polygons[self.n_polygon]
+        vertex_j=pol_i.vertices[self.n_vertex]
+        pg.draw.circle(window,(0,0,128), vertex_j, 5) 
+        segments= pol_i.get_segments()
+        x,y=segments[self.n_vertex]
+        pg.draw.line(window,(255,255,0),x,y)
+        x,y=segments[self.n_vertex-1]
+        pg.draw.line(window,(255,255,0),x,y)
+
 def simple_alg(problem):
     return [(problem.start,problem.end)]	
 
@@ -45,6 +73,7 @@ def all_collision(problem):
         segm=pol_i.get_segments()
         for i in indexes:
             result.append(segm[i])
+            result.append(segm[i+1])            
     return result
 
 def bug1(problem):
@@ -71,4 +100,7 @@ def demo_loop(in_path,alg,bounds=(512,512)):
     pg.quit()
 
 if __name__ == "__main__":
-    demo_loop(sys.argv[1],all_collision)
+#    demo_loop(sys.argv[1],all_collision)
+    controler=VertexControler(world.read_json(sys.argv[1]))
+    editor.loop_template(controler)
+    pg.quit()
