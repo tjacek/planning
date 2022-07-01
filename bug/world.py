@@ -46,19 +46,15 @@ class World(object):
     def nearest_polygon(self,line):
         polygons=self.collision(line)
         polygons=geometry.order_polygons(polygons,line[0])        
-        return polygons[0]
-
+        if(polygons):
+            return polygons[0]
+        return None
+        
     def collision(self,line):
         candid=[pol_i for pol_i in self.polygons
             if(geometry.dist_to_pol(pol_i,line)<pol_i.get_radius())]
         return [pol_i for pol_i in candid
                     if(pol_i.detect_collision(line))]
-#        coll_dict={}
-#        for pol_i in candid:
-#            coll_i=pol_i.colision(line)
-#            if(coll_i):
-#                coll_dict[pol_i]=coll_i
-#        return coll_dict
 
     def show(self,window):
         for pol_i in self.polygons:

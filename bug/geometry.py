@@ -50,17 +50,26 @@ class ConvexPolygon(object):
         self.centroid=None
         self.radious=None
 
-    def detect_collision(self,line):
-        for i,segm_i in enumerate(self.get_segments()):
-            if(is_left(line,segm_i[0]) !=  is_left(line,segm_i[1])):
+    def near(self,i):
+        prev=i-1
+        if(prev<0):
+            prev-=len(self)-1
+        next_= (i+1) % len(self)
+        return [prev,i,next_]
+
+    def detect_collision(self,line,tabu=None):
+        for i,(x,y) in enumerate(self.get_segments()):
+            if(tabu and i in tabu):
+                continue
+            if(is_left(line,x) !=  is_left(line,y)):
                return True
         return False
 
     def colision_segm(self,line):
         col_segments=[]
-        for i,segm_i in enumerate(self.get_segments()):
-            if(is_left(line,segm_i[0]) !=  is_left(line,segm_i[1])):
-                col_segments.append(segm_i)
+        for i,(x,y) in enumerate(self.get_segments()):
+            if(is_left(line,x) !=  is_left(line,y)):
+                col_segments.append(i)#(x,y))
         return col_segments#,indexes
 
     def show(self,window):
