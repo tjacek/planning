@@ -73,7 +73,6 @@ def all_collision(problem):
         segm=pol_i.get_segments()
         for i in indexes:
             result.append(segm[i])
-            result.append(segm[i+1])            
     return result
 
 def bug1(problem):
@@ -81,18 +80,9 @@ def bug1(problem):
     pol_i=problem.world.nearest_polygon(line)
     if(pol_i is None):
         return [line]
-
-    indexes=pol_i.colision_segm(line)
-    segm_i=pol_i.get_segments()[indexes[0]]
-    inter=geometry.intersection(segm_i,line)    
-    result=[(inter,segm_i[0])]#(line[0],inter)]
-    for i,segm_i in enumerate( pol_i.get_segments()):
-        line_i=(segm_i[1], problem.end)
-        tabu=set([i])#pol_i.near(i)[1]
-#        raise Exception(len(tabu))
-        if(not pol_i.detect_collision(line_i,tabu)):
-            result.append(line_i)
-    return result
+    line_i=(pol_i.vertices[0],line[1])
+    inter=pol_i.get_intersections(line_i)
+    return [ (inter_i,line_i[1]) for inter_i in inter]
 
 def demo_loop(in_path,alg,bounds=(512,512)):
     controler=AlgControler(world.read_json(in_path),alg)
@@ -100,7 +90,7 @@ def demo_loop(in_path,alg,bounds=(512,512)):
     pg.quit()
 
 if __name__ == "__main__":
-#    demo_loop(sys.argv[1],all_collision)
-    controler=VertexControler(world.read_json(sys.argv[1]))
-    editor.loop_template(controler)
-    pg.quit()
+    demo_loop(sys.argv[1],bug1)
+#    controler=VertexControler(world.read_json(sys.argv[1]))
+#    editor.loop_template(controler)
+#    pg.quit()

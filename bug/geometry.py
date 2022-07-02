@@ -50,12 +50,12 @@ class ConvexPolygon(object):
         self.centroid=None
         self.radious=None
 
-    def near(self,i):
-        prev=i-1
-        if(prev<0):
-            prev-=len(self)-1
-        next_= (i+1) % len(self)
-        return [prev,i,next_]
+#    def near(self,i):
+#        prev=i-1
+#        if(prev<0):
+#            prev-=len(self)-1
+#        next_= (i+1) % len(self)
+#        return [prev,i]#,next_]
 
     def detect_collision(self,line,tabu=None):
         for i,(x,y) in enumerate(self.get_segments()):
@@ -71,6 +71,13 @@ class ConvexPolygon(object):
             if(is_left(line,x) !=  is_left(line,y)):
                 col_segments.append(i)#(x,y))
         return col_segments#,indexes
+
+    def get_intersections(self,line):
+        inter_points=[]
+        for i,(x,y) in enumerate(self.get_segments()):
+            if(is_left(line,x) !=  is_left(line,y)):
+                inter_points.append(intersection((x,y),line))
+        return inter_points
 
     def show(self,window):
         pg.draw.polygon(window,(0,128,0),self.vertices)
