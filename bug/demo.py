@@ -80,9 +80,16 @@ def bug1(problem):
     pol_i=problem.world.nearest_polygon(line)
     if(pol_i is None):
         return [line]
-    line_i=(pol_i.vertices[0],line[1])
-    inter=pol_i.get_intersections(line_i)
-    return [ (inter_i,line_i[1]) for inter_i in inter]
+    inter_points,segm=  pol_i.get_intersections(line)
+    k=geometry.nearest(inter_points,line[0])
+    result=[(line[0],inter_points[k])]
+    result.append((inter_points[k],segm[k][0]))
+
+    result+=pol_i.vertex_colision(segm[k][0],line[1])
+#    line_i=(pol_i.vertices[0],line[1])
+#    inter=pol_i.get_intersections(line_i)
+#    return [ (inter_i,line_i[1]) for inter_i in inter]
+    return result
 
 def demo_loop(in_path,alg,bounds=(512,512)):
     controler=AlgControler(world.read_json(in_path),alg)

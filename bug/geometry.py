@@ -13,6 +13,9 @@ class ConvexPolygon(object):
     def __len__(self):
         return len(self.vertices)
 
+    def show(self,window):
+        pg.draw.polygon(window,(0,128,0),self.vertices)
+
     def get_centroid(self):
         if(self.centroid is None):
             self.centroid=np.mean(self.vertices,axis=0)
@@ -24,6 +27,12 @@ class ConvexPolygon(object):
             self.radius=np.amax([np.linalg.norm(center-vert_i)
                 for vert_i in self.vertices])
         return self.radius
+    
+    def vertex_index(self,vert_k):
+        for i,vert_i in enumerate(self.vertices):
+            if(all([ x==y for x,y in zip(vert_i,vert_k)] )):
+                return i 
+        return None
 
     def get_segments(self):
         segments=[[self.vertices[i],self.vertices[i+1]] 
@@ -50,12 +59,20 @@ class ConvexPolygon(object):
         self.centroid=None
         self.radious=None
 
-#    def near(self,i):
-#        prev=i-1
-#        if(prev<0):
-#            prev-=len(self)-1
-#        next_= (i+1) % len(self)
-#        return [prev,i]#,next_]
+    def vertex_colision(self,vert_i,goal):
+        i=self.vertex_index(vert_i)
+        segments=[]
+        for j in range(1,len(self.vertices)):
+            if(j!=i and j!=(i+1)):
+                segments.append([self.vertices[j-1],self.vertices[j]])
+        if(i!=0):
+            segments.append([self.vertices[-1],self.vertices[0]])
+        coll=[]
+        for segm_k in segments:
+            if(is_left(segm_k,vert_i) !=  is_left(segm_k,goal)):
+                coll.append(segm_k)
+        return coll
+
 
     def detect_collision(self,line,tabu=None):
         for i,(x,y) in enumerate(self.get_segments()):
@@ -65,22 +82,25 @@ class ConvexPolygon(object):
                return True
         return False
 
-    def colision_segm(self,line):
-        col_segments=[]
-        for i,(x,y) in enumerate(self.get_segments()):
-            if(is_left(line,x) !=  is_left(line,y)):
-                col_segments.append(i)#(x,y))
-        return col_segments#,indexes
+#    def colision_segm(self,line):
+#        col_segments=[]
+#        for i,(x,y) in enumerate(self.get_segments()):
+#            if(is_left(line,x) !=  is_left(line,y)):
+#                col_segments.append(i)#(x,y))
+#        return col_segments#,indexes
 
     def get_intersections(self,line):
-        inter_points=[]
+        inter_points,segm=[],[]
         for i,(x,y) in enumerate(self.get_segments()):
             if(is_left(line,x) !=  is_left(line,y)):
                 inter_points.append(intersection((x,y),line))
-        return inter_points
+                segm.append((x,y))
+        return inter_points,segm
 
-    def show(self,window):
-        pg.draw.polygon(window,(0,128,0),self.vertices)
+def make_polygon(points):
+    hull_i=ConvexHull(points)
+    hull_points=hull_i.points[hull_i.vertices]
+    return ConvexPolygon(hull_points)
 
 def order_polygons(polygons,point):
     distance=[ np.linalg.norm(pol_i.get_centroid()-point)
@@ -122,7 +142,8 @@ def dist_to_line(line,point):
 def dist_to_pol(pol,line):
     return dist_to_line(line,pol.get_centroid())
 
-def make_polygon(points):
-    hull_i=ConvexHull(points)
-    hull_points=hull_i.points[hull_i.vertices]
-    return ConvexPolygon(hull_points)
+def nearest(objects,point):
+    objects=np.array(objects)
+    distance= [np.linalg.norm(obj_i-point)
+                for obj_i in objects]
+    return np.argmin(distance)
