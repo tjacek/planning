@@ -59,6 +59,12 @@ class ConvexPolygon(object):
         self.centroid=None
         self.radious=None
 
+    def from_vertex(self,i):
+        if(type(i)!=int):
+            i=self.vertex_index(i)
+        start,end=self.vertices[:i],self.vertices[i:]
+        return np.concatenate([end,start])
+
     def vertex_colision(self,vert_i,goal):
         i=self.vertex_index(vert_i)
         segments=[]

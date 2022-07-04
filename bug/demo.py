@@ -84,8 +84,17 @@ def bug1(problem):
     k=geometry.nearest(inter_points,line[0])
     result=[(line[0],inter_points[k])]
     result.append((inter_points[k],segm[k][0]))
-
-    result+=pol_i.vertex_colision(segm[k][0],line[1])
+  
+    vert_k=segm[k][0]
+    vertices=pol_i.from_vertex(segm[k][0])
+    for vert_i in vertices[1:]:
+        coll_segm=pol_i.vertex_colision(vert_k,problem.end)
+        if(len(coll_segm)==0):
+            result.append((vert_i,problem.end))
+            break
+        result.append((vert_k,vert_i))
+        vert_k=vert_i
+#    result+=pol_i.vertex_colision(segm[k][0],line[1])
 #    line_i=(pol_i.vertices[0],line[1])
 #    inter=pol_i.get_intersections(line_i)
 #    return [ (inter_i,line_i[1]) for inter_i in inter]
