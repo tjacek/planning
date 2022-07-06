@@ -79,7 +79,6 @@ class ConvexPolygon(object):
                 coll.append(segm_k)
         return coll
 
-
     def detect_collision(self,line,tabu=None):
         for i,(x,y) in enumerate(self.get_segments()):
             if(tabu and i in tabu):
@@ -97,10 +96,14 @@ class ConvexPolygon(object):
 
     def get_intersections(self,line):
         inter_points,segm=[],[]
-        for i,(x,y) in enumerate(self.get_segments()):
-            if(is_left(line,x) !=  is_left(line,y)):
-                inter_points.append(intersection((x,y),line))
-                segm.append((x,y))
+        for i,segm_i in enumerate(self.get_segments()):
+            point=intersection(line,segm_i)
+            if(point):
+                inter_points.append(point)
+                segm.append(segm_i)
+#            if(is_left(line,x) !=  is_left(line,y)):
+#                inter_points.append(intersection((x,y),line))
+#                segm.append((x,y))
         return inter_points,segm
 
 def make_polygon(points):
@@ -124,17 +127,31 @@ def all_intersections(line,segments):
         for segm_i in segments]
 
 def intersection(A,B):
-    xdiff = (A[0][0] - A[1][0], B[0][0] - B[1][0])
-    ydiff = (A[0][1] - A[1][1], B[0][1] - B[1][1])
-    div = det(xdiff, ydiff)
-    if div == 0:
-       raise Exception('lines do not intersect')
-    d = (det(*A), det(*B))
-    x = det(d, xdiff) / div
-    y = det(d, ydiff) / div
-    return x, y
+    p,q=np.array(A[0]),np.array(B[0])
+    r=np.array(A[1])-p
+    s=np.array(B[1])-q
+    cross_rs=cross(r,s)
+    if( cross_rs==0):
+        return None
+    t=cross(q-p,s)/cross_rs
+    u=cross(q-p,r)/cross_rs
+    if(0<t and t<1 and 0<u and u<1):
+        return (p+t*r,q+u*s)
+    return None
+    
 
-def det(A, B):
+#def intersection(A,B):
+#    xdiff = (A[0][0] - A[1][0], B[0][0] - B[1][0])
+#    ydiff = (A[0][1] - A[1][1], B[0][1] - B[1][1])
+#    div = det(xdiff, ydiff)
+#    if div == 0:
+#       raise Exception('lines do not intersect')
+#    d = (det(*A), det(*B))
+#    x = det(d, xdiff) / div
+#    y = det(d, ydiff) / div
+#    return x, y
+
+def cross(A, B):
     return A[0] * B[1] - A[1] * B[0]
 
 def dist_to_line(line,point):

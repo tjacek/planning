@@ -17,14 +17,15 @@ class VertexIterator(object):
     def current(self):
         pol_i=self.world.polygons[self.n_polygon]
         vertex_j=pol_i.vertices[self.n_vertex]
-        return vertex_j
+        return pol_i,vertex_j
 
     def __str__(self):
         return f"{self.n_polygon},{self.n_vertex}"
 
 class VertexControler(object):
-    def __init__(self,problem):
+    def __init__(self,problem,alg):
         self.problem=problem
+        self.alg=alg
         self.mode=editor.EditorMode.START
         self.vertices=VertexIterator(problem.world)
 
@@ -49,15 +50,23 @@ class VertexControler(object):
         window.fill((0,0,0))
         self.problem.world.show(window)
         self.problem.show(window)
-        vertex_j=self.vertices.current()
+        pol_i,vertex_j=self.vertices.current()
         pg.draw.circle(window,(0,0,128), vertex_j, 5) 
-#        segments= pol_i.get_segments()
-#        x,y=segments[self.n_vertex]
-#        pg.draw.line(window,(255,255,0),x,y)
-#        x,y=segments[self.n_vertex-1]
-#        pg.draw.line(window,(255,255,0),x,y)
+        if(self.problem.posed()):
+            for (x,y) in self.alg(pol_i,vertex_j,self.problem):
+                pg.draw.line(window,(255,255,0),x,y)
+
+def simple_alg(pol_i,vertex_j,problem):
+    return [(vertex_j,problem.end)]
+
+def colision_alg(pol_i,vertex_j,problem):
+    result=[(vertex_j,problem.end)]
+    inter_points,segm=pol_i.get_intersections(result[0])
+    result+=segm
+    return result
 
 if __name__ == "__main__":
-    controler=VertexControler(world.read_json(sys.argv[1]))
+    problem=world.read_json(sys.argv[1])
+    controler=VertexControler(problem,colision_alg)
     editor.loop_template(controler)
     pg.quit()
