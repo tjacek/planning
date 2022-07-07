@@ -62,22 +62,21 @@ class ConvexPolygon(object):
     def from_vertex(self,i):
         if(type(i)!=int):
             i=self.vertex_index(i)
-        start,end=self.vertices[:i],self.vertices[i:]
-        return np.concatenate([end,start])
+        segms=self.get_segments()
+        start,end=segms[:i],segms[i:]
+        return end+start
 
     def vertex_colision(self,vert_i,goal):
         i=self.vertex_index(vert_i)
-        segments=[]
-        for j in range(1,len(self.vertices)):
-            if(j!=i and j!=(i+1)):
-                segments.append([self.vertices[j-1],self.vertices[j]])
-        if(i!=0):
-            segments.append([self.vertices[-1],self.vertices[0]])
-        coll=[]
-        for segm_k in segments:
-            if(is_left(segm_k,vert_i) !=  is_left(segm_k,goal)):
-                coll.append(segm_k)
-        return coll
+        segms=self.from_vertex(i)
+        collision=[]
+        for i,segm_i in enumerate( segms[1:]):
+            start_i=(vert_i,goal)
+            inter_point=intersection(segm_i,start_i)
+            if(inter_point is None):
+                break
+            collision.append(segms[i])
+        return collision
 
     def detect_collision(self,line,tabu=None):
         for i,(x,y) in enumerate(self.get_segments()):
@@ -101,9 +100,6 @@ class ConvexPolygon(object):
             if(point):
                 inter_points.append(point)
                 segm.append(segm_i)
-#            if(is_left(line,x) !=  is_left(line,y)):
-#                inter_points.append(intersection((x,y),line))
-#                segm.append((x,y))
         return inter_points,segm
 
 def make_polygon(points):
@@ -116,11 +112,11 @@ def order_polygons(polygons,point):
                 for pol_i in polygons]
     return [polygons[i] for i in np.argsort(distance)]
 
-def is_left(line,c):
-    a,b=line
-    cross=(b[0] - a[0])*(c[1] - a[1]) 
-    cross-=(b[1] - a[1])*(c[0] - a[0])
-    return cross>0
+#def is_left(line,c):
+#    a,b=line
+#    cross=(b[0] - a[0])*(c[1] - a[1]) 
+#    cross-=(b[1] - a[1])*(c[0] - a[0])
+#    return cross>0
 
 def all_intersections(line,segments):
     return [intersection(line,segm_i)
@@ -138,18 +134,6 @@ def intersection(A,B):
     if(0<t and t<1 and 0<u and u<1):
         return (p+t*r,q+u*s)
     return None
-    
-
-#def intersection(A,B):
-#    xdiff = (A[0][0] - A[1][0], B[0][0] - B[1][0])
-#    ydiff = (A[0][1] - A[1][1], B[0][1] - B[1][1])
-#    div = det(xdiff, ydiff)
-#    if div == 0:
-#       raise Exception('lines do not intersect')
-#    d = (det(*A), det(*B))
-#    x = det(d, xdiff) / div
-#    y = det(d, ydiff) / div
-#    return x, y
 
 def cross(A, B):
     return A[0] * B[1] - A[1] * B[0]

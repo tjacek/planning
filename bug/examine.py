@@ -65,8 +65,11 @@ def colision_alg(pol_i,vertex_j,problem):
     result+=segm
     return result
 
+def segm(pol_i,vertex_j,problem):
+    return pol_i.vertex_colision(vertex_j,problem.end)
+
 if __name__ == "__main__":
     problem=world.read_json(sys.argv[1])
-    controler=VertexControler(problem,colision_alg)
+    controler=VertexControler(problem,segm)
     editor.loop_template(controler)
     pg.quit()
