@@ -132,7 +132,7 @@ def intersection(A,B):
     t=cross(q-p,s)/cross_rs
     u=cross(q-p,r)/cross_rs
     if(0<t and t<1 and 0<u and u<1):
-        return (p+t*r,q+u*s)
+        return p+t*r#,q+u*s)
     return None
 
 def cross(A, B):

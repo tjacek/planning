@@ -1,6 +1,6 @@
 import sys
 import pygame as pg
-import world,editor
+import world,editor,geometry
 
 class VertexIterator(object):
     def __init__(self,world):
@@ -38,9 +38,9 @@ class VertexControler(object):
     def on_key(self,key):
         print(self.vertices)
         print(key)
-        if(key==115):
+        if(key==101):
             self.mode=editor.EditorMode.END
-        elif(key==101):
+        elif(key==115):
             self.mode=editor.EditorMode.START
         else:
             self.vertices.next()
@@ -64,6 +64,15 @@ def colision_alg(pol_i,vertex_j,problem):
     inter_points,segm=pol_i.get_intersections(result[0])
     result+=segm
     return result
+
+def from_vertex(pol_i,vertex_j,problem):
+    line=(vertex_j,problem.end)
+    for segm_k in  pol_i.get_segments():
+        point=geometry.intersection(segm_k,line)
+        if(not (point is None)):
+#            raise Exception(point)
+            return [(vertex_j,point)]
+    return [line]
 
 def segm(pol_i,vertex_j,problem):
     return pol_i.vertex_colision(vertex_j,problem.end)
