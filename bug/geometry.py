@@ -67,16 +67,21 @@ class ConvexPolygon(object):
         return end+start
 
     def vertex_colision(self,vert_i,goal):
+        line=(vert_i,goal)
         i=self.vertex_index(vert_i)
         segms=self.from_vertex(i)
-        collision=[]
-        for i,segm_i in enumerate( segms[1:]):
-            start_i=(vert_i,goal)
-            inter_point=intersection(segm_i,start_i)
-            if(inter_point is None):
+        path,collision=[],False
+        for i,segm_i in enumerate(segms):
+            point=intersection(line,segm_i)
+            if(not (point is None)):
+                collision=True
                 break
-            collision.append(segms[i])
-        return collision
+            path.append(segm_i)
+        if(collision):
+            result=path
+        else:
+            result=[line]
+        return result
 
     def detect_collision(self,line,tabu=None):
         for i,(x,y) in enumerate(self.get_segments()):
@@ -85,13 +90,6 @@ class ConvexPolygon(object):
             if(is_left(line,x) !=  is_left(line,y)):
                return True
         return False
-
-#    def colision_segm(self,line):
-#        col_segments=[]
-#        for i,(x,y) in enumerate(self.get_segments()):
-#            if(is_left(line,x) !=  is_left(line,y)):
-#                col_segments.append(i)#(x,y))
-#        return col_segments#,indexes
 
     def get_intersections(self,line):
         inter_points,segm=[],[]
