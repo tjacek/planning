@@ -95,7 +95,7 @@ class ConvexPolygon(object):
         inter_points,segm=[],[]
         for i,segm_i in enumerate(self.get_segments()):
             point=intersection(line,segm_i)
-            if(point):
+            if(not ( point is None)):
                 inter_points.append(point)
                 segm.append(segm_i)
         return inter_points,segm
@@ -110,11 +110,11 @@ def order_polygons(polygons,point):
                 for pol_i in polygons]
     return [polygons[i] for i in np.argsort(distance)]
 
-#def is_left(line,c):
-#    a,b=line
-#    cross=(b[0] - a[0])*(c[1] - a[1]) 
-#    cross-=(b[1] - a[1])*(c[0] - a[0])
-#    return cross>0
+def is_left(line,c):
+    a,b=line
+    cross=(b[0] - a[0])*(c[1] - a[1]) 
+    cross-=(b[1] - a[1])*(c[0] - a[0])
+    return cross>0
 
 def all_intersections(line,segments):
     return [intersection(line,segm_i)
