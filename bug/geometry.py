@@ -83,12 +83,10 @@ class ConvexPolygon(object):
             result=[line]
         return result
 
-    def detect_collision(self,line,tabu=None):
-        for i,(x,y) in enumerate(self.get_segments()):
-            if(tabu and i in tabu):
-                continue
-            if(is_left(line,x) !=  is_left(line,y)):
-               return True
+    def detect_collision(self,line):
+        for i,segm_i in enumerate(self.get_segments()):
+            if(not (intersection(line,segm_i) is None)):
+                return True
         return False
 
     def get_intersections(self,line):
@@ -110,11 +108,6 @@ def order_polygons(polygons,point):
                 for pol_i in polygons]
     return [polygons[i] for i in np.argsort(distance)]
 
-def is_left(line,c):
-    a,b=line
-    cross=(b[0] - a[0])*(c[1] - a[1]) 
-    cross-=(b[1] - a[1])*(c[0] - a[0])
-    return cross>0
 
 def all_intersections(line,segments):
     return [intersection(line,segm_i)
