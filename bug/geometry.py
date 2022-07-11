@@ -80,7 +80,7 @@ class ConvexPolygon(object):
         if(collision):
             result=path
         else:
-            result=[line]
+            result=[]#line]
         return result
 
     def detect_collision(self,line):
