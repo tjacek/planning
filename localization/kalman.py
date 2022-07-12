@@ -1,11 +1,18 @@
 import pygame as pg
 
 class Envir(object):
-    def __init__(self):
+    def __init__(self,bounds=(512,512)):
         self.state=None
+        self.bounds=bounds
     
     def set_state(self,state):
-        self.state=state
+        self.state=[]
+        for i in (0,1):
+            mult_i=int(state[i]/self.bounds[i])
+            value_i=state[i]
+            if(mult_i):
+                value_i-=(mult_i*self.bounds[i])
+            self.state.append(value_i)
 
 #    def get_state(self):
 #        return self.current_state
@@ -30,7 +37,8 @@ class View(object):
 #        pg.draw.circle(window,(0,128,0),state,10)
 
 def loop(view):
-    window = pg.display.set_mode((512,512))
+    bounds=view.envir.bounds
+    window = pg.display.set_mode(bounds)
     clock = pg.time.Clock()
     run = True
     while run:
