@@ -1,9 +1,13 @@
+import numpy as np
 import pygame as pg
 
 class Envir(object):
     def __init__(self,bounds=(512,512)):
         self.state=None
         self.bounds=bounds
+    
+    def has_state(self):
+        return not (self.state is None)
     
     def set_state(self,state):
         self.state=[]
@@ -14,27 +18,35 @@ class Envir(object):
                 value_i-=(mult_i*self.bounds[i])
             self.state.append(value_i)
 
-#    def get_state(self):
-#        return self.current_state
+    def update(self):
+        print(self.state)
 
+class KalmanEnvir(Envir):
+    def __init__(self,A,bounds=(512,512)):
+        super(KalmanEnvir, self).__init__(bounds)
+        self.A=A
+
+    def update(self):
+        state= np.dot(self.A,self.state)
+        self.set_state(state)
 
 class View(object):
     def __init__(self,envir,scale=512):
         self.envir=envir
 
-    def on_click(self,point):
-#        self.envir.state()
+    def on_click(self,point): 
         self.envir.set_state(point)
         print(self.envir.state)
 
+    def on_key(self,key):
+        if(self.envir.has_state()):
+            self.envir.update()
+
     def show(self,window):
         window.fill((0,0,0))
-#        state=0.5*self.scale*(self.envir.state+1)
         state=self.envir.state
         if(not (state is None)):
             pg.draw.circle(window,(0,0,128),state,10)
-#        state=0.5*self.scale*(self.kalman.x_pred+1)
-#        pg.draw.circle(window,(0,128,0),state,10)
 
 def loop(view):
     bounds=view.envir.bounds
@@ -48,12 +60,16 @@ def loop(view):
             if event.type == pg.MOUSEBUTTONUP:
                 point = pg.mouse.get_pos()
                 view.on_click(point)
-#        if event.type == pg.KEYDOWN:
-#            controler.on_key(event.key)
+            if event.type == pg.KEYDOWN:
+                view.on_key(event.key)
         view.show(window)
         pg.display.flip()
         clock.tick(3)
     pg.quit()
 
-view=View(Envir())
+def get_envir():
+    A=np.array([[0.5,0.9],[1,1]])
+    return KalmanEnvir(A)
+
+view=View(get_envir())
 loop(view)
