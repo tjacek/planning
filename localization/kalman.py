@@ -68,8 +68,13 @@ def loop(view):
     pg.quit()
 
 def get_envir():
-    A=np.array([[0.5,0.9],[1,1]])
+    A=np.array(get_rotation(1))#[[0.5,0.9],[1,1]])
     return KalmanEnvir(A)
+
+def get_rotation(theta):
+    A=np.array([[np.cos(theta),-np.sin(theta)],
+                [np.sin(theta),np.cos(theta)]])
+    return A
 
 view=View(get_envir())
 loop(view)
