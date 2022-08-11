@@ -22,13 +22,25 @@ class Envir(object):
         print(self.state)
 
 class KalmanEnvir(Envir):
-    def __init__(self,A,bounds=(512,512)):
+    def __init__(self,A,gauss,bounds=(512,512)):
         super(KalmanEnvir, self).__init__(bounds)
         self.A=A
+        self.gauss=Gauss()
 
     def update(self):
         state= np.dot(self.A,self.state)
+        state+=self.gauss()
         self.set_state(state)
+
+class Gauss(object):
+    def __init__(self,mean,cov):
+        self.mean=mean
+        self.cov=cov
+
+    def __call__():
+        a=np.random.multivariate_normal(self.mean,self.cov)
+        return a
+
 
 class View(object):
     def __init__(self,envir,scale=512):
