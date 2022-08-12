@@ -22,22 +22,36 @@ class Envir(object):
         print(self.state)
 
 class KalmanEnvir(Envir):
-    def __init__(self,A,gauss,bounds=(512,512)):
+    def __init__(self,A=None,b=None,
+            gauss=None,bounds=(512,512)):
+        if(A is None):
+            A=np.identity(2)
+        if(b is None):
+            b=np.ones((2,))
+        if(gauss is None):
+            gauss=Gauss()
         super(KalmanEnvir, self).__init__(bounds)
         self.A=A
-        self.gauss=Gauss()
+        self.b=b
+        self.gauss=gauss
 
     def update(self):
         state= np.dot(self.A,self.state)
+        print(state)
+        state+=self.b
         state+=self.gauss()
         self.set_state(state)
 
 class Gauss(object):
-    def __init__(self,mean,cov):
+    def __init__(self,mean=None,cov=None):
+        if(mean is None):
+            mean=np.zeros((2,))
+        if(cov is None):
+            cov=np.identity(2)
         self.mean=mean
         self.cov=cov
 
-    def __call__():
+    def __call__(self):
         a=np.random.multivariate_normal(self.mean,self.cov)
         return a
 
@@ -80,8 +94,11 @@ def loop(view):
     pg.quit()
 
 def get_envir():
-    A=np.array(get_rotation(1))#[[0.5,0.9],[1,1]])
-    return KalmanEnvir(A)
+    b=np.array([10,6])
+    mean=np.array([2,2])
+    cov=np.array([[0.7,0.3],[0.4,0.6]])
+    gauss=Gauss(mean=mean,cov=cov)
+    return KalmanEnvir(b=b)
 
 def get_rotation(theta):
     A=np.array([[np.cos(theta),-np.sin(theta)],
