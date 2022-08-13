@@ -77,9 +77,10 @@ class Gauss(object):
         return np.random.multivariate_normal(self.mean,self.cov)
 
 class View(object):
-    def __init__(self,envir,scale=512):
+    def __init__(self,envir,alg=None):
         self.envir=envir
         self.obs_state=None
+        self.alg=alg
 
     def on_click(self,point): 
         self.envir.set_state(point)
@@ -97,6 +98,17 @@ class View(object):
             pg.draw.circle(window,(0,0,128),state,10)
         if(not (self.obs_state is None)):   
             pg.draw.circle(window,(0,128,0),self.obs_state,5)
+        if(not (self.alg is None)):
+            estm_state=self.alg(self.envir,self.obs_state)
+            pg.draw.circle(window,(128,0,0),estm_state,5)
+
+class KalmanFilter(object):
+    def __init__(self,n=2):
+        self.estm_state=np.random.rand(n)
+
+    def __call__(self,envir,obs_state):
+        self.estm_state= np.dot(envir.A,self.estm_state) + envir.b
+        return self.estm_state
 
 def loop(view):
     bounds=view.envir.bounds
@@ -130,5 +142,5 @@ def get_rotation(theta):
                 [np.sin(theta),np.cos(theta)]])
     return A
 
-view=View(get_envir())
+view=View(get_envir(),alg=KalmanFilter())
 loop(view)
