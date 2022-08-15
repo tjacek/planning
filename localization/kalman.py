@@ -98,17 +98,22 @@ class View(object):
             pg.draw.circle(window,(0,0,128),state,10)
         if(not (self.obs_state is None)):   
             pg.draw.circle(window,(0,128,0),self.obs_state,5)
-        if(not (self.alg is None)):
+        if(not (self.alg is None or self.obs_state is None)):
             estm_state=self.alg(self.envir,self.obs_state)
             pg.draw.circle(window,(128,0,0),estm_state,5)
 
 class KalmanFilter(object):
     def __init__(self,n=2):
         self.estm_state=np.random.rand(n)
+        self.estm_cov=np.random.rand(n,n)
 
     def __call__(self,envir,obs_state):
-        self.estm_state= np.dot(envir.A,self.estm_state) + envir.b
-        return self.estm_state
+        x= np.dot(envir.A,self.estm_state) + envir.b
+        F,Q=envir.A,envir.obs_noise.cov
+        P= np.dot(np.dot(F,self.estm_cov),F.T)+Q 
+        
+        y=obs_state- (np.dot(x,envir.H)+envir.c)  
+        return y#self.estm_state
 
 def loop(view):
     bounds=view.envir.bounds
