@@ -25,40 +25,31 @@ class Envir(object):
         return self.state
 
 class KalmanEnvir(Envir):
-    def __init__(self,A=None,b=None,
-            H=None,c=None,
+    def __init__(self,A=None,H=None,
             noise=None,obs_noise=None,
             bounds=(512,512)):
         if(A is None):
-            A=np.identity(2)
-        if(b is None):
-            b=np.ones((2,))
+            A=AffineTransform()
         if(H is None):
-            H=np.identity(2)
-        if(c is None):
-            c=np.zeros((2,))
+            H=AffineTransform()
         if(noise is None):
             noise=Gauss()
         if(obs_noise is None):
             obs_noise=Gauss()            
         super(KalmanEnvir, self).__init__(bounds)
         self.A=A
-        self.b=b
         self.H=H 
-        self.c=c
         self.noise=noise
         self.obs_noise=obs_noise
 
     def update(self):
-        state= np.dot(self.A,self.state)
+        state= self.A(self.state)
         print(state)
-        state+=self.b
         state+=self.noise()
         self.set_state(state)
 
     def observe(self):
-        obs_state=np.dot(self.H,self.state)
-        obs_state+=self.c
+        obs_state= self.H(self.state)
         obs_noise=self.obs_noise()
         print(f"obs_noise:{obs_noise}")
         obs_state+=obs_noise
@@ -75,6 +66,21 @@ class Gauss(object):
 
     def __call__(self):
         return np.random.multivariate_normal(self.mean,self.cov)
+
+class AffineTransform(object):
+    def __init__(self,A=None,b=None):
+        if(A is None):
+            A=np.identity(2)
+        if(b is None):
+            b=np.zeros((2,))
+        self.A=A 
+        self.b=b
+
+    def __call__(self,x):
+        return np.dot(self.A,x)+self.b
+
+    def op(self,P):
+        return np.dot(np.dot(self.A,P),self.A.T)
 
 class View(object):
     def __init__(self,envir,alg=None):
@@ -96,10 +102,11 @@ class View(object):
         state=self.envir.state
         if(not (state is None)):
             pg.draw.circle(window,(0,0,128),state,10)
-        if(not (self.obs_state is None)):   
-            pg.draw.circle(window,(0,128,0),self.obs_state,5)
+        if(not (self.obs_state is None)):
+            pg.draw.circle(window,(0,128,0),self.obs_state,7)
         if(not (self.alg is None or self.obs_state is None)):
             estm_state=self.alg(self.envir,self.obs_state)
+            print(estm_state)
             pg.draw.circle(window,(128,0,0),estm_state,5)
 
 class KalmanFilter(object):
@@ -108,12 +115,11 @@ class KalmanFilter(object):
         self.estm_cov=np.random.rand(n,n)
 
     def __call__(self,envir,obs_state):
-        x= np.dot(envir.A,self.estm_state) + envir.b
+        x= envir.A(obs_state) 
         F,Q=envir.A,envir.obs_noise.cov
-        P= np.dot(np.dot(F,self.estm_cov),F.T)+Q 
-        
-        y=obs_state- (np.dot(x,envir.H)+envir.c)  
-        return y#self.estm_state
+        P=envir.A.op(self.estm_cov)+Q 
+        y=obs_state #- envir.H(x)
+        return y
 
 def loop(view):
     bounds=view.envir.bounds
@@ -135,12 +141,12 @@ def loop(view):
     pg.quit()
 
 def get_envir():
-    b=np.array([10,6])
+    A=AffineTransform(b=np.array([10,6]))
     mean=np.array([2,2])
     cov=np.array([[10,0.3],[0.4,10]])
     noise=Gauss(mean=mean,cov=cov)
     obs_noise=Gauss(cov=cov)
-    return KalmanEnvir(b=b,noise=noise,obs_noise=obs_noise)
+    return KalmanEnvir(A=A,noise=noise,obs_noise=obs_noise)
 
 def get_rotation(theta):
     A=np.array([[np.cos(theta),-np.sin(theta)],
