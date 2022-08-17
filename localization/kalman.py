@@ -118,8 +118,12 @@ class KalmanFilter(object):
         x= envir.A(obs_state) 
         F,Q=envir.A,envir.obs_noise.cov
         P=envir.A.op(self.estm_cov)+Q 
-        y=obs_state #- envir.H(x)
-        return y
+        y=obs_state - envir.H(x)
+        S= envir.H.op(P)+envir.obs_noise.cov
+        K=np.dot(np.dot(P,envir.H.A.T),np.linalg.inv(S))
+        x=x + np.dot(K,y)
+        y= obs_state - np.dot(envir.H(x),x)
+        return x
 
 def loop(view):
     bounds=view.envir.bounds
