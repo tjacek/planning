@@ -10,13 +10,19 @@ class Envir(object):
         return not (self.state is None)
     
     def set_state(self,state):
-        self.state=[]
+        self.state=self.bound_state(state)
+
+    def bound_state(self,state):
+        new_state=[]
         for i in (0,1):
             mult_i=int(state[i]/self.bounds[i])
             value_i=state[i]
             if(mult_i):
                 value_i-=(mult_i*self.bounds[i])
-            self.state.append(value_i)
+            if(value_i<0):
+                value_i=self.bounds[i]+value_i
+            new_state.append(value_i)
+        return new_state
 
     def update(self):
         print(self.state)
@@ -106,6 +112,7 @@ class View(object):
             pg.draw.circle(window,(0,128,0),self.obs_state,7)
         if(not (self.alg is None or self.obs_state is None)):
             estm_state=self.alg(self.envir,self.obs_state)
+            estm_state=self.envir.bound_state(estm_state)
             print(f"estm:{estm_state}")
             pg.draw.circle(window,(128,0,0),estm_state,5)
 
