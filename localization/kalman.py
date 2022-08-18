@@ -106,13 +106,16 @@ class View(object):
             pg.draw.circle(window,(0,128,0),self.obs_state,7)
         if(not (self.alg is None or self.obs_state is None)):
             estm_state=self.alg(self.envir,self.obs_state)
-            print(estm_state)
+            print(f"estm:{estm_state}")
             pg.draw.circle(window,(128,0,0),estm_state,5)
 
 class KalmanFilter(object):
     def __init__(self,n=2):
         self.estm_state=np.random.rand(n)
         self.estm_cov=np.random.rand(n,n)
+
+    def __len__(self):
+        return self.estm_state.shape[0]
 
     def __call__(self,envir,obs_state):
         x= envir.A(obs_state) 
@@ -122,8 +125,11 @@ class KalmanFilter(object):
         S= envir.H.op(P)+envir.obs_noise.cov
         K=np.dot(np.dot(P,envir.H.A.T),np.linalg.inv(S))
         x=x + np.dot(K,y)
+        det_P=(np.identity(len(self)) - np.dot(K,envir.H.A))
+        self.estm_cov=np.dot(det_P,P)
         y= obs_state - np.dot(envir.H(x),x)
-        return x
+        self.estm_state=x
+        return y
 
 def loop(view):
     bounds=view.envir.bounds
@@ -144,13 +150,12 @@ def loop(view):
         clock.tick(3)
     pg.quit()
 
-def get_envir():
-    A=AffineTransform(b=np.array([10,6]))
-    mean=np.array([2,2])
-    cov=np.array([[10,0.3],[0.4,10]])
-    noise=Gauss(mean=mean,cov=cov)
-    obs_noise=Gauss(cov=cov)
-    return KalmanEnvir(A=A,noise=noise,obs_noise=obs_noise)
+def get_envir(delta_t=4,sigma=4):
+    A=AffineTransform(np.array([[1,delta_t],[0,1]]) )
+    Q=np.array([[0.25*delta_t**4,0.5*delta_t**3],
+         [0.5*delta_t**3,delta_t**2]])
+    noise=Gauss(cov=Q)
+    return KalmanEnvir(A=A,noise=noise)
 
 def get_rotation(theta):
     A=np.array([[np.cos(theta),-np.sin(theta)],
