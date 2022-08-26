@@ -1,19 +1,19 @@
 import numpy as np
 import pygame as pg
-from . import View
+import show,envir
 
-class KalmanEnvir(Envir):
+class KalmanEnvir(envir.Envir):
     def __init__(self,A=None,H=None,
             noise=None,obs_noise=None,
             bounds=(512,512)):
         if(A is None):
-            A=AffineTransform()
+            A=envir.AffineTransform()
         if(H is None):
-            H=AffineTransform()
+            H=envir.AffineTransform()
         if(noise is None):
-            noise=Gauss()
+            noise=envir.Gauss()
         if(obs_noise is None):
-            obs_noise=Gauss()            
+            obs_noise=envir.Gauss()            
         super(KalmanEnvir, self).__init__(bounds)
         self.A=A
         self.H=H 
@@ -56,11 +56,11 @@ class KalmanFilter(object):
         return y
 
 def get_envir(delta_t=4,sigma=4):
-    A=AffineTransform(np.array([[1,delta_t],[0,1]]) )
+    A=envir.AffineTransform(np.array([[1,delta_t],[0,1]]) )
     Q=np.array([[0.25*delta_t**4,0.5*delta_t**3],
          [0.5*delta_t**3,delta_t**2]])
-    noise=Gauss(cov=Q)
+    noise=envir.Gauss(cov=Q)
     return KalmanEnvir(A=A,noise=noise)
 
-view=View(get_envir(),alg=KalmanFilter())
-loop(view)
+view=show.View(get_envir(),alg=KalmanFilter())
+show.loop(view)
