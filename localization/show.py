@@ -7,9 +7,10 @@ class View(object):
         self.obs_state=None
         self.alg=alg
 
-    def on_click(self,point): 
-        self.envir.set_state(point)
-        print(self.envir.state)
+    def on_click(self,point):
+        point=[cord_i-256 for cord_i in point]
+#        self.envir.set_state(point)
+        self.envir.state=point
 
     def on_key(self,key):
         if(self.envir.has_state()):
@@ -20,7 +21,6 @@ class View(object):
         window.fill((0,0,0))
         state=self.envir.get_state()
         if(not (state is None)):
-            print(f"state:{self.envir.state_norm()}")
             pg.draw.circle(window,(0,0,128),state,10)
         if(not (self.obs_state is None)):
             pg.draw.circle(window,(0,128,0),self.obs_state,7)

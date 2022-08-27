@@ -13,8 +13,9 @@ class Envir(object):
     
     def get_state(self):
         if(self.has_state()):
-            return [ cord_i+self.half_bounds[i] 
-               for i,cord_i in enumerate(self.state)] 
+            new_state= [ cord_i+self.half_bounds[i] 
+               for i,cord_i in enumerate(self.state)]
+            return new_state 
         return None
 
     def set_state(self,state):
@@ -31,16 +32,18 @@ class Envir(object):
 
     def bound_state(self,state):
         new_state=[]
+        print(f'Raw{state}')
         for i in (0,1):
             cord_i=state[i]
             if(cord_i > self.half_bounds[i]):
                 cord_i=  (int(cord_i) % self.half_bounds[i])
                 cord_i=  -(self.half_bounds[i]-cord_i)
             if(cord_i <  -self.half_bounds[i]):
-                cord_i=  (int(-cord_i) % self.half_bounds[i])
-#            if(state[i]<0):
-#               cord_i*=(-1)
+                cord_i=  (int(cord_i) % self.half_bounds[i])
+                cord_i=  self.half_bounds[i]-cord_i
             new_state.append(cord_i)
+        print(f'Bound{new_state}')
+#        new_state.reverse()
         return new_state
 
 class Gauss(object):
