@@ -18,15 +18,16 @@ class View(object):
 
     def show(self,window):
         window.fill((0,0,0))
-        state=self.envir.state
+        state=self.envir.get_state()
         if(not (state is None)):
+            print(f"state:{self.envir.state_norm()}")
             pg.draw.circle(window,(0,0,128),state,10)
         if(not (self.obs_state is None)):
             pg.draw.circle(window,(0,128,0),self.obs_state,7)
         if(not (self.alg is None or self.obs_state is None)):
             estm_state=self.alg(self.envir,self.obs_state)
             estm_state=self.envir.bound_state(estm_state)
-            print(f"estm:{estm_state}")
+#            print(f"estm:{estm_state}")
             pg.draw.circle(window,(128,0,0),estm_state,5)
 
 def loop(view):

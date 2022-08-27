@@ -55,12 +55,17 @@ class KalmanFilter(object):
         self.estm_state=x
         return y
 
-def get_envir(delta_t=4,sigma=4):
+def trans_envir(delta_t=4,sigma=4):
     A=envir.AffineTransform(np.array([[1,delta_t],[0,1]]) )
     Q=np.array([[0.25*delta_t**4,0.5*delta_t**3],
          [0.5*delta_t**3,delta_t**2]])
     noise=envir.Gauss(cov=Q)
     return KalmanEnvir(A=A,noise=noise)
 
-view=show.View(get_envir(),alg=KalmanFilter())
+def rotate_envir(theta=0.5):
+    r=envir.get_rotation(theta)
+    A=envir.AffineTransform(r)
+    return KalmanEnvir(A=A)
+
+view=show.View(rotate_envir(),alg=KalmanFilter())
 show.loop(view)

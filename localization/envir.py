@@ -11,9 +11,18 @@ class Envir(object):
     def has_state(self):
         return not (self.state is None)
     
+    def get_state(self):
+        if(self.has_state()):
+            return [ cord_i+self.half_bounds[i] 
+               for i,cord_i in enumerate(self.state)] 
+        return None
+
     def set_state(self,state):
         self.state=self.bound_state(state)
 
+    def state_norm(self):
+        return np.linalg.norm(self.state)
+    
     def update(self):
         print(self.state)
 
@@ -24,10 +33,13 @@ class Envir(object):
         new_state=[]
         for i in (0,1):
             cord_i=state[i]
-            if(np.abs(cord_i) > self.half_bounds[i]):
-                cord_i=int(cord_i) % self.half_bounds[i]
-            if(state[i]<0):
-               cord_i*=(-1)
+            if(cord_i > self.half_bounds[i]):
+                cord_i=  (int(cord_i) % self.half_bounds[i])
+                cord_i=  -(self.half_bounds[i]-cord_i)
+            if(cord_i <  -self.half_bounds[i]):
+                cord_i=  (int(-cord_i) % self.half_bounds[i])
+#            if(state[i]<0):
+#               cord_i*=(-1)
             new_state.append(cord_i)
         return new_state
 
