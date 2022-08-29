@@ -27,7 +27,7 @@ class KalmanEnvir(envir.Envir):
         self.set_state(state)
 
     def observe(self):
-        obs_state= self.H(self.state)
+        obs_state= self.H(self.get_state())
         obs_noise=self.obs_noise()
         print(f"obs_noise:{obs_noise}")
         obs_state+=obs_noise
@@ -65,7 +65,9 @@ def trans_envir(delta_t=4,sigma=4):
 def rotate_envir(theta=0.5):
     r=envir.get_rotation(theta)
     A=envir.AffineTransform(r)
-    return KalmanEnvir(A=A)
+    H=envir.AffineTransform(b=np.array([10,10]))
+
+    return KalmanEnvir(A=A,H=H)
 
 view=show.View(rotate_envir(),alg=KalmanFilter())
 show.loop(view)
