@@ -16,6 +16,8 @@ class View(object):
         if(self.envir.has_state()):
             self.envir.update()
             self.obs_state= self.envir.observe()
+            print(f'Raw{self.envir.state}')
+            print(f'Obs{self.obs_state}')
 
     def show(self,window):
         window.fill((0,0,0))
@@ -25,6 +27,7 @@ class View(object):
         if(not (self.obs_state is None)):
             pg.draw.circle(window,(0,128,0),self.obs_state,7)
         if(not (self.alg is None or self.obs_state is None)):
+#            print(f'obs{self.obs_state}')
             estm_state=self.alg(self.envir,self.obs_state)
             estm_state=self.envir.bound_state(estm_state)
 #            print(f"estm:{estm_state}")

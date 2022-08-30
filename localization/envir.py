@@ -32,7 +32,6 @@ class Envir(object):
 
     def bound_state(self,state):
         new_state=[]
-        print(f'Raw{state}')
         for i in (0,1):
             cord_i=state[i]
             if(cord_i > self.half_bounds[i]):
@@ -42,7 +41,6 @@ class Envir(object):
                 cord_i=  (int(cord_i) % self.half_bounds[i])
                 cord_i=  self.half_bounds[i]-cord_i
             new_state.append(cord_i)
-        print(f'Bound{new_state}')
 #        new_state.reverse()
         return new_state
 
