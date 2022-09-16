@@ -20,7 +20,6 @@ class Problem(object):
         if(self.end):
             pg.draw.circle(window,(64,0,64), self.end, 5)
            
-
 class World(object):
     def __init__(self,polygons=None):
         if(polygons is None):
@@ -29,6 +28,11 @@ class World(object):
 
     def __len__(self):
         return len(self.polygons)
+
+    def get_max(self):
+        vert=np.array([ np.amax(pol_i.vertices,axis=0)
+                for pol_i in self.polygons])
+        return np.amax(vert,axis=0)
 
     def add_polygon(self,points:list):
         polygon_i=geometry.make_polygon(points)
