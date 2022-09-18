@@ -42,9 +42,9 @@ class ConvexPolygon(object):
 
     def inside(self,point):
         segments=self.get_segments()
-        side=is_left(segments[0],point)
+        side= is_left(segments[0],point)
         for segm_i in segments[1:]:
-            side_i=is_left(segm_i,point)
+            side_i= is_left(segm_i,point)
             if(side_i!=side):
                 return False
             side=side_i
@@ -66,7 +66,7 @@ class ConvexPolygon(object):
         start,end=segms[:i],segms[i:]
         return end+start
 
-    def vertex_colision(self,vert_i,goal):
+    def vertex_colision(self,vert_i,goal):#:list:
         line=(vert_i,goal)
         i=self.vertex_index(vert_i)
         segms=self.from_vertex(i)
@@ -80,7 +80,7 @@ class ConvexPolygon(object):
         if(collision):
             result=path
         else:
-            result=[]#line]
+            result=[]
         return result
 
     def detect_collision(self,line):
@@ -128,6 +128,10 @@ def intersection(A,B):
 
 def cross(A, B):
     return A[0] * B[1] - A[1] * B[0]
+
+def is_left(segm,c):
+    a,b=segm
+    return (b[0]- a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])>0
 
 def dist_to_line(line,point):
     x0,y0=point
