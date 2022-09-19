@@ -136,6 +136,16 @@ def read_grid(in_path,step=40):
     x,y=len(cells),len(cells[0])
     return Grid(cells,x,y,step)
 
+def from_array(array,step=5):
+    x,y=array.shape
+    cells=[]
+    for i in range(x):
+        cells.append([])
+        for j in range(y):
+            active= (array[i][j]>0)
+            cells[-1].append(make_cell(i,j,step,active))
+    return Grid(cells,x,y,step)
+
 def grid_exp(out_path):
     if(os.path.isfile(out_path)):
         grid=read_grid(out_path)
