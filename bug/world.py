@@ -69,6 +69,12 @@ class World(object):
         save_json(data,out_path)
         print(f"save at {out_path}")
 
+    def all_vertices(self):
+        all_verices=[]
+        for pol_i in self.polygons:
+            all_verices.append( pol_i.vertices)
+        return np.concatenate(all_verices,axis=0)
+
 def save_json(data,out_path):
     def helper(obj):
         if isinstance(obj, np.ndarray):
