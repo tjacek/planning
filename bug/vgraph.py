@@ -1,32 +1,49 @@
 import itertools
 import world,editor,demo
 
+class VizGraph(object):
+    def __init__(self):
+        self.nodes=[]
+        self.near_edeges=[]
+        self.edges=[]
+
+    def get_index(self,node_k):
+        for i,node_i in enumerate(self.nodes):
+            if(node_i[0]==node_k[0] and
+                node_i[1]==node_k[1]):
+                return i
+        return None
+
+    def add_edge(self,edge):
+        for x in edge:
+            i=self.get_index(x)
+            if(i is None):
+                size=len(self.nodes)
+                self.near_edeges.append([edge])
+                self.nodes.append(x)
+            else:
+                self.near_edeges[i].append(edge)
+        self.edges.append(edge)
+
 def viz_graph(problem):
+    graph=VizGraph()
     world=problem.world
-    lines=[line_i 
-        for line_i in inter_polgon_vert(world)
-          if(len(world.collision(line_i))==0)]
-    return lines
-#    vertices=world.all_vertices()
-#    lines=[]
-#    for i,ver_i in enumerate(vertices):
-#        for j,ver_j in enumerate(vertices):
-#            if(i!=j):
-#                line_ij=ver_i,ver_j
-#                col=world.collision(line_ij)
-#                if(len(col)==0):
-#                    lines.append(line_ij)
-#    return lines
+    for line_i in inter_polgon_vert(world):        
+        if(len(world.collision(line_i))==0):
+            graph.add_edge(line_i)
+    return graph.near_edeges[0]
 
 def inter_polgon_vert(world):
     indexes=range(len(world))
     pol_pairs=itertools.combinations(indexes,2)
-    lines=[]
+#    lines=[]
     for i,j in pol_pairs:
         pol_i=world.polygons[i].vertices
         pol_j= world.polygons[j].vertices
-        lines+=list(itertools.product(pol_i,pol_j))
-    return lines
+        for line_i in itertools.product(pol_i,pol_j):
+            yield line_i
+#        lines+=list(itertools.product(pol_i,pol_j))
+#    return lines
 
 def vgraph_loop(in_path):
     problem=world.read_json(in_path)
