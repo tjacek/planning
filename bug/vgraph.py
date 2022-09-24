@@ -5,8 +5,11 @@ import world,editor,demo
 class VizGraph(object):
     def __init__(self):
         self.nodes=[]
-        self.near_edeges=[]
+        self.near_edges=[]
         self.edges=[]
+    
+    def __len__(self):
+        return len(self.nodes)
 
     def get_index(self,node_k):
         for i,node_i in enumerate(self.nodes):
@@ -16,14 +19,15 @@ class VizGraph(object):
         return None
 
     def add_edge(self,edge):
-        for x in edge:
+        for k,x in enumerate(edge):
+            t= (k+1)%2
             i=self.get_index(x)
             if(i is None):
                 size=len(self.nodes)
-                self.near_edeges.append([edge])
+                self.near_edges.append([edge[t]])
                 self.nodes.append(np.array(x))
             else:
-                self.near_edeges[i].append(edge)
+                self.near_edges[i].append(edge[t])
         self.edges.append(edge)
 
     def closest_vertex(self,vertex,world):
@@ -36,10 +40,31 @@ class VizGraph(object):
         raise Exception('should never happen')
 
     def find_path(self,start,end):
-        lines=[]
-        current=self.get_index(start)
+        if(type(start)!=int):
+            start=self.get_index(start)
+        if(type(end)!=int):
+            end=self.get_index(end)
+        cost=[np.inf for _ in range(len(self))]
+        parent=[None for _ in range(len(self))]
+        visited=[False for _ in range(len(self))]
+        cost[start]=0.0
+        active=[start]
+        while(active):
+            current=active.pop()
+            curr_cost=cost[current]
+            for edge_i in self.near_edges[current]:
+                i=self.get_index(edge_i)
+                dist_i=np.linalg.norm(edge_i-curr_cost)
+                if(curr_cost+dist_i<cost[i]):
+                    cost[i]=curr_cost+dist_i
+                    parent[i]=current
+                    if(not visited[i]):
+                        active.append(i)
+            visited[current]=True
+        path=[]
+        print(cost)       
 #        goal
-        return lines
+        return path
 
 def viz_graph(problem):
     graph=VizGraph()
@@ -50,6 +75,8 @@ def viz_graph(problem):
             graph.add_edge(line_i)
     start=graph.closest_vertex(problem.start,world)
     end=graph.closest_vertex(problem.end,world)
+    graph.find_path(start[1],end[1])
+#    print(graph.edges[0])
     return [start,end]#graph.edges
 
 def inter_polgon_vert(world):
