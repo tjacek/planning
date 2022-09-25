@@ -7,6 +7,7 @@ class ConvexPolygon(object):
         if(vertices.shape[1]!=2 or vertices.ndim!=2):
             raise Exception("Wrong number of dims %d" % vertices.shape[1])
         self.vertices=vertices
+        self.centroid=None
 
     def __len__(self):
         return len(self.vertices)
@@ -28,8 +29,10 @@ class ConvexPolygon(object):
         return True
 
     def get_centroid(self):
-        return np.mean(self.vertices,axis=0)
-
+        if(self.centroid is None):
+            self.centroid= np.mean(self.vertices,axis=0)
+        return self.centroid
+        
     def as_edges(self):
         n_vert = len(self)
         return [ v_sub(self.vertices[i],self.vertices[(i+1)%n_vert])

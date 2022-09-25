@@ -54,15 +54,15 @@ class Node(object):
         path.append(self)
         return path	
 
-def rdt_search(problem,k,scale=3.0):
-    rr_tree=make_rrt(problem,k,scale)
+def rdt_search(problem,k,scale=3.0,radius=3.0):
+    rr_tree=make_rrt(problem,k,scale,radius)
     end=make_node(problem.end.point,rr_tree,problem,scale)
     path=end.get_path()
     return states.Path([vertex_i.state for vertex_i in path])
 
-def make_rrt(problem,k,scale):
+def make_rrt(problem,k,scale,radius=3.0):
     alpha=quasi.quasi_gen(problem,k)
-    rr_tree=RRTree(problem.start,radius=3.0)
+    rr_tree=RRTree(problem.start,radius=radius)
     for alpha_i in alpha:
         make_node(alpha_i,rr_tree,problem,scale)
     return rr_tree
