@@ -3,18 +3,23 @@ import pygame as pg
 import polygons,draw,event
 
 class CellControler(draw.DrawControler):
-    def __init__(self,world,event,cells):
+    def __init__(self,world,lines,cells,vertex):
         super().__init__(world)
-        self.event=event
+        self.lines=lines
         self.cells=cells
+        self.vertex=vertex
 
     def show(self,window):
         window.fill((0,0,0))
         self.world.show(window)
-        for x_i in self.event:
+        for x_i in self.lines:
             pg.draw.line(window,(0,0,128),(x_i,0),(x_i,800))
         for point_i in self.cells:
             pg.draw.circle(window,(128,0,0), point_i, 5)
+        for point_i,type_i in self.vertex:
+            print(point_i)
+            print(type(type_i))
+            pg.draw.circle(window,type_i, point_i, 5)
 
 class Extend(object):
     def __init__(self,edges,bounds):
@@ -53,13 +58,15 @@ def vertex_decomp(world):
     extend=Extend(edges,bounds)
     critical=event.get_critical(events,extend)
     lines=[event_i.vertex[0] for event_i in events]
-    critical+=[event_i.vertex for event_i in events]
-    return critical,lines
+#    critical+=[event_i.vertex for event_i in events]
+    vertex=[(event_i.vertex,event_i.get_type().value) 
+        for event_i in events]
+#    raise Exception(vertex)
+    return critical,lines,vertex
 
 if __name__ == "__main__":
     world=polygons.read_world("test.txt")
-    cells,events=vertex_decomp(world)
-#    control=EdgeControler(world,edges,points) 
-    control=CellControler(world,events,cells)
-#    control.points=cells
+    cells,lines,vertex =vertex_decomp(world)
+    print(vertex)
+    control=CellControler(world,lines,cells,vertex)
     draw.polygon_loop(control)

@@ -1,10 +1,11 @@
+
 import numpy as np
 import pygame as pg
 from enum import Enum
 import polygons,draw
 
 class EventType(Enum):
-    two_extend=(128,0,0)
+    two_extend=(128,0,128)
     zero_extend=(0,0,128)
     upper=(0,128,128)
     lower=(128,128,0)
@@ -26,12 +27,18 @@ class Event(object):
         self.vertex=vertex
         self.in_edge =in_edge
         self.out_edge=out_edge
+        self.type=None
 
     def get_type(self):
+        if(self.type is None):
+            self.type=self.compute_type()
+        return self.type
+
+    def compute_type(self):
         all_on_right=(self.vertex[0]<self.out_node()[0]
-                and self.vertex[0]<self.in_node()[0])
+            and self.vertex[0]<self.in_node()[0])
         all_on_left=(self.vertex[0]>self.out_node()[0]
-                and self.vertex[0]>self.in_node()[0])
+            and self.vertex[0]>self.in_node()[0])
         orient_y=(self.out_node()[1]<self.in_node()[1] )
         if( (orient_y and all_on_right) or
               (not orient_y and all_on_left)):
@@ -104,8 +111,8 @@ def get_events(world):
         size=len(edges_i)	
         for j in range(0,size):
             vertex=edges_i[j-1][1]
-            in_edge=Edge(*edges_i[j-1])#[0]
-            out_edge=Edge(*edges_i[j])#[1]
+            in_edge=Edge(*edges_i[j-1])
+            out_edge=Edge(*edges_i[j])
             edges+=[in_edge,out_edge]
             events.append(Event(vertex,in_edge,out_edge))
     return events,edges
