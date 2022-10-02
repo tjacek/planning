@@ -31,7 +31,7 @@ class View(object):
             pg.draw.circle(window,(128,0,0),estm_state,5)
 
 def loop(view):
-    bounds=view.bounds
+    bounds=view.get_bounds()
     window = pg.display.set_mode(bounds)
     clock = pg.time.Clock()
     run = True

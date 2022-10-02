@@ -26,11 +26,13 @@ class MotionEnvir(object):
         self.state=np.dot(self.F,self.state)+np.dot(B,u)
 
 class MotionControler(object):
-    def __init__(self,envir,bounds=(512,512)):
+    def __init__(self,envir,bounds=(256,256)):
         self.envir=envir
-        self.bounds=bounds
-        self.scale_x=1.0
-        self.scale_y=1.0
+        self.bounds=np.array(bounds)
+        self.scale=[1.0,1.0]
+
+    def get_bounds(self):
+        return 2*self.bounds
 
     def on_click(self,point):
         print(point)
@@ -44,34 +46,34 @@ class MotionControler(object):
     def show(self,window):
         window.fill((0,0,0))
         state=self.envir.get_state()[:2]
-        state=self.normalize(state)
-#        if(not (state is None)):
+        state= self.translate(state)
+   #     state=[x,y]#[self.rescale(x,0)*x,self.rescale(y,1)*y]
+        state=np.array(state)
         pg.draw.circle(window,(0,0,128),state,10)
-        self.draw_lines(window,step=self.scale_x*64,horiz=True)
-        self.draw_lines(window,step=self.scale_y*64,horiz=False)
+        self.draw_lines(window,step=self.scale[0]*64,horiz=True)
+        self.draw_lines(window,step=self.scale[1]*64,horiz=False)
 
-    def normalize(self,state):
-        x,y=state
-        if(self.bounds[0]<x):
-            self.scale_x=0.9*(self.bounds[0]/x)
+    def translate(self,state):
+        state=[state_i+bound_i 
+            for state_i,bound_i in zip(state,self.bounds)]
+        return np.array(state)
+
+    def rescale(self,cord,i):
+        if(self.bounds[i]<cord):
+            self.scale[i]=0.9*(self.bounds[i]/cord)
         else:
-            self.scale_x=1.0
-        if(self.bounds[1]<y):
-            self.scale_y=0.9*(self.bounds[1]/y)
-        else:
-            self.scale_y=1.0
-        new_state=[self.scale_x*x,self.scale_y*y]
-        return np.array(new_state)
+            self.scale[i]=1
+        return self.scale[i]
 
     def draw_lines(self,window,step=64,horiz=True,color=(0,128,0)):
-        n_lines= int(self.bounds[0]/step)    
+        bounds=self.get_bounds()
+        n_lines= int(bounds[0]/step)    
         for i in range(n_lines):
             x_i= i*step
-
             if(horiz):
-                start,end=(0,x_i),(self.bounds[0],x_i)
+                start,end=(0,x_i),(bounds[0],x_i)
             else:
-                start,end=(x_i,0),(x_i,self.bounds[1])
+                start,end=(x_i,0),(x_i,bounds[1])
             pg.draw.line(window,color,start,end)
 
 model=MotionEnvir()
