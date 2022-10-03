@@ -20,7 +20,7 @@ class MotionEnvir(object):
         theta=self.state[2]
         B=[[self.det_t*np.cos(theta),0],
            [self.det_t*np.sin(theta),0],
-           [0,self.det_t],
+           [0,0.2*self.det_t],
            [1,0]]
         B=np.array(B)   
         self.state=np.dot(self.F,self.state)+np.dot(B,u)
@@ -39,15 +39,16 @@ class MotionControler(object):
         self.envir([1,0])
 
     def on_key(self,key):
-        print(key)
         if(not self.envir.empty_state()):
-             self.envir([0,1])
+            print(self.envir.get_state())
+
+            self.envir([0,np.pi/4])
 
     def show(self,window):
         window.fill((0,0,0))
-        state=self.envir.get_state()[:2]
+        x,y=self.envir.get_state()[:2]
+        state=[self.rescale(x,0)*x,self.rescale(y,1)*y]
         state= self.translate(state)
-   #     state=[x,y]#[self.rescale(x,0)*x,self.rescale(y,1)*y]
         state=np.array(state)
         pg.draw.circle(window,(0,0,128),state,10)
         self.draw_lines(window,step=self.scale[0]*64,horiz=True)
@@ -56,11 +57,13 @@ class MotionControler(object):
     def translate(self,state):
         state=[state_i+bound_i 
             for state_i,bound_i in zip(state,self.bounds)]
+#            if(state_i)
         return np.array(state)
 
     def rescale(self,cord,i):
-        if(self.bounds[i]<cord):
-            self.scale[i]=0.9*(self.bounds[i]/cord)
+        if( cord<-self.bounds[i] or 
+          self.bounds[i]<cord):
+            self.scale[i]=0.9*(self.bounds[i]/np.abs(cord))
         else:
             self.scale[i]=1
         return self.scale[i]
