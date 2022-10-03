@@ -16,14 +16,36 @@ class MotionEnvir(object):
             self.state=np.ones((4,))
         return self.state
 
-    def __call__(self,u):
+    def act(self,u):
+        B=self.get_B(self,u)
+        self.state=np.dot(self.F,self.state)+np.dot(B,u)
+    
+    def get_B(self,u):
         theta=self.state[2]
         B=[[self.det_t*np.cos(theta),0],
            [self.det_t*np.sin(theta),0],
            [0,0.2*self.det_t],
            [1,0]]
-        B=np.array(B)   
-        self.state=np.dot(self.F,self.state)+np.dot(B,u)
+        B=np.array(B) 
+        return B
+
+    def jacobian_f(self,state):
+        theta,v=self.state[2:]
+        j=np.identity(4)
+        j[0][3]= -v*np.sin(theta)*self.det_t
+        j[0][4]=  np.cos(theta)*self.det_t
+        j[1][3]= v*np.cos(theta)*self.det_t
+        j[1][4]= np.sin(theta)*self.det_t
+        return j
+
+    def get_H(self):
+        H=np.zeros((2,4))
+        H[0][0]=1
+        H[1][1]=1
+        return 0
+
+    def jacobian_h(self,state):
+        return self.get_H()
 
 class MotionControler(object):
     def __init__(self,envir,bounds=(256,256)):
@@ -36,13 +58,13 @@ class MotionControler(object):
 
     def on_click(self,point):
         print(point)
-        self.envir([1,0])
+        self.envir.act([1,0])
 
     def on_key(self,key):
         if(not self.envir.empty_state()):
             print(self.envir.get_state())
 
-            self.envir([0,np.pi/4])
+            self.envir.act([0,np.pi/4])
 
     def show(self,window):
         window.fill((0,0,0))
@@ -57,7 +79,6 @@ class MotionControler(object):
     def translate(self,state):
         state=[state_i+bound_i 
             for state_i,bound_i in zip(state,self.bounds)]
-#            if(state_i)
         return np.array(state)
 
     def rescale(self,cord,i):
