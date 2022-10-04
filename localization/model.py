@@ -3,10 +3,17 @@ import pygame as pg
 import show
 
 class MotionEnvir(object):
-    def __init__(self,det_t=5):
+    def __init__(self,det_t=5,noise=None,
+        obs_noise=None):
+        if(noise is None):
+            noise=envir.Gauss()
+        if(obs_noise is None):
+            obs_noise=envir.Gauss()          
         self.state=None
         self.F=np.identity(4)
         self.det_t=det_t
+        self.noise=noise
+        self.obs_noise=obs_noise
 
     def empty_state(self):
         return (self.state is None)
@@ -20,6 +27,11 @@ class MotionEnvir(object):
         B=self.get_B(self,u)
         self.state=np.dot(self.F,self.state)+np.dot(B,u)
     
+    def observe(self):
+        obs_state= np.dot(self.H,self.get_state())
+        obs_noise+=self.obs_noise()
+        return obs_noise
+
     def get_B(self,u):
         theta=self.state[2]
         B=[[self.det_t*np.cos(theta),0],
@@ -46,6 +58,24 @@ class MotionEnvir(object):
 
     def jacobian_h(self,state):
         return self.get_H()
+
+class ExtendedKalman(object):
+    def __init__(self,envir):
+        self.estm_state=np.random.rand(n)
+        self.estm_cov=np.random.rand(n,n)
+
+    def __call__(self,envir,x,u):
+        x_pred= np.dot(envir.F,x)
+        x_pred+= np.dot(envir.get_B(),u)
+
+        J_f= envir.jacobian_f(x)
+        P_pred= np.dot(J_f,self.estm_cov)
+        P_pred= np.dot(P_pred,J_f.T)+envir.noise()
+
+        z_pred= np.dot(self.get_H(),x_pred)
+        z=envir.observe()
+
+        y= z - z_pred
 
 class MotionControler(object):
     def __init__(self,envir,bounds=(256,256)):
