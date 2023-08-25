@@ -10,6 +10,7 @@ class MotionEnvir(object):
             obs_noise=utils.Gauss()          
         self.state=None
         self.F=np.identity(4)
+        self.F[3][3]=0
         self.det_t=det_t
         self.noise=noise
         self.obs_noise=obs_noise
@@ -23,20 +24,19 @@ class MotionEnvir(object):
         return self.state
 
     def act(self,u):
-        B=self.get_B(u)
-        self.state=np.dot(self.F,self.state)+np.dot(B,u)
-    
+        B=self.get_B()
+        self.state= (self.F @ self.state)+ (B @ u)
+
     def observe(self):
         obs_state= np.dot(self.get_H(),self.get_state())
-#        raise Exception(obs_state.shape)
         obs_state[:2]+= self.obs_noise()
         return obs_state
 
-    def get_B(self,u):
+    def get_B(self):
         theta=self.state[2]
         B=[[self.det_t*np.cos(theta),0],
            [self.det_t*np.sin(theta),0],
-           [0,0.2*self.det_t],
+           [0,self.det_t],
            [1,0]]
         B=np.array(B) 
         return B
@@ -88,13 +88,14 @@ class MotionControler(object):
 
     def on_click(self,point):
         print(point)
-        self.envir.act([1,0])
+        new_state=[ (point_i-bound_i) 
+            for point_i,bound_i in zip(point,self.bounds)]
+        new_state=np.array(new_state+[0,0])
+        self.envir.state=new_state
 
     def on_key(self,key):
         if(not self.envir.empty_state()):
-            print(self.envir.get_state())
-
-            self.envir.act([0,np.pi/4])
+            self.envir.act([5,np.pi/8])
 
     def show(self,window):
         window.fill((0,0,0))
@@ -129,6 +130,7 @@ class MotionControler(object):
             else:
                 start,end=(x_i,0),(x_i,bounds[1])
             pg.draw.line(window,color,start,end)
+
 if __name__ == '__main__':
     model=MotionEnvir()
     show.loop(MotionControler(model))
