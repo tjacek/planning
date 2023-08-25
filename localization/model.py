@@ -1,14 +1,13 @@
 import numpy as np
 import pygame as pg
-import show
+import show,utils
 
 class MotionEnvir(object):
-    def __init__(self,det_t=5,noise=None,
-        obs_noise=None):
+    def __init__(self,det_t=5,noise=None,obs_noise=None):
         if(noise is None):
-            noise=envir.Gauss()
+            noise=utils.Gauss()
         if(obs_noise is None):
-            obs_noise=envir.Gauss()          
+            obs_noise=utils.Gauss()          
         self.state=None
         self.F=np.identity(4)
         self.det_t=det_t
@@ -24,13 +23,14 @@ class MotionEnvir(object):
         return self.state
 
     def act(self,u):
-        B=self.get_B(self,u)
+        B=self.get_B(u)
         self.state=np.dot(self.F,self.state)+np.dot(B,u)
     
     def observe(self):
-        obs_state= np.dot(self.H,self.get_state())
-        obs_noise+=self.obs_noise()
-        return obs_noise
+        obs_state= np.dot(self.get_H(),self.get_state())
+#        raise Exception(obs_state.shape)
+        obs_state[:2]+= self.obs_noise()
+        return obs_state
 
     def get_B(self,u):
         theta=self.state[2]
@@ -129,6 +129,6 @@ class MotionControler(object):
             else:
                 start,end=(x_i,0),(x_i,bounds[1])
             pg.draw.line(window,color,start,end)
-
-model=MotionEnvir()
-show.loop(MotionControler(model))
+if __name__ == '__main__':
+    model=MotionEnvir()
+    show.loop(MotionControler(model))
