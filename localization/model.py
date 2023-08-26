@@ -1,9 +1,8 @@
 import numpy as np
-import pygame as pg
 import show,utils
 
 class MotionEnvir(object):
-    def __init__(self,det_t=5,noise=None,obs_noise=None):
+    def __init__(self,det_t=1,noise=None,obs_noise=None):
         if(noise is None):
             noise=utils.Gauss()
         if(obs_noise is None):
@@ -59,6 +58,13 @@ class MotionEnvir(object):
     def jacobian_h(self,state):
         return self.get_H()
 
+    def __str__(self):
+        s=f'x:{self.state[0]:4f}'
+        s+=f'y:{self.state[1]:4f}'
+        s+=f'theta:{self.state[2]:4f}'
+        s+=f'v:{self.state[3]:4f}'
+        return s
+
 class ExtendedKalman(object):
     def __init__(self,envir):
         self.estm_state=np.random.rand(n)
@@ -76,61 +82,3 @@ class ExtendedKalman(object):
         z=envir.observe()
 
         y= z - z_pred
-
-class MotionControler(object):
-    def __init__(self,envir,bounds=(256,256)):
-        self.envir=envir
-        self.bounds=np.array(bounds)
-        self.scale=[1.0,1.0]
-
-    def get_bounds(self):
-        return 2*self.bounds
-
-    def on_click(self,point):
-        print(point)
-        new_state=[ (point_i-bound_i) 
-            for point_i,bound_i in zip(point,self.bounds)]
-        new_state=np.array(new_state+[0,0])
-        self.envir.state=new_state
-
-    def on_key(self,key):
-        if(not self.envir.empty_state()):
-            self.envir.act([5,np.pi/8])
-
-    def show(self,window):
-        window.fill((0,0,0))
-        x,y=self.envir.get_state()[:2]
-        state=[self.rescale(x,0)*x,self.rescale(y,1)*y]
-        state= self.translate(state)
-        state=np.array(state)
-        pg.draw.circle(window,(0,0,128),state,10)
-        self.draw_lines(window,step=self.scale[0]*64,horiz=True)
-        self.draw_lines(window,step=self.scale[1]*64,horiz=False)
-
-    def translate(self,state):
-        state=[state_i+bound_i 
-            for state_i,bound_i in zip(state,self.bounds)]
-        return np.array(state)
-
-    def rescale(self,cord,i):
-        if( cord<-self.bounds[i] or 
-          self.bounds[i]<cord):
-            self.scale[i]=0.9*(self.bounds[i]/np.abs(cord))
-        else:
-            self.scale[i]=1
-        return self.scale[i]
-
-    def draw_lines(self,window,step=64,horiz=True,color=(0,128,0)):
-        bounds=self.get_bounds()
-        n_lines= int(bounds[0]/step)    
-        for i in range(n_lines):
-            x_i= i*step
-            if(horiz):
-                start,end=(0,x_i),(bounds[0],x_i)
-            else:
-                start,end=(x_i,0),(x_i,bounds[1])
-            pg.draw.line(window,color,start,end)
-
-if __name__ == '__main__':
-    model=MotionEnvir()
-    show.loop(MotionControler(model))
