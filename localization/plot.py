@@ -3,16 +3,23 @@ import matplotlib.pyplot as plt
 import model
 
 class MPLViewer(object):
-    def __init__(self,envir,pause_time=0.001):
+    def __init__(self,envir,v=5,omega=(np.pi/12),pause_time=0.001):
         self.envir=envir
+        self.u=np.array([v,omega])
         self.pause_time=pause_time
 
-    def show(self):
-        state=self.envir.observe()
-        print(state)
-        plt.cla()
-        plt.pause(self.pause_time)
-        plt.show()
+    def show(self,sim_time=20):
+        history=np.array([self.envir.get_state()[:2]])
+        for t in range(sim_time):
+            state=self.envir.observe()
+            pos=state[:2].T
+            pos=np.expand_dims(pos,axis=0)
+            history = np.vstack([history,pos])
+            plt.plot(history[ :,0], history[ :,0], ".g")
+            self.envir.act(self.u)
+#            plt.cla()
+#            plt.pause(self.pause_time)
+            plt.show()
 
 def plot_ellipse(x, y, a, b, theta, color="-r", ax=None, **kwargs):
 
