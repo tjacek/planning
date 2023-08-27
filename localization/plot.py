@@ -1,25 +1,42 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 import model
 
 class MPLViewer(object):
-    def __init__(self,envir,v=5,omega=(np.pi/12),pause_time=0.001):
+    def __init__(self,envir,v=1,omega=(np.pi/12),pause_time=0.001):
         self.envir=envir
         self.u=np.array([v,omega])
         self.pause_time=pause_time
 
     def show(self,sim_time=20):
-        history=np.array([self.envir.get_state()[:2]])
+        true=[self.envir.get_state()[:2]]
+        obs=[self.envir.observe()]
         for t in range(sim_time):
-            state=self.envir.observe()
-            pos=state[:2].T
-            pos=np.expand_dims(pos,axis=0)
-            history = np.vstack([history,pos])
-            plt.plot(history[ :,0], history[ :,0], ".g")
+            true_state=self.envir.get_state()
+            obs_state=self.envir.observe()
+            pos=true_state[:2].T
+            true.append(pos)
+            obs.append(obs_state)
             self.envir.act(self.u)
+        fig=plt.figure() 
+        fig, ax = plt.subplots()
+        def animate(i):
+            print(i)
+            true_i=true[i]
+            plt.plot(true_i[0],true_i[1], ".g")
+            obs_i=obs[i]
+            plt.plot(obs_i[0],obs_i[1], ".r")
+        anim=animation.FuncAnimation(fig,
+                                     animate,
+                                     interval=1000,
+                                     frames=sim_time)
+        print(dir(anim))
+        plt.show()
+#            plt.plot(history[ :,0], history[ :,0], ".g")
 #            plt.cla()
 #            plt.pause(self.pause_time)
-            plt.show()
+#            plt.show()
 
 def plot_ellipse(x, y, a, b, theta, color="-r", ax=None, **kwargs):
 
@@ -40,6 +57,7 @@ def rot_matrix(theta):
     return np.array(mat)
 
 if __name__ == '__main__':
-    viewer=MPLViewer(model.MotionEnvir())
-    viewer.show()
+    motion_model=model.simple_motion_model()
+    viewer=MPLViewer(motion_model)#model.MotionEnvir())
+    viewer.show(100)
 #    plot_ellipse(1,2,3,4,1.2)

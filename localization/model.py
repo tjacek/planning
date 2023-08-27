@@ -2,21 +2,12 @@ import numpy as np
 import show,utils
 
 class MotionEnvir(object):
-    def __init__(self,F,noise=0.1,obs_noise=0.1,det_t=1):
-#        if(noise is None):
-#            noise=utils.Gauss()
-#        if(utils.is_number(noise)):
-#            noise=utils.Gauss(cov=noise)
-#        if(obs_noise is None):
-#            obs_noise=utils.Gauss() 
-#        if(utils.is_number(obs_noise)):
-#            obs_noise=utils.Gauss(cov=obs_noise)        
+    def __init__(self,F,noise=0.1,obs_noise=0.1,det_t=1):        
         self.state=None
-        self.F=F#np.identity(4)
-#        self.F[3][3]=0
-        self.det_t=det_t
+        self.F=F
         self.noise=noise
         self.obs_noise=obs_noise
+        self.det_t=det_t
 
     def empty_state(self):
         return (self.state is None)
@@ -32,7 +23,7 @@ class MotionEnvir(object):
         return self.state
 
     def observe(self):
-        obs_state= np.dot(self.get_H(),self.get_state())[:2]
+        obs_state= self.get_H() @ self.get_state()
         obs_state+= self.obs_noise()
         return obs_state
 

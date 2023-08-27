@@ -20,9 +20,10 @@ class MotionControler(object):
         print(str(self.envir))
 
     def on_key(self,key):
-        if(not self.envir.empty_state()):
+        if(self.envir.empty_state()):
+            return None#self.envir.act(self.action.u)
+        if(self.action.update(key)):
             self.envir.act(self.action.u)
-        self.action.update(key)
         print(str(self.action))
         print(str(self.envir))
 
@@ -47,14 +48,10 @@ class MotionControler(object):
     
     def transform_point(self,point):
         point=[self.rescale(p_i,i)*p_i 
-                for i,p_i in enumerate(point)]#,self.rescale(y,1)*y]
+                for i,p_i in enumerate(point)]
         point=np.array(point)
         point+=self.bounds
         return point
-#    def translate(self,state):
-#        state=[state_i+bound_i 
-#            for state_i,bound_i in zip(state,self.bounds)]
-#        return np.array(state)
 
     def rescale(self,cord,i):
         if( cord<-self.bounds[i] or 
@@ -81,14 +78,18 @@ class MotionAction(object):
     
     def update(self,key):
         if(key==119):
-            self.u[0]+=1 
+            self.u[0]+=1
+            return False 
         elif(key==115):
             self.u[0]-=1
+            return False
         elif(key==101):
             self.u[1]+=(np.pi/12)
+            return False
         elif(key==100):
-            self.u[1]-=(np.pi/12)        
-        print(key)
+            self.u[1]-=(np.pi/12)
+            return False        
+        return True
 
     def __str__(self):
         return f'v:{self.u[0]:4f},omega:{self.u[1]:4f}'
