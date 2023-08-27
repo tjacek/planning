@@ -28,26 +28,33 @@ class MotionControler(object):
 
     def show(self,window):
         window.fill((0,0,0))
-        x,y,theta,v=self.envir.get_state()#[:2]
-        state=[self.rescale(x,0)*x,self.rescale(y,1)*y]
-        state= self.translate(state)
-        state=np.array(state)
-        pg.draw.circle(window,(0,0,128),state,10)
         self.draw_lines(window,step=self.scale[0]*64,horiz=True)
         self.draw_lines(window,step=self.scale[1]*64,horiz=False)
         
-        x,y=state
+        obs_state=self.envir.observe()
+        obs_state=self.transform_point(obs_state)
+        pg.draw.circle(window,(128,0,0),obs_state,10)
+
+        x,y,theta,v=self.envir.get_state()        
+        true_state=self.transform_point([x,y])
+        pg.draw.circle(window,(0,0,128),true_state,10)
+        x,y=true_state
         pg.draw.line(window,
                      color=(128,128,0),
                      start_pos=(x,y),
                      end_pos=(int(x+25*np.cos(theta)),
                               int(y+25*np.sin(theta))))
     
-
-    def translate(self,state):
-        state=[state_i+bound_i 
-            for state_i,bound_i in zip(state,self.bounds)]
-        return np.array(state)
+    def transform_point(self,point):
+        point=[self.rescale(p_i,i)*p_i 
+                for i,p_i in enumerate(point)]#,self.rescale(y,1)*y]
+        point=np.array(point)
+        point+=self.bounds
+        return point
+#    def translate(self,state):
+#        state=[state_i+bound_i 
+#            for state_i,bound_i in zip(state,self.bounds)]
+#        return np.array(state)
 
     def rescale(self,cord,i):
         if( cord<-self.bounds[i] or 
@@ -87,5 +94,6 @@ class MotionAction(object):
         return f'v:{self.u[0]:4f},omega:{self.u[1]:4f}'
 
 if __name__ == '__main__':
-    model=model.MotionEnvir()
-    show.loop(MotionControler(model))
+    motion_model=model.simple_motion_model()
+#    model=model.MotionEnvir()
+    show.loop(MotionControler(motion_model))

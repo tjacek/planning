@@ -2,14 +2,18 @@ import numpy as np
 import show,utils
 
 class MotionEnvir(object):
-    def __init__(self,det_t=1,noise=None,obs_noise=None):
-        if(noise is None):
-            noise=utils.Gauss()
-        if(obs_noise is None):
-            obs_noise=utils.Gauss()          
+    def __init__(self,F,noise=0.1,obs_noise=0.1,det_t=1):
+#        if(noise is None):
+#            noise=utils.Gauss()
+#        if(utils.is_number(noise)):
+#            noise=utils.Gauss(cov=noise)
+#        if(obs_noise is None):
+#            obs_noise=utils.Gauss() 
+#        if(utils.is_number(obs_noise)):
+#            obs_noise=utils.Gauss(cov=obs_noise)        
         self.state=None
-        self.F=np.identity(4)
-        self.F[3][3]=0
+        self.F=F#np.identity(4)
+#        self.F[3][3]=0
         self.det_t=det_t
         self.noise=noise
         self.obs_noise=obs_noise
@@ -25,10 +29,11 @@ class MotionEnvir(object):
     def act(self,u):
         B=self.get_B()
         self.state= (self.F @ self.state)+ (B @ u)
+        return self.state
 
     def observe(self):
-        obs_state= np.dot(self.get_H(),self.get_state())
-        obs_state[:2]+= self.obs_noise()
+        obs_state= np.dot(self.get_H(),self.get_state())[:2]
+        obs_state+= self.obs_noise()
         return obs_state
 
     def get_B(self):
@@ -53,10 +58,12 @@ class MotionEnvir(object):
         H=np.zeros((2,4))
         H[0][0]=1
         H[1][1]=1
-        return 0
+        return H
 
-    def jacobian_h(self,state):
-        return self.get_H()
+    def jacobian_g(self,state):
+        J_g=np.array([[1,0,0,0],
+                      [0,1,0,0]])
+        return J_g
 
     def __str__(self):
         s=f'x:{self.state[0]:4f}'
@@ -64,6 +71,14 @@ class MotionEnvir(object):
         s+=f'theta:{self.state[2]:4f}'
         s+=f'v:{self.state[3]:4f}'
         return s
+
+def simple_motion_model():
+    Q = np.diag([0.1,0.1,np.deg2rad(1.0),1.0]) ** 2 
+    R = np.diag([1.0, 1.0]) ** 2
+    F=np.diag([1.0,1.0,1.0,0.0])
+    return MotionEnvir(F=F,
+                       noise=utils.Gauss(cov=Q),
+                       obs_noise=utils.Gauss(cov=R))
 
 class ExtendedKalman(object):
     def __init__(self,envir):
@@ -76,9 +91,11 @@ class ExtendedKalman(object):
 
         J_f= envir.jacobian_f(x)
         P_pred= np.dot(J_f,self.estm_cov)
-        P_pred= np.dot(P_pred,J_f.T)+envir.noise()
+        P_pred= np.dot(P_pred,J_f.T)+envir.noise.cov
 
         z_pred= np.dot(self.get_H(),x_pred)
         z=envir.observe()
 
         y= z - z_pred
+        J_g= envir.jacobian_g(x)
+        S= J_g @ P_pred @ J_g
