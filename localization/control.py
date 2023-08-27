@@ -28,13 +28,21 @@ class MotionControler(object):
 
     def show(self,window):
         window.fill((0,0,0))
-        x,y=self.envir.get_state()[:2]
+        x,y,theta,v=self.envir.get_state()#[:2]
         state=[self.rescale(x,0)*x,self.rescale(y,1)*y]
         state= self.translate(state)
         state=np.array(state)
         pg.draw.circle(window,(0,0,128),state,10)
         self.draw_lines(window,step=self.scale[0]*64,horiz=True)
         self.draw_lines(window,step=self.scale[1]*64,horiz=False)
+        
+        x,y=state
+        pg.draw.line(window,
+                     color=(128,128,0),
+                     start_pos=(x,y),
+                     end_pos=(int(x+25*np.cos(theta)),
+                              int(y+25*np.sin(theta))))
+    
 
     def translate(self,state):
         state=[state_i+bound_i 
