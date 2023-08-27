@@ -1,6 +1,18 @@
 import numpy as np
 import show,utils
 
+class Experiment(object):
+    def __init__(self,envir,alg):
+        self.envir=envir
+        self.alg=alg
+
+    def __call__(self,u):
+        true_state=self.envir.get_state()
+        obs_state=self.envir.observe()
+        pred_state=self.alg(self.envir,obs_state,u)
+        self.envir.act(u)
+        return true_state,obs_state,pred_state
+
 class MotionEnvir(object):
     def __init__(self,F,noise=0.1,obs_noise=0.1,det_t=1):        
         self.state=None
@@ -36,22 +48,21 @@ class MotionEnvir(object):
         B=np.array(B) 
         return B
 
-    def jacobian_f(self,state):
+    def jacobian_f(self):
         theta,v=self.state[2:]
-        j=np.identity(4)
-        j[0][3]= -v*np.sin(theta)*self.det_t
-        j[0][4]=  np.cos(theta)*self.det_t
-        j[1][3]= v*np.cos(theta)*self.det_t
-        j[1][4]= np.sin(theta)*self.det_t
-        return j
+        det_t=self.det_t
+        J_f=[[1,0,-v*np.sin(theta)*det_t,np.cos(theta)*det_t],
+             [0,1, v*np.cos(theta)*det_t,np.sin(theta)*det_t],
+             [0,0,1,0],
+             [0,0,0,1]]
+        return np.array(J_f)
 
     def get_H(self):
-        H=np.zeros((2,4))
-        H[0][0]=1
-        H[1][1]=1
-        return H
+        H=[[1,0,0,0],
+           [0,1,0,0]]
+        return np.array(H)
 
-    def jacobian_g(self,state):
+    def jacobian_g(self):
         J_g=np.array([[1,0,0,0],
                       [0,1,0,0]])
         return J_g
@@ -72,21 +83,24 @@ def simple_motion_model():
                        obs_noise=utils.Gauss(cov=R))
 
 class ExtendedKalman(object):
-    def __init__(self,envir):
+    def __init__(self,n=4):
         self.estm_state=np.random.rand(n)
         self.estm_cov=np.random.rand(n,n)
+        self.I=np.identity(n)
 
-    def __call__(self,envir,x,u):
-        x_pred= np.dot(envir.F,x)
-        x_pred+= np.dot(envir.get_B(),u)
+    def __call__(self,envir,z,u):
+        x_pred=envir.F @ self.estm_state + envir.get_B() @ u
+        J_f= envir.jacobian_f()
+        P_pred= J_f @ self.estm_cov @ J_f.T
+       
+        z_pred= envir.get_H() @ x_pred
+        y = z - z_pred
+        
+        J_g= envir.jacobian_g()
+        S =J_g @ P_pred @ J_g.T  +envir.obs_noise.cov
 
-        J_f= envir.jacobian_f(x)
-        P_pred= np.dot(J_f,self.estm_cov)
-        P_pred= np.dot(P_pred,J_f.T)+envir.noise.cov
+        K = P_pred @ J_g.T @ np.linalg.inv(S)
 
-        z_pred= np.dot(self.get_H(),x_pred)
-        z=envir.observe()
-
-        y= z - z_pred
-        J_g= envir.jacobian_g(x)
-        S= J_g @ P_pred @ J_g
+        self.estm_state= x_pred + K @ y
+        self.estm_cov = (self.I - K @ J_g) @ P_pred
+        return  self.estm_state

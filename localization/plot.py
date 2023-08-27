@@ -4,12 +4,38 @@ import matplotlib.animation as animation
 import model
 
 class MPLViewer(object):
-    def __init__(self,envir,v=1,omega=(np.pi/12),pause_time=0.001):
-        self.envir=envir
+    def __init__(self,exp,v=1,omega=(np.pi/12),pause_time=0.001):
+        self.exp=exp
         self.u=np.array([v,omega])
         self.pause_time=pause_time
 
     def show(self,sim_time=20):
+        true,obs,pred=[],[],[]
+        for t in range(sim_time):
+            true_i,obs_i,pred_i=self.exp(self.u)
+            true.append(true_i[:2])
+            obs.append(obs_i)
+            pred.append(pred_i[:2])
+#            print(true_i.shape)
+#            print(obs_i.shape)
+#            print(pred_i.shape)
+        fig=plt.figure() 
+        fig, ax = plt.subplots()
+        def animate(i):
+            print(i)
+            true_i=true[i]
+            plt.plot(true_i[0],true_i[1],".g")
+            obs_i=obs[i]
+            plt.plot(obs_i[0],obs_i[1], ".r")
+            pred_i=pred[i]
+            plt.plot(pred_i[0],pred_i[1],".b")
+        anim=animation.FuncAnimation(fig,
+                                     animate,
+                                     interval=1000,
+                                     frames=sim_time)
+        plt.show()
+
+    def _show(self,sim_time=20):
         true=[self.envir.get_state()[:2]]
         obs=[self.envir.observe()]
         for t in range(sim_time):
@@ -57,7 +83,9 @@ def rot_matrix(theta):
     return np.array(mat)
 
 if __name__ == '__main__':
-    motion_model=model.simple_motion_model()
-    viewer=MPLViewer(motion_model)#model.MotionEnvir())
+    motion_envir=model.simple_motion_model()
+    alg=model.ExtendedKalman()
+    exp=model.Experiment(motion_envir,alg)
+    viewer=MPLViewer(exp)
     viewer.show(100)
 #    plot_ellipse(1,2,3,4,1.2)
