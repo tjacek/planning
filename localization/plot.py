@@ -9,6 +9,15 @@ class MPLViewer(object):
         self.exp=exp
         self.u=np.array([v,omega])
 
+    def mse(self,sim_time=20):
+        mse=[]
+        for i in range(sim_time):
+            true_i,obs_i,pred_i=self.exp(self.u)
+            mse_i=np.linalg.norm(true_i[:2]-pred_i[:2],ord=2)
+            mse.append(mse_i)#np.log(mse_i))
+        plt.plot(mse)
+        plt.show()
+
     def show(self,sim_time=20,interval=1000):
         fig=plt.figure() 
         def animate(i):
@@ -59,4 +68,5 @@ if __name__ == '__main__':
     exp=model.Experiment(envir=model.simple_motion_model(),
                          alg=model.ExtendedKalman())
     viewer=MPLViewer(exp)
-    viewer.show(100)
+#    viewer.show(100)
+    viewer.mse(1000)
