@@ -2,7 +2,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import model
+import model,utils
 
 class MPLViewer(object):
     def __init__(self,exp,v=1,omega=(np.pi/12)):
@@ -51,18 +51,10 @@ def plot_ellipse(x, y, a, b, theta, color="-r", ax=None, **kwargs):
     t = np.arange(0, 2 * np.pi + 0.1, 0.1)
     px = a*np.cos(t)
     py = b*np.sin(t)
-    fx = rot_matrix(theta) @ (np.array([px, py]))
+    fx = utils.rot_matrix(theta) @ (np.array([px, py]))
     px = np.array(fx[0, :] + x).flatten()
     py = np.array(fx[1, :] + y).flatten()
-#    if ax is None:
     plt.plot(px, py, color, **kwargs)
-#    else:
-#        ax.plot(px, py, color, **kwargs)
-
-def rot_matrix(theta):
-    mat=[[np.cos(theta), -np.sin(theta)],
-         [np.sin(theta),  np.cos(theta)]]
-    return np.array(mat)
 
 if __name__ == '__main__':
     exp=model.Experiment(envir=model.simple_motion_model(),
