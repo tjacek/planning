@@ -104,3 +104,15 @@ class ExtendedKalman(object):
         self.estm_state= x_pred + K @ y
         self.estm_cov = (self.I - K @ J_g) @ P_pred
         return  self.estm_state
+
+
+class PaticleFilter(object):
+    def __init__(self,n_particles=100):
+        self.n_particles=n_particles
+        self.particles=None
+        self.weights=None
+
+    def __call__(self,envir,z,u):
+        if(not self.particles):
+            self.particles=np.zeros((4, self,n_particles))
+            self.weights=np.zero((1,self.n_particles))
