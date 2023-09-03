@@ -3,11 +3,12 @@ import pygame as pg
 import model,show
 
 class MotionControler(object):
-    def __init__(self,envir,bounds=(256,256)):
-        self.envir=envir
+    def __init__(self,exp,bounds=(256,256)):
+        self.exp=exp
         self.bounds=np.array(bounds)
         self.scale=[1.0,1.0]
         self.action=MotionAction()
+        self.current=None
 
     def get_bounds(self):
         return 2*self.bounds
@@ -15,28 +16,34 @@ class MotionControler(object):
     def on_click(self,point):
         new_state=[ (point_i-bound_i) 
             for point_i,bound_i in zip(point,self.bounds)]
-        new_state=np.array(new_state+[0,0])
-        self.envir.state=new_state
-        print(str(self.envir))
+        new_state=np.array(new_state+[0,0],dtype=float)
+        self.exp.envir.state=new_state
+        print(str(self.exp.envir))
 
     def on_key(self,key):
-        if(self.envir.empty_state()):
-            return None#self.envir.act(self.action.u)
+        print(key)
+
+        if(self.exp.envir.empty_state()):
+            return None
         if(self.action.update(key)):
-            self.envir.act(self.action.u)
+            self.current=self.exp(self.action.u)
         print(str(self.action))
-        print(str(self.envir))
+        print(str(self.exp.envir))
 
     def show(self,window):
         window.fill((0,0,0))
         self.draw_lines(window,step=self.scale[0]*64,horiz=True)
         self.draw_lines(window,step=self.scale[1]*64,horiz=False)
         
-        obs_state=self.envir.observe()
+
+        if(self.current is None):
+            return
+
+        true_state,obs_state,pred_state=self.current   
         obs_state=self.transform_point(obs_state)
         pg.draw.circle(window,(128,0,0),obs_state,10)
 
-        x,y,theta,v=self.envir.get_state()        
+        x,y,theta,v= true_state        
         true_state=self.transform_point([x,y])
         pg.draw.circle(window,(0,0,128),true_state,10)
         x,y=true_state
@@ -45,7 +52,10 @@ class MotionControler(object):
                      start_pos=(x,y),
                      end_pos=(int(x+25*np.cos(theta)),
                               int(y+25*np.sin(theta))))
-    
+        
+        pred_state=self.transform_point(pred_state[:2])
+        pg.draw.circle(window,(0,128,0),pred_state,10)
+
     def transform_point(self,point):
         point=[self.rescale(p_i,i)*p_i 
                 for i,p_i in enumerate(point)]
@@ -83,11 +93,17 @@ class MotionAction(object):
         elif(key==115):
             self.u[0]-=1
             return False
+        elif(key==120):
+            self.u[0]=0
+            return False
         elif(key==101):
             self.u[1]+=(np.pi/12)
             return False
         elif(key==100):
             self.u[1]-=(np.pi/12)
+            return False
+        elif(key==99):
+            self.u[1]=0
             return False        
         return True
 
@@ -95,6 +111,6 @@ class MotionAction(object):
         return f'v:{self.u[0]:4f},omega:{self.u[1]:4f}'
 
 if __name__ == '__main__':
-    motion_model=model.simple_motion_model()
-#    model=model.MotionEnvir()
-    show.loop(MotionControler(motion_model))
+    exp=model.Experiment(envir=model.simple_motion_model(),
+                         alg=model.ExtendedKalman())
+    show.loop(MotionControler(exp))
