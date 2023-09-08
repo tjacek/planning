@@ -5,18 +5,11 @@ import model,show
 class MotionControler(object):
     def __init__(self,exp,bounds=(256,256)):
         self.exp=exp
-#        self.bounds=np.array(bounds)
         self.bounds=BasicBounds()
-#        self.scale=[1.0,1.0]
         self.action=MotionAction()
         self.current=None
 
-#    def get_bounds(self):
-#        return 2*self.bounds
-
     def on_click(self,point):
-#        new_state=[ (point_i-bound_i) 
-#            for point_i,bound_i in zip(point,self.bounds)]
         new_state=self.bounds.get_state(point)
         new_state=np.array(new_state+[0,0],dtype=float)
         self.exp.envir.state=new_state
@@ -35,9 +28,9 @@ class MotionControler(object):
     def show(self,window):
         window.fill((0,0,0))
         step=64*self.bounds.scale
-        self.draw_lines(window,step=step[0],#self.scale[0]*64,
+        self.draw_lines(window,step=step[0],
                         horiz=True)
-        self.draw_lines(window,step=step[1],#self.scale[1]*64,
+        self.draw_lines(window,step=step[1],
                         horiz=False)
         
 
@@ -60,6 +53,7 @@ class MotionControler(object):
         
         pred_state=self.bounds.transform_point(pred_state[:2])
         pg.draw.circle(window,(0,128,0),pred_state,10)
+        draw_ellipse(window)
 
     def draw_lines(self,window,step=64,horiz=True,color=(0,128,0)):
         bounds=self.bounds.get_bounds()
@@ -71,6 +65,12 @@ class MotionControler(object):
             else:
                 start,end=(x_i,0),(x_i,bounds[1])
             pg.draw.line(window,color,start,end)
+
+def draw_ellipse(window):
+    surface = pg.Surface((100, 100))
+    ellipse = pg.draw.ellipse(surface, (0,128,0), 50)
+    surface2 = pg.transform.rotate(surface, 45)
+    window.blit() 
 
 class MotionAction(object):
     def __init__(self,v=5,omega=(np.pi/12)):
@@ -126,6 +126,29 @@ class BasicBounds(object):
         else:
             self.scale[i]=1
         return self.scale[i]
+
+class TorusBounds(object):
+    def __init__(self,bounds=(256,256)):
+        self.bounds=np.array(bounds)
+        self.scale=np.array([1.0,1.0])
+
+    def get_bounds(self):
+        return 2*self.bounds
+    
+    def transform_point(self,point):
+        state=[]
+        for i,point_i in enumerat(point):
+            if(point_i>self.bounds[i]):
+                state_i= point_i + self.bounds[i]
+            elif(point_i<-self.bounds[i]):
+                state_i= point_i + self.bounds[i]
+            else:
+                state_i=point_i
+            state.append(state_i)
+        return np.array(state)
+        
+    def rescale(self,cord,i):
+        return 1.0
 
 if __name__ == '__main__':
     exp=model.Experiment(envir=model.simple_motion_model(),
