@@ -5,7 +5,7 @@ import model,show
 class MotionControler(object):
     def __init__(self,exp,bounds=(256,256)):
         self.exp=exp
-        self.bounds=BasicBounds()
+        self.bounds=TorusBounds()#BasicBounds()
         self.action=MotionAction()
         self.current=None
 
@@ -43,6 +43,7 @@ class MotionControler(object):
 
         x,y,theta,v= true_state        
         true_state=self.bounds.transform_point([x,y])
+        self.exp.envir.state[:2]=true_state -self.bounds.bounds
         pg.draw.circle(window,(0,0,128),true_state,10)
         x,y=true_state
         pg.draw.line(window,
@@ -53,7 +54,7 @@ class MotionControler(object):
         
         pred_state=self.bounds.transform_point(pred_state[:2])
         pg.draw.circle(window,(0,128,0),pred_state,10)
-        draw_ellipse(window)
+#        draw_ellipse(window)
 
     def draw_lines(self,window,step=64,horiz=True,color=(0,128,0)):
         bounds=self.bounds.get_bounds()
@@ -66,11 +67,11 @@ class MotionControler(object):
                 start,end=(x_i,0),(x_i,bounds[1])
             pg.draw.line(window,color,start,end)
 
-def draw_ellipse(window):
-    surface = pg.Surface((100, 100))
-    ellipse = pg.draw.ellipse(surface, (0,128,0), 50)
-    surface2 = pg.transform.rotate(surface, 45)
-    window.blit() 
+#def draw_ellipse(window):
+#    surface = pg.Surface((100, 100))
+#    ellipse = pg.draw.ellipse(surface, (0,128,0), 50)
+#    surface2 = pg.transform.rotate(surface, 45)
+#    window.blit() 
 
 class MotionAction(object):
     def __init__(self,v=5,omega=(np.pi/12)):
@@ -135,15 +136,21 @@ class TorusBounds(object):
     def get_bounds(self):
         return 2*self.bounds
     
+    def get_state(self,point):
+        return[ (point_i-bound_i) 
+                for point_i,bound_i in zip(point,self.bounds)]
+
     def transform_point(self,point):
         state=[]
-        for i,point_i in enumerat(point):
+        for i,point_i in enumerate(point):
             if(point_i>self.bounds[i]):
-                state_i= point_i + self.bounds[i]
-            elif(point_i<-self.bounds[i]):
-                state_i= point_i + self.bounds[i]
+                state_i= point_i - 2*self.bounds[i]
+            elif(point_i< (-self.bounds[i])):
+                state_i= 2*self.bounds[i] + point_i
             else:
                 state_i=point_i
+            print(point_i)
+            state_i+=self.bounds[i]
             state.append(state_i)
         return np.array(state)
         
