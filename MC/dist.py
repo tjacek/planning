@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class Gauss1D(object):
     def __init__(self,mean=0.0,std=1.0):
         self.mean=mean
@@ -20,3 +19,28 @@ class Gauss1D(object):
 
     def __str__(self):
         return f'Gauss:mean{self.mean},std:{self.std}'
+
+class GaussMulti(object):
+    def __init__(self,mean=5,cov=5):
+        if(type(mean)==int):
+            mean=np.zeros((mean,))
+        if(type(cov)==int):
+            cov=np.identity(cov)
+        self.mean=mean
+        self.cov=cov
+
+    def dim(self):
+        return len(self.mean)
+
+    def __call__(self):
+        return np.random.multivariate_normal(self.mean,self.cov)
+    
+    def likehood(self,x):
+        sigma=np.linalg.inv(self.cov)
+        e= (x-self.mean) @ sigma @ (x-self.mean)
+        Z= np.sqrt(((2*np.pi)**self.dim())*np.linalg.det(self.cov))
+        return np.exp(-0.5*e)/Z 
+
+gauss=GaussMulti()
+x=gauss()
+print(gauss.likehood(x))
