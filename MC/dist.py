@@ -32,15 +32,11 @@ class GaussMulti(object):
     def dim(self):
         return len(self.mean)
 
-    def __call__(self):
+    def sample(self):
         return np.random.multivariate_normal(self.mean,self.cov)
     
-    def likehood(self,x):
+    def __call__(self,x):
         sigma=np.linalg.inv(self.cov)
         e= (x-self.mean) @ sigma @ (x-self.mean)
         Z= np.sqrt(((2*np.pi)**self.dim())*np.linalg.det(self.cov))
         return np.exp(-0.5*e)/Z 
-
-gauss=GaussMulti()
-x=gauss()
-print(gauss.likehood(x))
