@@ -5,7 +5,7 @@ class Gauss1D(object):
         self.mean=mean
         self.std=std
 
-    def __call__(self):
+    def sample(self):
         return np.random.normal(loc=self.mean, 
                                 scale=self.std, 
                                 size=None)
@@ -13,7 +13,7 @@ class Gauss1D(object):
     def dim(self):
         return 1
 
-    def likehood(self,x):
+    def __call__(self,x):
         Z= 1/(self.std *np.sqrt(2*np.pi))
         return np.exp(-0.5*((x-self.mean)/self.std)**2)
 
@@ -21,11 +21,13 @@ class Gauss1D(object):
         return f'Gauss:mean{self.mean},std:{self.std}'
 
 class GaussMulti(object):
-    def __init__(self,mean=5,cov=5):
+    def __init__(self,mean=5,cov=None):
         if(type(mean)==int):
             mean=np.zeros((mean,))
         if(type(cov)==int):
             cov=np.identity(cov)
+        if(cov is None):
+            cov=np.identity(len(mean))
         self.mean=mean
         self.cov=cov
 
