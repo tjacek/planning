@@ -7,14 +7,15 @@ class MonteCarlo(object):
         self.P=P
         self.Q=Q
 
-    def __call__(self,n=100,theta=None):
+    def __call__(self,n=100,theta=None):#,stats=False):
         x=[self.Q.sample()  for i in range(n)]
         w=[self.P(x_i)/self.Q(x_i) for x_i in x]
         w_norm=sum(w)
         if(theta is None):
-            theta=self.P
-        values=[ w_i*theta(x_i) 
+            theta=dist.l2
+        values=[w_i* theta(x_i) 
             for w_i,x_i in zip(w,x)]
+
         return sum(values)/w_norm
 
 class SphereUniforn(object):
@@ -35,7 +36,8 @@ class SphereUniforn(object):
 def sphere_mc(dim=5):
     P=SphereUniforn(dim)
     Q=gauss=dist.GaussMulti(dim)
+#    print(dist.stats(Q))
     return MonteCarlo(P,Q)
 
-mc=sphere_mc(dim=3)
-print(mc(n=1000)-mc.P.exact())
+mc=sphere_mc(dim=2)
+print(mc(n=5000))#-mc.P.exact())

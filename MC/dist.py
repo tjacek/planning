@@ -34,11 +34,22 @@ class GaussMulti(object):
     def dim(self):
         return len(self.mean)
 
-    def sample(self):
-        return np.random.multivariate_normal(self.mean,self.cov)
-    
+    def sample(self,n=None):
+        if(n is None):
+            return np.random.multivariate_normal(self.mean,self.cov)
+        else:
+            return [ self.sample() for i in range(n)]
+
     def __call__(self,x):
         sigma=np.linalg.inv(self.cov)
         e= (x-self.mean) @ sigma @ (x-self.mean)
         Z= np.sqrt(((2*np.pi)**self.dim())*np.linalg.det(self.cov))
-        return np.exp(-0.5*e)/Z 
+        return np.exp(-0.5*e)/Z
+
+def stats(p,n=100):
+    x=p.sample(n)
+    r=[ np.linalg.norm(x_i,ord=2) for x_i in x]
+    return np.mean(r),np.std(r)
+
+def l2(x_i):
+    return np.linalg.norm(x_i,ord=2)
